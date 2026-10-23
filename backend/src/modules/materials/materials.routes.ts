@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { materialsController } from './materials.controller.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 import { requireRole } from '../../middlewares/role.middleware.js';
@@ -6,7 +7,24 @@ import { requireSubjectMembership } from '../../middlewares/membership.middlewar
 import { validateRequest } from '../../middlewares/validation.middleware.js';
 import { createMaterialSchema, ingestMaterialTextSchema, searchMaterialsSchema } from './materials.schemas.js';
 
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20 MB max
+  },
+});
+
 const router = Router();
+
+// Unified OCR / Direct File Upload & Ingestion (PDF, Images, TXT, MD, or raw text)
+router.post(
+  '/:subjectId/upload',
+  requireAuth,
+  requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
+  upload.single('file'),
+  materialsController.upload
+);
 
 // Upload / register material metadata
 router.post(

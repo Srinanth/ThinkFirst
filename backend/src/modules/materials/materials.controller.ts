@@ -59,6 +59,21 @@ export class MaterialsController {
       next(err);
     }
   }
+
+  async upload(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await materialsService.uploadAndIngest(req.params.subjectId as string, {
+        title: req.body.title || req.file?.originalname || 'Lecture Material',
+        curriculumTopicId: req.body.curriculumTopicId,
+        materialType: req.body.materialType,
+        rawText: req.body.rawText,
+        file: req.file,
+      });
+      sendSuccess(res, result, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export const materialsController = new MaterialsController();

@@ -101,17 +101,17 @@ ThinkFirst is built upon a hybrid **Agentic Intelligence & Deterministic State A
     ──▶ [Global Error Handler Middleware]
   ```
 
-### 2.3 Layer 3: Agentic Intelligence Layer (Mastra Orchestration)
-Orchestrated using the **Mastra Agent Framework** running on **Gemini 3.8 Flash**:
+### 2.3 Layer 3: Agentic Intelligence Layer (Google Gemini & 4 Core AI Agents)
+Orchestrated using the **Google Gemini SDK** (Gemini 3.5 Flash / Flash Lite / Gemini 3.8 Flash):
 
 | Agent Name | Input | Primary Tool / Logic | Output |
 |---|---|---|---|
-| **1. Curriculum Agent** | Raw syllabus (PDF/Text) | Document parser, structured JSON extractor | Hierarchical Curriculum Tree (Units, Topics, Learning Objectives, Prerequisites) |
-| **2. Notes & Retrieval Agent** | Teacher lecture notes & slides | Semantic chunker, Gemini Embedding 2, pgvector similarity search | Vector embeddings with `classroom_id` metadata and scoped search context |
-| **3. Quiz Agent** | Student Knowledge Snapshot + Topic Objective | Evaluates unmastered nodes, formulates diagnostic questions | Personalized Multi-format Quiz (MCQ, conceptual, reasoning steps) |
-| **4. Evaluator Agent** | Student answer / Socratic dialogue turn | Rubric evaluator, misconception classifier | Structured Evidence Token (`node_id`, `score`, `confidence`, `misconception_tag`) |
-| **5. Tutor Agent** | Student query + conversation history + retrieved note context | Socratic prompt chain, syllabus boundary guardrails | Socratic response (hints, nudges, counter-questions; never direct answers) |
-| **6. Insight Agent** | Aggregated classroom knowledge snapshots & evidence logs | Statistical pattern extractor, trend analysis | Class Analytics Report (top bottlenecks, common misconceptions, intervention advice) |
+| **1. Quiz Agent** | Student Topic Context + Course Notes + Bloom's Taxonomy | Analyzes current mastery gaps, searches scoped vector context, formulates diagnostic questions | Targeted Diagnostic Quiz (MCQ & open conceptual reasoning questions with rubrics) |
+| **2. Evaluator Agent** | Student answer + Question Rubric + Concept Reference | Semantic evaluation, misconceptions detector, partial credit analysis | Structured Evaluation Evidence (`score`, `isCorrect`, `feedback`, `misconception`) |
+| **3. Tutor Agent** | Student prompt + Scoped Course Notes Context + Mastery Level | Grounded Socratic prompt chain, anti-shortcut laws, adaptive difficulty | Real-time Socratic Nudges & Hints (SSE streaming or JSON; never direct answers) |
+| **4. Insight Agent** | Aggregated classroom mastery scores + Struggling Topic Distribution | Trend analysis, prerequisite bottleneck detection, actionable pedagogy | Classroom Diagnostic Insights (weak areas, prerequisite blockers, remediation strategies) |
+
+*Note: Document and notes extraction is handled via the deterministic **Multimodal OCR & Document Extraction Pipeline** (`utils/ocr.util.ts`), and curriculum structuring is handled via deterministic bulk hierarchical import (`POST /bulk`), eliminating non-deterministic LLM variance for syllabus ingestion.*
 
 ### 2.4 Layer 4: Deterministic Services Layer
 - **Mastery Engine**:
@@ -295,17 +295,14 @@ backend/
 │   │       ├── analytics.routes.ts
 │   │       └── analytics.schemas.ts
 │   │
-│   ├── agents/              # Mastra Agent Definitions & Workflows
-│   │   ├── curriculum.agent.ts
-│   │   ├── notesRetrieval.agent.ts
-│   │   ├── quiz.agent.ts
-│   │   ├── evaluator.agent.ts
-│   │   ├── tutor.agent.ts
-│   │   ├── insight.agent.ts
-│   │   └── workflows/       # Mastra multi-step workflows
-│   │       ├── syllabusIngestion.workflow.ts
-│   │       ├── notesVectorization.workflow.ts
-│   │       └── quizEvaluation.workflow.ts
+│   ├── agents/              # 4 Core AI Agents & Gemini Client
+│   │   ├── gemini.client.ts     # Resilient Gemini API client with fallback & retry logic
+│   │   ├── quiz.agent.ts        # Dynamic diagnostic quiz generator
+│   │   ├── evaluator.agent.ts   # Free response & reasoning evaluator
+│   │   ├── tutor.agent.ts       # Grounded Socratic tutoring dialogue & streaming
+│   │   └── insight.agent.ts     # Class diagnostic insight synthesizer
+│   │
+│   ├── utils/ocr.util.ts    # Multimodal OCR (PDF/images) & document text extractor
 │   │
 │   ├── app.ts               # Express application initialization & middleware assembly
 │   └── server.ts            # HTTP server bootstrap & graceful shutdown

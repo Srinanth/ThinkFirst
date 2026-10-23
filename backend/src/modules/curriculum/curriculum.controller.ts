@@ -39,11 +39,11 @@ export class CurriculumController {
     }
   }
 
-  async generateFromSyllabus(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async bulkCreate(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const result = await curriculumService.generateFromSyllabus(
+      const result = await curriculumService.bulkCreateTopics(
         req.params.subjectId as string,
-        req.body.syllabusText
+        req.body
       );
       sendSuccess(res, result, 201);
     } catch (err) {

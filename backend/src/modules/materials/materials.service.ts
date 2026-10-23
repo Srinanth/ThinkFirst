@@ -3,7 +3,8 @@ import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
 import { chunkText } from '../../utils/chunker.util.js';
 import { generateEmbedding } from '../../agents/gemini.client.js';
 import { searchSubjectNoteEmbeddings } from '../../utils/vector.util.js';
-import { CreateMaterialInput, SearchMaterialsInput } from './materials.schemas.js';
+import { extractDocumentText } from '../../utils/ocr.util.js';
+import { CreateMaterialInput, SearchMaterialsInput, UploadMaterialInput } from './materials.schemas.js';
 
 export class MaterialsService {
   /**
@@ -186,6 +187,75 @@ export class MaterialsService {
       query: input.query,
       resultsCount: matches.length,
       matches,
+    };
+  }
+
+  /**
+   * Upload & Ingest in a single unified step:
+   * Extracts text via OCR (for PDFs/images) or direct text decoding,
+   * creates learning_materials row, chunks semantically, and generates 768-dim embeddings.
+   */
+  async uploadAndIngest(
+    subjectId: string,
+    input: {
+      title: string;
+      curriculumTopicId?: string;
+      materialType?: string;
+      rawText?: string;
+      file?: {
+        buffer: Buffer;
+        mimetype: string;
+        originalname: string;
+        size: number;
+      };
+    }
+  ) {
+    // 1. Extract text via OCR or direct buffer
+    const extractedText = await extractDocumentText({
+      buffer: input.file?.buffer,
+      mimeType: input.file?.mimetype,
+      filename: input.file?.originalname,
+      rawText: input.rawText,
+    });
+
+    if (!extractedText || extractedText.length < 10) {
+      throw new BadRequestError('Extracted document text is too short or empty (minimum 10 characters required)');
+    }
+
+    const fileType = input.file
+      ? input.file.originalname.split('.').pop() || 'document'
+      : 'text';
+    const filePath = input.file
+      ? `uploads/${subjectId}/${Date.now()}_${input.file.originalname}`
+      : `text/${subjectId}/${Date.now()}_notes.txt`;
+
+    // 2. Create learning material record
+    const { data: material, error: matError } = await supabaseAdmin
+      .from('learning_materials')
+      .insert({
+        teacher_subject_id: subjectId,
+        curriculum_topic_id: input.curriculumTopicId || null,
+        title: input.title,
+        file_path: filePath,
+        file_type: fileType,
+        material_type: input.materialType || 'lecture_notes',
+        processing_status: 'processing',
+      })
+      .select('id, teacher_subject_id, curriculum_topic_id, title, file_path, file_type, material_type, processing_status, created_at')
+      .single();
+
+    if (matError || !material) {
+      throw new BadRequestError(`Failed to register learning material: ${matError?.message}`);
+    }
+
+    // 3. Chunk and embed
+    const ingestResult = await this.ingestMaterialText(material.id, extractedText);
+
+    return {
+      material,
+      extractedCharacterCount: extractedText.length,
+      chunksCount: ingestResult.totalChunks,
+      processingStatus: 'ready',
     };
   }
 }

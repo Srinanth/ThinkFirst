@@ -15,8 +15,8 @@ const envSchema = z.object({
   SUPABASE_ANON_KEY: z.string().default('placeholder-anon-key'),
   SUPABASE_SERVICE_ROLE_KEY: z.string().default('placeholder-service-key'),
   GEMINI_API_KEY: z.string().default('placeholder-gemini-key'),
-  GEMINI_MODEL: z.string().default('gemini-2.5-flash'),
-  GEMINI_EMBEDDING_MODEL: z.string().default('text-embedding-004'),
+  GEMINI_MODEL: z.string().default('gemini-3.5-flash'),
+  GEMINI_EMBEDDING_MODEL: z.string().default('gemini-embedding-001'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

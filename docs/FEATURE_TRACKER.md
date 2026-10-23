@@ -65,10 +65,10 @@ Progress: [████████████████░░░░] 76%
 | **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/membership.middleware.ts` |
 | **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/validation.middleware.ts` |
 | **BE-06** | Global Error Handler & Response Utils | `utils` | `P0` | `[x] Completed` | Srinanth | `sendSuccess`, `sendError`, `AppError` |
-| **BE-07** | Subject Offering Module & Roster Routes | `modules/subjects` | `P0` | `[x] Completed` | Srinanth | `teacher_subjects` & `memberships` (verified via 28 E2E tests) |
-| **BE-08** | Learning Materials & Vector Search Endpoint | `modules/materials` | `P0` | `[x] Completed` | Srinanth | Ingest & similarity search (verified via 28 E2E tests) |
-| **BE-09** | Socratic Chat Controller & SSE Stream Route | `modules/tutor` | `P0` | `[x] Completed` | Srinanth | SSE & JSON Socratic tutor (verified via 28 E2E tests) |
-| **BE-10** | Quizzes & Attempts Submissions Pipeline | `modules/quizzes` | `P0` | `[x] Completed` | Srinanth | `quizzes`, `quiz_questions`, `quiz_attempts` (verified via 28 E2E tests) |
+| **BE-07** | Subject Offering Module & Roster Routes | `modules/subjects` | `P0` | `[x] Completed` | Srinanth | `teacher_subjects` & `memberships` (teacher-only enrollment, verified via 27 E2E tests) |
+| **BE-08** | Learning Materials & Vector Search Endpoint | `modules/materials` | `P0` | `[x] Completed` | Srinanth | Ingest & similarity search (verified via 27 E2E tests) |
+| **BE-09** | Socratic Chat Controller & SSE Stream Route | `modules/tutor` | `P0` | `[x] Completed` | Srinanth | SSE & JSON Socratic tutor (verified via 27 E2E tests) |
+| **BE-10** | Quizzes & Attempts Submissions Pipeline | `modules/quizzes` | `P0` | `[x] Completed` | Srinanth | `quizzes`, `quiz_questions`, `quiz_attempts` (verified via 27 E2E tests) |
 | **BE-11** | Colleges & Multi-Tenant Onboarding Module | `modules/colleges` | `P0` | `[/] In Progress` | Srinanth | Superadmin & College Admin flows |
 
 ---
@@ -76,13 +76,13 @@ Progress: [████████████████░░░░] 76%
 ### Phase 4: Agentic AI Orchestration (Srinanth's Focus)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **AI-01** | Gemini Client Configuration & Embeddings Client | `agents` | `P0` | `[x] Completed` | Srinanth | `@google/genai` (Gemini 2.5/3.8 Flash, 768-dim embeddings verified) |
-| **AI-02** | Curriculum Agent: Syllabus Parsing | `agents` | `P0` | `[x] Completed` | Srinanth | Structures modules & topics (verified via 28 E2E tests) |
-| **AI-03** | Notes & Retrieval Agent: Chunking & Embeddings | `agents` | `P0` | `[x] Completed` | Srinanth | 500-token chunks with 768-dim embeddings |
-| **AI-04** | Quiz Agent: Adaptive Question Generator | `agents` | `P0` | `[x] Completed` | Srinanth | Generates targeted diagnostic questions (verified via 28 E2E tests) |
-| **AI-05** | Evaluator Agent: Answer & Reasoning Rubric Parser| `agents` | `P0` | `[x] Completed` | Srinanth | Evaluates student quiz & chat responses (verified via 28 E2E tests) |
-| **AI-06** | Tutor Agent: Socratic Dialogue & Anti-Cheat | `agents` | `P0` | `[x] Completed` | Srinanth | Guides reasoning, suppresses answers (verified via 28 E2E tests) |
-| **AI-07** | Insight Agent: Teacher Analytics Synthesizer | `agents` | `P1` | `[x] Completed` | Srinanth | Powers teacher insights (verified via 28 E2E tests) |
+| **AI-01** | Gemini Client Configuration & Embeddings Client | `agents` | `P0` | `[x] Completed` | Srinanth | `@google/genai` (Gemini 3.5 Flash/Lite, 768-dim embeddings verified) |
+| **AI-02** | OCR Document & Notes Extraction Pipeline | `utils/ocr` | `P0` | `[x] Completed` | Srinanth | Multimodal OCR (PDF/Images) & direct text ingestion (Replaced Curriculum Agent per Review) |
+| **AI-03** | Notes & Retrieval: Semantic Chunking & Embeddings | `materials` | `P0` | `[x] Completed` | Srinanth | 500-token chunks with 768-dim embeddings |
+| **AI-04** | Quiz Agent: Adaptive Question Generator | `agents` | `P0` | `[x] Completed` | Srinanth | Generates targeted diagnostic questions (verified via 27 E2E tests) |
+| **AI-05** | Evaluator Agent: Answer & Reasoning Rubric Parser| `agents` | `P0` | `[x] Completed` | Srinanth | Evaluates student quiz & chat responses (verified via 27 E2E tests) |
+| **AI-06** | Tutor Agent: Socratic Dialogue & Anti-Cheat | `agents` | `P0` | `[x] Completed` | Srinanth | Guides reasoning, suppresses answers (verified via 27 E2E tests) |
+| **AI-07** | Insight Agent: Teacher Analytics Synthesizer | `agents` | `P1` | `[x] Completed` | Srinanth | Powers teacher insights (verified via 27 E2E tests) |
 
 ---
 
@@ -90,7 +90,7 @@ Progress: [████████████████░░░░] 76%
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
 | **ME-01** | Evidence Delta Math Algorithm | `mastery` | `P0` | `[x] Completed` | Srinanth | Deterministic mastery updates formula bounded [0, 1] |
-| **ME-02** | Topic Mastery Persistence (`student_topic_mastery`)| `mastery` | `P0` | `[x] Completed` | Srinanth | Ingests evaluated responses & history audit log (verified via 28 E2E tests) |
+| **ME-02** | Topic Mastery Persistence (`student_topic_mastery`)| `mastery` | `P0` | `[x] Completed` | Srinanth | Ingests evaluated responses & history audit log (verified via 27 E2E tests) |
 | **ME-03** | Topic Prerequisite Gating Engine | `mastery` | `P1` | `[ ] Planned` | Srinanth | Restricts advanced topics if prerequisites fail |
 | **ME-04** | Knowledge Decay / Retention Curve | `mastery` | `P2` | `[ ] Planned` | Srinanth | Models retention over time |
 
@@ -106,7 +106,7 @@ Progress: [████████████████░░░░] 76%
 | **FE-05** | Student Hub: Topic Progress & Mastery Meter | `frontend` | `P0` | `[ ] Planned` | Deepak | Interactive mastery visualization |
 | **FE-06** | Student Study Room: Socratic Tutor Chat | `frontend` | `P0` | `[ ] Planned` | Deepak | SSE stream reader with Markdown render |
 | **FE-07** | Student Quiz Runner | `frontend` | `P0` | `[ ] Planned` | Deepak | Assessment component & answer input |
-| **FE-08** | Subject Enrollment Modal (Join Subject) | `frontend` | `P1` | `[ ] Planned` | Deepak | Student enrollment dialog |
+| **FE-08** | Teacher Roster & Enrollment Modal (Enroll Student)| `frontend` | `P1` | `[ ] Planned` | Antony | Teacher enrolls students directly |
 
 ---
 

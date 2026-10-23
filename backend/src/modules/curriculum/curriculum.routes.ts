@@ -4,7 +4,7 @@ import { requireAuth } from '../../middlewares/auth.middleware.js';
 import { requireRole } from '../../middlewares/role.middleware.js';
 import { requireSubjectMembership } from '../../middlewares/membership.middleware.js';
 import { validateRequest } from '../../middlewares/validation.middleware.js';
-import { createTopicSchema, parseSyllabusSchema, updateTopicSchema } from './curriculum.schemas.js';
+import { createTopicSchema, bulkCurriculumSchema, updateTopicSchema } from './curriculum.schemas.js';
 
 const router = Router();
 
@@ -43,14 +43,14 @@ router.delete(
   curriculumController.delete
 );
 
-// Curriculum Agent: parse syllabus text and build full topic tree
+// Deterministic Bulk Curriculum Import: structure modules, topics & subtopics
 router.post(
-  '/:subjectId/generate',
+  '/:subjectId/bulk',
   requireAuth,
   requireRole(['teacher', 'admin']),
   requireSubjectMembership('teacher'),
-  validateRequest({ body: parseSyllabusSchema }),
-  curriculumController.generateFromSyllabus
+  validateRequest({ body: bulkCurriculumSchema }),
+  curriculumController.bulkCreate
 );
 
 export const curriculumRoutes: Router = router;

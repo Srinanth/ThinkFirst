@@ -88,14 +88,29 @@ export async function* streamSocraticResponse(input: TutorDialogueInput): AsyncG
 
   prompt += `\nSTUDENT'S LATEST MESSAGE:\n"${input.studentMessage}"\n\nProvide your Socratic response:`;
 
-  const streamResponse = await ai.models.generateContentStream({
-    model: env.GEMINI_MODEL,
-    contents: prompt,
-    config: {
-      systemInstruction: SOCRATIC_SYSTEM_PROMPT,
-      temperature: 0.4,
-    },
-  });
+  const models = [env.GEMINI_MODEL, 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest'];
+  let streamResponse: any = null;
+  let lastError: unknown = null;
+
+  for (const m of models) {
+    try {
+      streamResponse = await ai.models.generateContentStream({
+        model: m,
+        contents: prompt,
+        config: {
+          systemInstruction: SOCRATIC_SYSTEM_PROMPT,
+          temperature: 0.4,
+        },
+      });
+      break;
+    } catch (err: unknown) {
+      lastError = err;
+    }
+  }
+
+  if (!streamResponse) {
+    throw lastError;
+  }
 
   for await (const chunk of streamResponse) {
     if (chunk.text) {

@@ -13,10 +13,27 @@ export const updateTopicSchema = z.object({
   nodeType: z.enum(['module', 'topic', 'subtopic']).optional(),
 });
 
-export const parseSyllabusSchema = z.object({
-  syllabusText: z.string().min(20, 'Syllabus text must be at least 20 characters for parsing'),
+export const bulkCurriculumSchema = z.object({
+  modules: z.array(
+    z.object({
+      title: z.string().min(2, 'Module title is required'),
+      description: z.string().optional(),
+      topics: z.array(
+        z.object({
+          title: z.string().min(2, 'Topic title is required'),
+          description: z.string().optional(),
+          subtopics: z.array(
+            z.object({
+              title: z.string().min(2, 'Subtopic title is required'),
+              description: z.string().optional(),
+            })
+          ).optional(),
+        })
+      ).optional(),
+    })
+  ).min(1, 'At least one module is required'),
 });
 
 export type CreateTopicInput = z.infer<typeof createTopicSchema>;
 export type UpdateTopicInput = z.infer<typeof updateTopicSchema>;
-export type ParseSyllabusInput = z.infer<typeof parseSyllabusSchema>;
+export type BulkCurriculumInput = z.infer<typeof bulkCurriculumSchema>;

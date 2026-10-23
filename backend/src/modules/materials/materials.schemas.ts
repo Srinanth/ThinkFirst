@@ -12,6 +12,13 @@ export const ingestMaterialTextSchema = z.object({
   rawText: z.string().min(10, 'Raw text content must be at least 10 characters'),
 });
 
+export const uploadMaterialSchema = z.object({
+  title: z.string().min(2, 'Material title must be at least 2 characters'),
+  curriculumTopicId: z.string().uuid().optional(),
+  materialType: z.string().default('lecture_notes'),
+  rawText: z.string().optional(),
+});
+
 export const searchMaterialsSchema = z.object({
   query: z.string().min(2, 'Search query must be at least 2 characters'),
   curriculumTopicId: z.string().uuid().optional(),
@@ -21,4 +28,5 @@ export const searchMaterialsSchema = z.object({
 
 export type CreateMaterialInput = z.infer<typeof createMaterialSchema>;
 export type IngestMaterialTextInput = z.infer<typeof ingestMaterialTextSchema>;
+export type UploadMaterialInput = z.infer<typeof uploadMaterialSchema>;
 export type SearchMaterialsInput = z.infer<typeof searchMaterialsSchema>;

@@ -1,7 +1,6 @@
 import { supabaseAdmin } from '../../config/supabase.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
-import { parseSyllabusWithAgent, CurriculumNodeParsed } from '../../agents/curriculum.agent.js';
-import { CreateTopicInput, UpdateTopicInput } from './curriculum.schemas.js';
+import { CreateTopicInput, UpdateTopicInput, BulkCurriculumInput } from './curriculum.schemas.js';
 
 export interface CurriculumTreeNode {
   id: string;
@@ -111,53 +110,76 @@ export class CurriculumService {
   }
 
   /**
-   * Ingest syllabus using the Curriculum Agent and recursively persist into curriculum_topics
+   * Deterministic Bulk Curriculum Import: creates modules, topics, and subtopics in one transaction
    */
-  async generateFromSyllabus(subjectId: string, syllabusText: string) {
-    // 1. Invoke Curriculum Agent
-    const parsed = await parseSyllabusWithAgent(syllabusText);
-
-    if (!parsed.modules || parsed.modules.length === 0) {
-      throw new BadRequestError('Curriculum Agent could not identify structured modules in the provided text.');
-    }
-
+  async bulkCreateTopics(subjectId: string, input: BulkCurriculumInput) {
     let createdCount = 0;
 
-    // Recursive helper to insert nodes
-    const persistNodes = async (nodes: CurriculumNodeParsed[], parentId: string | null = null) => {
-      for (const node of nodes) {
-        const { data: inserted, error } = await supabaseAdmin
-          .from('curriculum_topics')
-          .insert({
-            teacher_subject_id: subjectId,
-            parent_topic_id: parentId,
-            title: node.title,
-            description: node.description || null,
-            node_type: node.nodeType,
-          })
-          .select('id')
-          .single();
+    for (const mod of input.modules) {
+      // 1. Insert Module
+      const { data: moduleNode, error: modError } = await supabaseAdmin
+        .from('curriculum_topics')
+        .insert({
+          teacher_subject_id: subjectId,
+          parent_topic_id: null,
+          title: mod.title,
+          description: mod.description || null,
+          node_type: 'module',
+        })
+        .select('id')
+        .single();
 
-        if (error || !inserted) {
-          throw new Error(`Failed to insert topic node "${node.title}": ${error?.message}`);
-        }
+      if (modError || !moduleNode) {
+        throw new BadRequestError(`Failed to insert module "${mod.title}": ${modError?.message}`);
+      }
+      createdCount++;
 
-        createdCount++;
+      // 2. Insert Topics under Module
+      if (mod.topics && mod.topics.length > 0) {
+        for (const topic of mod.topics) {
+          const { data: topicNode, error: topError } = await supabaseAdmin
+            .from('curriculum_topics')
+            .insert({
+              teacher_subject_id: subjectId,
+              parent_topic_id: moduleNode.id,
+              title: topic.title,
+              description: topic.description || null,
+              node_type: 'topic',
+            })
+            .select('id')
+            .single();
 
-        if (node.children && node.children.length > 0) {
-          await persistNodes(node.children, inserted.id);
+          if (topError || !topicNode) {
+            throw new BadRequestError(`Failed to insert topic "${topic.title}": ${topError?.message}`);
+          }
+          createdCount++;
+
+          // 3. Insert Subtopics under Topic
+          if (topic.subtopics && topic.subtopics.length > 0) {
+            for (const sub of topic.subtopics) {
+              const { error: subError } = await supabaseAdmin
+                .from('curriculum_topics')
+                .insert({
+                  teacher_subject_id: subjectId,
+                  parent_topic_id: topicNode.id,
+                  title: sub.title,
+                  description: sub.description || null,
+                  node_type: 'subtopic',
+                });
+
+              if (subError) {
+                throw new BadRequestError(`Failed to insert subtopic "${sub.title}": ${subError.message}`);
+              }
+              createdCount++;
+            }
+          }
         }
       }
-    };
+    }
 
-    await persistNodes(parsed.modules, null);
-
-    // Return the fresh tree
     const tree = await this.getCurriculumTree(subjectId);
-
     return {
-      message: `Successfully parsed syllabus and generated ${createdCount} curriculum topics`,
-      courseTitle: parsed.courseTitle,
+      message: `Successfully created ${createdCount} curriculum topics`,
       totalTopicsCreated: createdCount,
       tree,
     };

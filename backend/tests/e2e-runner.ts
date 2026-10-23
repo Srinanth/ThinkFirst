@@ -334,20 +334,29 @@ async function runAllTests() {
     });
     manualTopicId = manualTopicRes.data?.id;
 
-    const parseSyllabusRes = await executeHttp({
+    const bulkTopicsRes = await executeHttp({
       category: 'Curriculum Topics',
-      name: 'Curriculum Agent: Parse Syllabus into Structured Tree',
+      name: 'Deterministic Bulk Curriculum Import: Modules & Topics',
       method: 'POST',
-      path: `/api/v1/curriculum/${subjectId}/generate`,
+      path: `/api/v1/curriculum/${subjectId}/bulk`,
       token: teacher.accessToken,
       body: {
-        syllabusText: `Course: Advanced Differential Calculus. 
-Module 2: Differential Foundations and Transcendental Derivatives.
-Topic 2.1: The Derivative as a Limit of Difference Quotients.
-Topic 2.2: Product, Quotient, and Chain Rules.
-Module 3: Applications of the Derivative.
-Topic 3.1: Mean Value Theorem and Extreme Value Theorem.
-Topic 3.2: Optimization and Related Rates.`,
+        modules: [
+          {
+            title: 'Module 2: Differential Foundations and Transcendental Derivatives',
+            description: 'Calculus foundations and derivatives',
+            topics: [
+              {
+                title: 'Topic 2.1: The Derivative as a Limit of Difference Quotients',
+                description: 'Definition of derivative',
+              },
+              {
+                title: 'Topic 2.2: Product, Quotient, and Chain Rules',
+                description: 'Rules of differentiation',
+              },
+            ],
+          },
+        ],
       },
       expectedStatus: 201,
     });
@@ -366,38 +375,25 @@ Topic 3.2: Optimization and Related Rates.`,
     // ==========================================
     // 5. Learning Materials & Vector Embeddings
     // ==========================================
-    const createMatRes = await executeHttp({
+    const uploadMatRes = await executeHttp({
       category: 'Learning Materials & Vector Search',
-      name: 'Teacher Registers Learning Material Metadata',
+      name: 'Teacher Uploads Notes via OCR & Vector Ingestion',
       method: 'POST',
-      path: `/api/v1/materials/${subjectId}`,
+      path: `/api/v1/materials/${subjectId}/upload`,
       token: teacher.accessToken,
       body: {
         title: 'Lecture 04: The Squeeze Theorem and Trigonometric Limits',
-        filePath: 'course_materials/lecture_04_squeeze_theorem.pdf',
-        fileType: 'pdf',
-        materialType: 'lecture_notes',
         curriculumTopicId: parsedTopicId,
-      },
-      expectedStatus: 201,
-    });
-    materialId = createMatRes.data?.id;
-
-    await executeHttp({
-      category: 'Learning Materials & Vector Search',
-      name: 'Ingest Text & Generate 768-dim Vector Embeddings',
-      method: 'POST',
-      path: `/api/v1/materials/detail/${materialId}/ingest`,
-      token: teacher.accessToken,
-      body: {
+        materialType: 'lecture_notes',
         rawText: `The Squeeze Theorem (also known as the Sandwich Theorem) states that if f(x) <= g(x) <= h(x) for all x in an open interval containing c, and lim_{x->c} f(x) = lim_{x->c} h(x) = L, then lim_{x->c} g(x) = L.
 
 A canonical application of the Squeeze Theorem is evaluating the limit as x approaches 0 of x^2 * sin(1/x). Since the sine function is bounded between -1 and 1, we have -1 <= sin(1/x) <= 1. Multiplying by x^2 yields -x^2 <= x^2 * sin(1/x) <= x^2. Since both -x^2 and x^2 approach 0 as x approaches 0, the squeeze theorem forces lim_{x->0} x^2 * sin(1/x) = 0.
 
 Another fundamental trigonometric limit derived from geometric bounds on the unit circle is lim_{theta->0} (sin theta)/theta = 1.`,
       },
-      expectedStatus: 200,
+      expectedStatus: 201,
     });
+    materialId = uploadMatRes.data?.material?.id;
 
     await executeHttp({
       category: 'Learning Materials & Vector Search',

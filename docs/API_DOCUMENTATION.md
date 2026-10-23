@@ -187,16 +187,31 @@ Content-Type: application/json
 
 ### Module 3: Curriculum Topics (`/curriculum`)
 
-#### 3.1 Generate Curriculum from Syllabus (Curriculum Agent)
-- **Method & Path**: `POST /api/v1/curriculum/:subjectId/generate`
+#### 3.1 Bulk Import Curriculum Outline (Deterministic)
+- **Method & Path**: `POST /api/v1/curriculum/:subjectId/bulk`
 - **Access**: Instructor of `:subjectId`
 - **Request Body**:
 ```json
 {
-  "syllabusText": "Module 1: Differential Calculus. Topic 1.1: Limit Definitions. Topic 1.2: Chain Rule..."
+  "modules": [
+    {
+      "title": "Module 1: Differential Calculus",
+      "description": "Foundations of limits and derivatives",
+      "topics": [
+        {
+          "title": "Topic 1.1: Limit Definitions",
+          "description": "Epsilon-delta definitions and intuitive limits"
+        },
+        {
+          "title": "Topic 1.2: The Squeeze Theorem",
+          "description": "Bounding trigonometric limits"
+        }
+      ]
+    }
+  ]
 }
 ```
-- **Response `201 Created`**: Hierarchical topic list created in `curriculum_topics`.
+- **Response `201 Created`**: Returns the complete hierarchical curriculum tree created in database.
 
 #### 3.2 Create Topic Node
 - **Method & Path**: `POST /api/v1/curriculum/:subjectId/topics`
@@ -247,7 +262,34 @@ Content-Type: application/json
 
 ### Module 4: Learning Materials & Vector Embeddings (`/materials`)
 
-#### 4.1 Register Learning Material Metadata
+#### 4.1 Unified File Upload & OCR Ingestion (PDF, Image, Slides, TXT, MD)
+- **Method & Path**: `POST /api/v1/materials/:subjectId/upload`
+- **Content-Type**: `multipart/form-data` or `application/json`
+- **Access**: Instructor of `:subjectId`
+- **Request Fields**:
+  - `file`: Multipart file binary (`.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.txt`, `.md`)
+  - `title`: String (e.g. "Lecture 04: The Squeeze Theorem")
+  - `curriculumTopicId`: UUID (optional topic link)
+  - `materialType`: String (default `"lecture_notes"`)
+  - `rawText`: String (optional, if content was directly pasted instead of a file upload)
+- **Response `201 Created`**:
+```json
+{
+  "success": true,
+  "data": {
+    "material": {
+      "id": "mat_881",
+      "title": "Lecture 04: The Squeeze Theorem",
+      "processing_status": "ready"
+    },
+    "extractedCharacterCount": 1420,
+    "chunksCount": 3,
+    "processingStatus": "ready"
+  }
+}
+```
+
+#### 4.2 Register Learning Material Metadata (Manual)
 - **Method & Path**: `POST /api/v1/materials/:subjectId`
 - **Access**: Instructor of `:subjectId`
 - **Request Body**:
@@ -262,19 +304,19 @@ Content-Type: application/json
 ```
 - **Response `201 Created`**: Created learning material record.
 
-#### 4.2 List Materials for Subject
+#### 4.3 List Materials for Subject
 - **Method & Path**: `GET /api/v1/materials/:subjectId`
 - **Access**: Subject members
 - **Query Params**: `?topicId=uuid` (optional)
 - **Response `200 OK`**: Array of materials.
 
-#### 4.3 Ingest Material Content & Generate Vector Embeddings
+#### 4.4 Ingest Material Content & Generate Vector Embeddings
 - **Method & Path**: `POST /api/v1/materials/detail/:materialId/ingest`
 - **Access**: Instructor of subject
 - **Request Body**:
 ```json
 {
-  "content": "The Squeeze Theorem establishes limits through boundary functions..."
+  "rawText": "The Squeeze Theorem establishes limits through boundary functions..."
 }
 ```
 - **Response `200 OK`**:
@@ -283,12 +325,12 @@ Content-Type: application/json
   "success": true,
   "data": {
     "materialId": "mat_881",
-    "chunksCount": 5
+    "totalChunks": 5
   }
 }
 ```
 
-#### 4.4 Semantic Vector Search over Subject Materials
+#### 4.5 Semantic Vector Search over Subject Materials
 - **Method & Path**: `POST /api/v1/materials/:subjectId/search`
 - **Access**: Subject members
 - **Request Body**:
