@@ -25,6 +25,7 @@
 
 ```mermaid
 erDiagram
+    colleges ||--o{ profiles : "employs / enrolls"
     profiles ||--o{ teacher_subjects : "teaches"
     profiles ||--o{ memberships : "enrolled in"
     teacher_subjects ||--o{ memberships : "has students"
@@ -59,14 +60,28 @@ erDiagram
 
 ## 3. Data Dictionary & Table Definitions
 
+### 3.0 `colleges`
+Institutions managed by platform Superadmins.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | College ID |
+| `name` | `TEXT` | `NOT NULL` | Institution name (e.g. "Rajiv Gandhi Institute of Technology") |
+| `code` | `TEXT` | `NOT NULL, UNIQUE` | Unique code (e.g. "RIT-KTM") |
+| `domain` | `TEXT` | `NULL` | Optional email domain (e.g. "rit.ac.in") |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Creation timestamp |
+
+---
+
 ### 3.1 `profiles`
-User profiles extending Supabase `auth.users`.
+User profiles extending Supabase `auth.users` with multi-tier roles.
 
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY`, references `auth.users(id) ON DELETE CASCADE` | Supabase user ID |
+| `college_id` | `UUID` | `NULL`, references `colleges(id) ON DELETE SET NULL` | Linked institution (NULL for superadmins) |
 | `full_name` | `TEXT` | `NOT NULL` | Display name |
-| `role` | `TEXT` | `NOT NULL`, `CHECK (role IN ('admin', 'teacher', 'student'))` | Application RBAC role |
+| `role` | `TEXT` | `NOT NULL`, `CHECK (role IN ('superadmin', 'admin', 'teacher', 'student'))` | 4-tier application role |
 | `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Creation timestamp |
 
 ---

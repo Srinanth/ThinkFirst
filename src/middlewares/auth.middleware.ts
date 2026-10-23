@@ -5,7 +5,8 @@ import { UnauthorizedError } from '../utils/errors.util.js';
 export interface AuthenticatedUser {
   id: string;
   email: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: 'superadmin' | 'admin' | 'teacher' | 'student';
+  collegeId?: string | null;
   fullName?: string;
 }
 
@@ -41,7 +42,7 @@ export const requireAuth = async (
     // Fetch user profile from public.profiles
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('id, full_name, role')
+      .select('id, college_id, full_name, role')
       .eq('id', user.id)
       .single();
 
@@ -52,7 +53,8 @@ export const requireAuth = async (
     req.user = {
       id: profile.id,
       email: user.email || '',
-      role: profile.role as 'admin' | 'teacher' | 'student',
+      role: profile.role as 'superadmin' | 'admin' | 'teacher' | 'student',
+      collegeId: profile.college_id,
       fullName: profile.full_name,
     };
     req.token = token;
