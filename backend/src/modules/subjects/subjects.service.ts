@@ -47,10 +47,13 @@ export class SubjectsService {
         .order('created_at', { ascending: false });
 
       if (error) throw new BadRequestError(error.message);
-      return data.map((item) => ({
-        ...item,
-        studentCount: item.memberships?.[0]?.count ?? 0,
-      }));
+      return data.map((item) => {
+        const { memberships, ...rest } = item;
+        return {
+          ...rest,
+          studentCount: memberships?.[0]?.count ?? 0,
+        };
+      });
     }
 
     if (role === 'student') {
@@ -98,7 +101,13 @@ export class SubjectsService {
       .order('created_at', { ascending: false });
 
     if (error) throw new BadRequestError(error.message);
-    return data;
+    return data.map((item) => {
+      const { memberships, ...rest } = item;
+      return {
+        ...rest,
+        studentCount: memberships?.[0]?.count ?? 0,
+      };
+    });
   }
 
   /**
@@ -127,9 +136,10 @@ export class SubjectsService {
       throw new NotFoundError('Subject offering not found');
     }
 
+    const { memberships, ...rest } = data;
     return {
-      ...data,
-      studentCount: data.memberships?.[0]?.count ?? 0,
+      ...rest,
+      studentCount: memberships?.[0]?.count ?? 0,
     };
   }
 
