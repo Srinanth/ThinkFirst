@@ -31,6 +31,7 @@ router.put(
   '/topics/:topicId',
   requireAuth,
   requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
   validateRequest({ body: updateTopicSchema }),
   curriculumController.update
 );
@@ -40,6 +41,7 @@ router.delete(
   '/topics/:topicId',
   requireAuth,
   requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
   curriculumController.delete
 );
 

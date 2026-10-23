@@ -35,6 +35,7 @@ router.get(
 router.get(
   '/detail/:quizId',
   requireAuth,
+  requireSubjectMembership('any'),
   quizzesController.getById
 );
 
@@ -43,6 +44,7 @@ router.post(
   '/detail/:quizId/questions',
   requireAuth,
   requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
   validateRequest({ body: createQuestionSchema }),
   quizzesController.addQuestion
 );
@@ -62,6 +64,7 @@ router.post(
   '/detail/:quizId/attempts',
   requireAuth,
   requireRole(['student']),
+  requireSubjectMembership('member'),
   quizzesController.startAttempt
 );
 
@@ -70,6 +73,7 @@ router.post(
   '/attempts/:attemptId/submit',
   requireAuth,
   requireRole(['student']),
+  requireSubjectMembership('member'),
   validateRequest({ body: submitAttemptSchema }),
   quizzesController.submitAttempt
 );
@@ -78,6 +82,7 @@ router.post(
 router.get(
   '/attempts/:attemptId/results',
   requireAuth,
+  requireSubjectMembership('any'),
   quizzesController.getResults
 );
 

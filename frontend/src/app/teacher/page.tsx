@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/navbar';
 import TeacherOverview from '@/components/teacher/teacher-overview';
 import ClassWorkspace from '@/components/teacher/class-workspace';
-import { ClassData, MOCK_CLASSES } from '@/data/mock-data';
+import { ClassData } from '@/data/mock-data';
 import { authApi, subjectsApi, SubjectOffering } from '@/lib/api';
 import { X, Plus, CheckCircle, BookOpen, Loader2 } from 'lucide-react';
 
@@ -14,9 +14,9 @@ export default function TeacherPage() {
   const [selectedClass, setSelectedClass] = useState<ClassData | null>(null);
 
   // Authenticated Teacher State
-  const [teacherName, setTeacherName] = useState('Prof. Alistair Vance');
-  const [teacherEmail, setTeacherEmail] = useState('teacher.demo@thinkfirst.edu');
-  const [avatarText, setAvatarText] = useState('AV');
+  const [teacherName, setTeacherName] = useState('Faculty Instructor');
+  const [teacherEmail, setTeacherEmail] = useState('');
+  const [avatarText, setAvatarText] = useState('TC');
   const [classes, setClasses] = useState<ClassData[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -35,15 +35,15 @@ export default function TeacherPage() {
       try {
         const profile = await authApi.getMe();
         if (profile) {
-          setTeacherName(profile.full_name || 'Prof. Alistair Vance');
+          setTeacherName(profile.full_name || 'Faculty Instructor');
           if (profile.email) setTeacherEmail(profile.email);
-          const initials = (profile.full_name || 'AV')
+          const initials = (profile.full_name || 'TC')
             .split(' ')
             .map((n) => n[0])
             .slice(0, 2)
             .join('')
             .toUpperCase();
-          setAvatarText(initials || 'AV');
+          setAvatarText(initials || 'TC');
         }
       } catch (err) {
         console.warn('Could not fetch teacher profile:', err);
@@ -54,32 +54,31 @@ export default function TeacherPage() {
         const liveSubjects = await subjectsApi.listSubjects();
         if (liveSubjects && liveSubjects.length > 0) {
           const mappedClasses: ClassData[] = liveSubjects.map((s: SubjectOffering, idx: number) => {
-            const fallback = MOCK_CLASSES[idx % MOCK_CLASSES.length];
             return {
               id: s.id,
               name: s.subject,
               code: s.class_name || `SEC-${idx + 1}`,
               section: s.academic_year || '2025-2026',
-              studentCount: s.studentCount ?? fallback.studentCount,
-              overallMastery: fallback.overallMastery,
-              room: fallback.room,
-              schedule: fallback.schedule,
-              trendData: fallback.trendData,
-              distributionData: fallback.distributionData,
-              weakAreas: fallback.weakAreas,
-              strongAreas: fallback.strongAreas,
-              variationSummary: fallback.variationSummary,
-              quizzes: fallback.quizzes,
-              students: fallback.students,
+              studentCount: s.studentCount ?? 0,
+              overallMastery: 0,
+              room: 'Campus Hall',
+              schedule: 'Active Term',
+              trendData: [],
+              distributionData: [],
+              weakAreas: [],
+              strongAreas: [],
+              variationSummary: [],
+              quizzes: [],
+              students: [],
             };
           });
           setClasses(mappedClasses);
         } else {
-          setClasses(MOCK_CLASSES);
+          setClasses([]);
         }
       } catch (err) {
         console.warn('Could not fetch subjects:', err);
-        setClasses(MOCK_CLASSES);
+        setClasses([]);
       }
     } finally {
       setLoading(false);

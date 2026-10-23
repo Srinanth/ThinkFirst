@@ -101,12 +101,12 @@ interface StudentDashboardProps {
 export default function StudentDashboard({
   onSelectCourse,
   onOpenAddModal,
-  courses,
-  studentName = 'Lucas Chen',
-  collegeName = 'ThinkFirst Institute of AI & Cognitive Sciences',
+  courses = [],
+  studentName = 'Enrolled Student',
+  collegeName = 'Faculty of Engineering',
 }: StudentDashboardProps) {
-  const activeCourses = courses && courses.length > 0 ? courses : ENROLLED_COURSES;
-  const initials = studentName
+  const activeCourses = courses || [];
+  const initials = (studentName || 'ST')
     .split(' ')
     .map((n) => n[0])
     .slice(0, 2)
@@ -142,7 +142,7 @@ export default function StudentDashboard({
       <div className="neu-card-raised p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#222222] to-[#2e2e2e] border border-white/10 text-[#00d2ff] flex items-center justify-center font-black text-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6)] shrink-0">
-            {initials || 'LC'}
+            {initials || 'ST'}
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
@@ -167,7 +167,9 @@ export default function StudentDashboard({
         <div className="flex items-center gap-3">
           <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Academic Standing</p>
-            <p className="text-sm font-black text-white">Dean&apos;s Honor List</p>
+            <p className="text-sm font-black text-white">
+              {activeCourses.length > 0 ? "Dean's Honor List" : "Enrolled"}
+            </p>
           </div>
           <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Active Courses</p>
@@ -196,49 +198,63 @@ export default function StudentDashboard({
           </div>
 
           {/* Class Cards */}
-          <div className="space-y-3.5">
-            {activeCourses.map((course) => (
-              <div
-                key={course.id}
-                onClick={() => onSelectCourse(course)}
-                className="neu-card p-5 hover:shadow-[10px_10px_24px_rgba(0,0,0,0.55),-5px_-5px_15px_rgba(255,255,255,0.04)] hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1.5 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold neu-inset-sm text-[#00d2ff] font-mono">
-                        {course.code}
-                      </span>
-                      <span className="text-xs text-[#757575] font-medium">
-                        {course.credits} Credits &bull; {course.location}
-                      </span>
+          {activeCourses.length === 0 ? (
+            <div className="neu-card p-10 text-center rounded-3xl space-y-3 border border-white/5">
+              <div className="w-14 h-14 mx-auto rounded-2xl neu-inset flex items-center justify-center text-[#00d2ff]">
+                <BookOpen className="w-7 h-7" />
+              </div>
+              <h4 className="text-base font-bold text-white">No Enrolled Courses Found</h4>
+              <p className="text-xs text-[#9e9e9e] max-w-sm mx-auto leading-relaxed">
+                You are not currently enrolled in any classes. Share your Student / Roll ID with your faculty instructor so they can add you to their class roster.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3.5">
+              {activeCourses.map((course) => (
+                <div
+                  key={course.id}
+                  onClick={() => onSelectCourse(course)}
+                  className="neu-card p-5 hover:shadow-[10px_10px_24px_rgba(0,0,0,0.55),-5px_-5px_15px_rgba(255,255,255,0.04)] hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1.5 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold neu-inset-sm text-[#00d2ff] font-mono">
+                          {course.code}
+                        </span>
+                        <span className="text-xs text-[#757575] font-medium">
+                          {course.credits} Credits &bull; {course.location}
+                        </span>
+                      </div>
+
+                      <h4 className="text-base font-black text-white group-hover:text-white transition-colors">
+                        {course.title}
+                      </h4>
+
+                      <p className="text-xs text-[#9e9e9e] font-medium">
+                        Instructor: <span className="text-white font-semibold">{course.instructor}</span>
+                      </p>
                     </div>
 
-                    <h4 className="text-base font-black text-white group-hover:text-white transition-colors">
-                      {course.title}
-                    </h4>
+                    <div className="flex flex-col items-end justify-between self-stretch">
+                      <div className="w-8 h-8 rounded-full neu-btn flex items-center justify-center text-[#757575] group-hover:text-white transition-all">
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </div>
 
-                    <p className="text-xs text-[#9e9e9e] font-medium">
-                      Instructor: <span className="text-white font-semibold">{course.instructor}</span>
-                    </p>
-                  </div>
-
-                  <div className="flex flex-col items-end justify-between self-stretch">
-                    <div className="w-8 h-8 rounded-full neu-btn flex items-center justify-center text-[#757575] group-hover:text-white transition-all">
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                    </div>
-
-                    <div className="text-right">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-black text-white">{course.grade}</span>
-                        <span className="text-xs font-bold text-[#9e9e9e]">({course.percentage}%)</span>
+                      <div className="text-right">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-lg font-black text-white">{course.grade}</span>
+                          {course.percentage > 0 && (
+                            <span className="text-xs font-bold text-[#9e9e9e]">({course.percentage}%)</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right Column: Mini Analytics */}
@@ -258,25 +274,31 @@ export default function StudentDashboard({
               </span>
             </div>
 
-            <div className="space-y-2 pt-1">
-              {activeCourses.map((course) => (
-                <div
-                  key={course.id}
-                  className="flex items-center justify-between text-xs p-2 rounded-lg hover:bg-[#202020] transition-colors"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#00d2ff] shadow-[0_0_6px_#00d2ff]" />
-                    <span className="font-bold text-white">{course.code}:</span>
-                    <span className="text-[#9e9e9e] truncate max-w-[170px]">
-                      {course.title}
+            {activeCourses.length === 0 ? (
+              <p className="text-xs text-[#757575] py-4 text-center">
+                Awaiting course enrollment and quiz submissions to visualize mastery breakdowns.
+              </p>
+            ) : (
+              <div className="space-y-2 pt-1">
+                {activeCourses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="flex items-center justify-between text-xs p-2 rounded-lg hover:bg-[#202020] transition-colors"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-[#00d2ff] shadow-[0_0_6px_#00d2ff]" />
+                      <span className="font-bold text-white">{course.code}:</span>
+                      <span className="text-[#9e9e9e] truncate max-w-[170px]">
+                        {course.title}
+                      </span>
+                    </div>
+                    <span className="font-black text-white">
+                      {course.percentage > 0 ? `${course.percentage}%` : 'Pending'}
                     </span>
                   </div>
-                  <span className="font-black text-white">
-                    {course.percentage}%
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Academic progress graph */}

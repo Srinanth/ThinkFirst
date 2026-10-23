@@ -335,17 +335,19 @@ export const masteryApi = {
         evidenceCount: number;
         tier: 'Mastered' | 'Developing' | 'Needs Intervention';
       }>;
-    }>(`/mastery/student/${subjectId}`),
+    }>(`/mastery/${subjectId}/me`),
 
   getClassOverview: (subjectId: string) =>
     fetchWithAuth<
       Array<{
         topicId: string;
         title: string;
+        nodeType?: string;
         averageMastery: number;
+        assessedStudentsCount?: number;
         strugglingStudentsCount: number;
       }>
-    >(`/mastery/class/${subjectId}`),
+    >(`/mastery/${subjectId}/overview`),
 };
 
 // ============================================================================
@@ -455,14 +457,13 @@ export interface SubjectOffering {
 }
 
 export interface StudentRosterMember {
-  teacher_subject_id: string;
-  student_id: string;
-  joined_at: string;
-  profiles: {
-    id: string;
-    full_name: string;
-    college?: string;
-  };
+  id: string;
+  fullName: string;
+  email?: string;
+  college?: string;
+  role?: string;
+  loginId?: string;
+  joinedAt: string;
 }
 
 export const subjectsApi = {

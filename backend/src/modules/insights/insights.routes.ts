@@ -31,6 +31,7 @@ router.patch(
   '/detail/:insightId/status',
   requireAuth,
   requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
   validateRequest({ body: updateInsightStatusSchema }),
   insightsController.updateStatus
 );
@@ -40,6 +41,7 @@ router.delete(
   '/detail/:insightId',
   requireAuth,
   requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
   insightsController.delete
 );
 

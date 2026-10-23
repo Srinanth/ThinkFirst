@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/navbar';
 import StudentDashboard, {
   CourseItem,
-  ENROLLED_COURSES,
 } from '@/components/student/student-dashboard';
 import CourseDrilldown, {
   CompletedQuiz,
@@ -21,15 +20,15 @@ export default function StudentPage() {
   const router = useRouter();
 
   // Dynamic Student Profile State
-  const [studentName, setStudentName] = useState('Lucas Chen');
-  const [studentEmail, setStudentEmail] = useState('student.demo@thinkfirst.edu');
-  const [avatarText, setAvatarText] = useState('LC');
-  const [collegeName, setCollegeName] = useState('ThinkFirst Institute of AI & Cognitive Sciences');
-  const [courses, setCourses] = useState<CourseItem[]>(ENROLLED_COURSES);
+  const [studentName, setStudentName] = useState('Enrolled Student');
+  const [studentEmail, setStudentEmail] = useState('');
+  const [avatarText, setAvatarText] = useState('ST');
+  const [collegeName, setCollegeName] = useState('Faculty of Engineering');
+  const [courses, setCourses] = useState<CourseItem[]>([]);
 
   // Navigation & View States
   const [activeView, setActiveView] = useState<'overview' | 'course' | 'taking_quiz'>('overview');
-  const [selectedCourse, setSelectedCourse] = useState<CourseItem>(ENROLLED_COURSES[0]);
+  const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
   const [activeQuiz, setActiveQuiz] = useState<OpenQuiz | null>(null);
   const [activeRemediationMission, setActiveRemediationMission] = useState<RemediationMissionData | null>(null);
   const [tutorForceOpen, setTutorForceOpen] = useState(false);
@@ -59,16 +58,16 @@ export default function StudentPage() {
       .getMe()
       .then((profile) => {
         if (isMounted && profile) {
-          setStudentName(profile.full_name || 'Lucas Chen');
+          setStudentName(profile.full_name || 'Enrolled Student');
           if (profile.email) setStudentEmail(profile.email);
           if (profile.college) setCollegeName(profile.college);
-          const initials = (profile.full_name || 'LC')
+          const initials = (profile.full_name || 'ST')
             .split(' ')
             .map((n) => n[0])
             .slice(0, 2)
             .join('')
             .toUpperCase();
-          setAvatarText(initials || 'LC');
+          setAvatarText(initials || 'ST');
         }
       })
       .catch(() => {});
@@ -79,24 +78,31 @@ export default function StudentPage() {
       .then((liveSubjects) => {
         if (isMounted && liveSubjects && liveSubjects.length > 0) {
           const mappedCourses: CourseItem[] = liveSubjects.map((s: SubjectOffering, idx: number) => {
-            const fallback = ENROLLED_COURSES[idx % ENROLLED_COURSES.length];
             return {
               id: s.id,
               code: s.class_name || `SEC-${idx + 1}`,
               title: s.subject,
-              instructor: s.profiles?.full_name || 'Dr. Alistair Vance',
+              instructor: s.profiles?.full_name || 'Faculty Instructor',
               location: s.academic_year || '2025-2026',
-              grade: fallback.grade,
-              percentage: fallback.percentage,
-              credits: fallback.credits,
-              color: fallback.color,
+              grade: 'Enrolled',
+              percentage: 0,
+              credits: 4,
+              color: idx % 2 === 0 ? '#00d2ff' : '#ffffff',
             };
           });
           setCourses(mappedCourses);
           setSelectedCourse(mappedCourses[0]);
+        } else if (isMounted) {
+          setCourses([]);
+          setSelectedCourse(null);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        if (isMounted) {
+          setCourses([]);
+          setSelectedCourse(null);
+        }
+      });
 
     return () => {
       isMounted = false;
@@ -173,7 +179,7 @@ export default function StudentPage() {
           />
         )}
 
-        {activeView === 'course' && (
+        {activeView === 'course' && selectedCourse && (
           <CourseDrilldown
             course={selectedCourse}
             onBack={() => setActiveView('overview')}
@@ -196,15 +202,17 @@ export default function StudentPage() {
       </main>
 
       {/* Contextual AI Tutor (Method 2 Interactive Action Widgets) */}
-      <AiTutorDrawer
-        currentCourse={`${selectedCourse.code}: ${selectedCourse.title}`}
-        subjectId={selectedCourse.id}
-        isVisible={activeView === 'course'}
-        isQuizActive={activeView === 'taking_quiz'}
-        forceOpen={tutorForceOpen}
-        initialMission={activeRemediationMission}
-        onClose={() => setTutorForceOpen(false)}
-      />
+      {selectedCourse && (
+        <AiTutorDrawer
+          currentCourse={`${selectedCourse.code}: ${selectedCourse.title}`}
+          subjectId={selectedCourse.id}
+          isVisible={activeView === 'course'}
+          isQuizActive={activeView === 'taking_quiz'}
+          forceOpen={tutorForceOpen}
+          initialMission={activeRemediationMission}
+          onClose={() => setTutorForceOpen(false)}
+        />
+      )}
 
       {/* Modal: Review Completed Quiz */}
       {reviewedQuiz && (

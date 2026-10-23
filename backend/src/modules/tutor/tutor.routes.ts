@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { tutorController } from './tutor.controller.js';
 import { requireAuth } from '../../middlewares/auth.middleware.js';
 import { requireRole } from '../../middlewares/role.middleware.js';
+import { requireSubjectMembership } from '../../middlewares/membership.middleware.js';
 import { validateRequest } from '../../middlewares/validation.middleware.js';
 import { createConversationSchema, sendMessageSchema } from './tutor.schemas.js';
 
@@ -21,6 +22,7 @@ router.get(
   '/conversations/:subjectId',
   requireAuth,
   requireRole(['student']),
+  requireSubjectMembership('member'),
   tutorController.listConversations
 );
 
@@ -28,6 +30,7 @@ router.get(
 router.get(
   '/conversations/:conversationId/messages',
   requireAuth,
+  requireSubjectMembership('any'),
   tutorController.getMessages
 );
 
@@ -36,6 +39,7 @@ router.post(
   '/conversations/:conversationId/chat',
   requireAuth,
   requireRole(['student']),
+  requireSubjectMembership('member'),
   validateRequest({ body: sendMessageSchema }),
   tutorController.sendMessage
 );

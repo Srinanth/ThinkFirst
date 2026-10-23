@@ -117,3 +117,14 @@ $$;
 ### 3.11 `teacher_insights`
 - **SELECT**: Accessible only by the subject teacher or platform admin.
 - **UPDATE**: Teachers can change status (`active`, `dismissed`, `resolved`).
+
+
+---
+
+## 4. Backend Gateway Multi-Tenant Isolation Middleware
+
+In addition to PostgreSQL database RLS, ThinkFirst enforces complete multi-tenant tenant boundary checks at the API gateway layer via [`requireSubjectMembership`](file:///c:/Users/Srinanth%20MV/Personal%20Projects/realm-hack/backend/src/middlewares/membership.middleware.ts):
+
+- **Automatic Entity Resolution**: Recursively resolves the parent `teacher_subject_id` from entity IDs in route parameters (`:quizId`, `:materialId`, `:insightId`, `:topicId`, `:conversationId`, `:attemptId`).
+- **Strict Teacher Isolation**: If the caller has role `teacher`, they are strictly prohibited from viewing or modifying subjects where `subject.teacher_id !== req.user.id`. Teachers can never view another teacher's classes, student rosters, learning materials, or diagnostic analytics.
+- **Student Ownership & Enrollment Check**: If the caller has role `student`, they are restricted strictly to subjects where they are enrolled in `public.memberships`. Personal entities (quiz attempts, tutor conversation threads) verify `record.student_id === req.user.id`.

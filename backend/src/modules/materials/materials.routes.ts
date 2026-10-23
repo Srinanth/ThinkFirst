@@ -48,6 +48,7 @@ router.get(
 router.get(
   '/detail/:materialId',
   requireAuth,
+  requireSubjectMembership('any'),
   materialsController.getById
 );
 
@@ -56,6 +57,7 @@ router.delete(
   '/detail/:materialId',
   requireAuth,
   requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
   materialsController.delete
 );
 
@@ -64,6 +66,7 @@ router.post(
   '/detail/:materialId/ingest',
   requireAuth,
   requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
   validateRequest({ body: ingestMaterialTextSchema }),
   materialsController.ingestText
 );
