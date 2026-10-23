@@ -6,7 +6,7 @@
 **Document Version**: 2.0.0  
 **Effective Date**: October 2026  
 **Git Remote**: `https://github.com/Srinanth/ThinkFirst.git`  
-**Active Work Branch**: `dev/srinanth`  
+**Active Work Branch**: `dev/rinz`  
 
 ---
 
@@ -25,15 +25,15 @@
    git add .
    git commit -m "feat(subjects): implement teacher subject CRUD endpoints and membership middleware (BE-07)"
    ```
-5. Push to the designated remote developer branch (`dev/srinanth`).
+5. Push to the designated remote developer branch (`dev/rinz`).
 
 ### Rule 2: TEAM BRANCHING WORKFLOW
 The repository uses a disciplined team branching model:
 - `main`: Locked production-ready code.
 - `development`: Primary integration branch.
 - Developer branches:
-  - `dev/srinanth` — **Current working branch** (Backend Core APIs, Mastra Agent Workflows, Deterministic Mastery Engine).
-  - `dev/rinz` — Database Architecture (Supabase schema, migrations, RLS policies, pgvector, storage buckets).
+  - `dev/srinanth` — (Backend Core APIs, Mastra Agent Workflows, Deterministic Mastery Engine).
+  - `dev/rinz` — **Current working branch** (Database Architecture (Supabase schema, migrations, RLS policies, pgvector, storage buckets).
   - `dev/deepak` — Frontend Web App & UI (Student Hub, Socratic Tutor Chat interface, Mastery Meter, UI components).
   - `dev/antony` — Frontend Web App & UI (Teacher Studio, Ingestion UI, Analytics Dashboard, Quiz Runner).
 - All development by Srinanth must occur on **`dev/srinanth`**.
@@ -111,4 +111,4 @@ When an AI agent (Codex/Antigravity) finishes a feature:
 3. **Commit Code**:
    - Stage files: `git add .`
    - Commit: `git commit -m "feat(<module>): <description> (<FEATURE_ID>)"`
-   - Push: `git push origin dev/srinanth`
+   - Push: `git push origin dev/rinz`

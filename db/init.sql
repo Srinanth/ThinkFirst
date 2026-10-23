@@ -15,21 +15,13 @@ CREATE EXTENSION IF NOT EXISTS "vector";
 -- 2. TABLE CREATION
 -- ============================================================================
 
--- Table 0: colleges (Institutions managed by platform Superadmins)
-CREATE TABLE IF NOT EXISTS public.colleges (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  code TEXT NOT NULL UNIQUE,
-  domain TEXT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
 -- Table 1: profiles (Users belonging to a college with 4-tier RBAC hierarchy)
 -- Hierarchy: superadmin -> college admin -> teacher -> student
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   college_id UUID REFERENCES public.colleges(id) ON DELETE SET NULL,
   full_name TEXT NOT NULL,
+  college TEXT,
   role TEXT NOT NULL CHECK (role IN ('superadmin', 'admin', 'teacher', 'student')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -38,7 +30,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 CREATE TABLE IF NOT EXISTS public.teacher_subjects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
-  title TEXT NULL,
   subject TEXT NOT NULL,
   academic_year TEXT NOT NULL,
   class_name TEXT NOT NULL,
