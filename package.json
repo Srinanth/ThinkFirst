@@ -1,0 +1,41 @@
+{
+  "name": "thinkfirst-backend",
+  "version": "1.0.0",
+  "description": "ThinkFirst backend - Agentic AI tutoring & deterministic mastery engine",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "thinkfirst",
+    "agentic-ai",
+    "mastra",
+    "gemini",
+    "supabase",
+    "pgvector",
+    "socratic-tutor"
+  ],
+  "author": "Odysseus Team",
+  "license": "ISC",
+  "dependencies": {
+    "@google/genai": "^2.31.0",
+    "@google/generative-ai": "^0.24.0",
+    "@supabase/supabase-js": "^2.49.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}
