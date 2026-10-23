@@ -19,7 +19,7 @@ export default function TeacherPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col font-sans">
       {/* Global Top Navbar */}
       <Navbar
         role="teacher"

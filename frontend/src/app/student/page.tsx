@@ -20,9 +20,6 @@ export default function StudentPage() {
   const router = useRouter();
 
   // Navigation & View States
-  // 'overview' -> Workspace 1 Dashboard
-  // 'course' -> Course-Specific Drilldown (CS-204)
-  // 'taking_quiz' -> Proctored Active Quiz (AI Tutor Disabled)
   const [activeView, setActiveView] = useState<'overview' | 'course' | 'taking_quiz'>('overview');
   const [selectedCourse, setSelectedCourse] = useState<CourseItem>(ENROLLED_COURSES[0]);
   const [activeQuiz, setActiveQuiz] = useState<OpenQuiz | null>(null);
@@ -69,15 +66,15 @@ export default function StudentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans relative">
-      {/* Toast Feedback */}
+    <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col font-sans relative">
+      {/* Toast Feedback (Neumorphic Dark Toast) */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl bg-blue-600 text-white shadow-xl animate-in slide-in-from-top-2 text-xs font-bold border border-white/20">
+        <div className="fixed top-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl neu-card-raised border border-white/10 text-white shadow-[0_12px_32px_rgba(0,0,0,0.7)] animate-in slide-in-from-top-2 text-xs font-bold">
           <CheckCircle className="w-4 h-4 text-white" />
           <span>{toastMessage}</span>
           <button
             onClick={() => setToastMessage(null)}
-            className="ml-2 hover:opacity-75 cursor-pointer text-white"
+            className="ml-2 hover:opacity-75 cursor-pointer text-[#9e9e9e] hover:text-white"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -124,61 +121,61 @@ export default function StudentPage() {
         )}
       </main>
 
-      {/* Contextual AI Tutor: Active in course drilldown, completely disabled/hidden during quiz attempt */}
+      {/* Contextual AI Tutor */}
       <AiTutorDrawer
         currentCourse={`${selectedCourse.code}: ${selectedCourse.title}`}
         isVisible={activeView === 'course'}
         isQuizActive={activeView === 'taking_quiz'}
       />
 
-      {/* Review Completed Quiz Modal */}
+      {/* Review Completed Quiz Modal (Dark Neumorphic with White Contrast) */}
       {reviewedQuiz && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4 text-slate-900">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="w-full max-w-md rounded-2xl neu-card-raised p-6 space-y-4 text-white border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between pb-3 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded text-[11px] font-black bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black neu-badge-white">
                   {reviewedQuiz.number}
                 </span>
-                <h3 className="font-extrabold text-sm text-slate-900">
+                <h3 className="font-extrabold text-sm text-white">
                   Assessment Solution &amp; Rubric
                 </h3>
               </div>
               <button
                 onClick={() => setReviewedQuiz(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-lg text-[#9e9e9e] hover:text-white neu-btn cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3">
-              <h4 className="text-base font-black text-slate-900">{reviewedQuiz.title}</h4>
-              <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+              <h4 className="text-base font-black text-white">{reviewedQuiz.title}</h4>
+              <div className="flex items-center gap-3 text-xs text-[#9e9e9e] font-medium">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                  <Calendar className="w-3.5 h-3.5 text-white" />
                   {reviewedQuiz.date}
                 </span>
                 <span>&bull;</span>
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                  <Clock className="w-3.5 h-3.5 text-[#757575]" />
                   {reviewedQuiz.duration}
                 </span>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+              <div className="p-4 neu-inset flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold uppercase text-slate-500">Official Score</p>
-                  <p className="text-xl font-black text-blue-600">
+                  <p className="text-xs font-bold uppercase text-[#9e9e9e]">Official Score</p>
+                  <p className="text-xl font-black text-white">
                     {reviewedQuiz.score} / {reviewedQuiz.maxScore}
                   </p>
                 </div>
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="px-3 py-1 rounded-full text-xs font-bold neu-badge-white">
                   {reviewedQuiz.percentage}% (High Mastery)
                 </span>
               </div>
 
-              <p className="text-xs text-slate-600 leading-relaxed">
+              <p className="text-xs text-[#9e9e9e] leading-relaxed">
                 All 10 multiple-choice and reasoning proofs satisfied the grading rubric with zero conceptual flaws.
               </p>
             </div>
@@ -186,7 +183,7 @@ export default function StudentPage() {
             <div className="pt-2 flex justify-end">
               <button
                 onClick={() => setReviewedQuiz(null)}
-                className="px-4 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors cursor-pointer"
+                className="px-4 py-2 neu-btn text-xs font-bold text-white hover:text-white cursor-pointer"
               >
                 Close Review
               </button>
@@ -195,7 +192,7 @@ export default function StudentPage() {
         </div>
       )}
 
-      {/* Admissions Modals (Popup A: Add Student / Popup B: Add Teacher) */}
+      {/* Admissions Modals */}
       <AdmissionModals
         isOpen={admissionModal.isOpen}
         type={admissionModal.type}

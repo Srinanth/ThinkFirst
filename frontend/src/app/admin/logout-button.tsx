@@ -26,7 +26,7 @@ export default function LogoutButton() {
     <button
       onClick={handleLogout}
       disabled={loggingOut}
-      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 hover:border-rose-200 border border-slate-200 text-slate-700 hover:text-rose-600 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+      className="inline-flex items-center gap-2 px-3.5 py-2 neu-btn text-[#9e9e9e] hover:text-rose-400 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
     >
       {loggingOut ? (
         <Loader2 className="w-3.5 h-3.5 animate-spin" />

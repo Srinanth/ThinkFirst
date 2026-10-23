@@ -172,33 +172,33 @@ export default function CourseDrilldown({
   onReviewQuiz,
 }: CourseDrilldownProps) {
   return (
-    <div className="space-y-6 animate-in fade-in duration-200 text-slate-800">
+    <div className="space-y-6 animate-in fade-in duration-200 text-white">
       {/* Back Navigation & Breadcrumb */}
       <div className="flex items-center justify-between">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-blue-600 bg-white border border-slate-200 hover:border-blue-300 px-3 py-1.5 rounded-xl transition-all shadow-2xs cursor-pointer group"
+          className="inline-flex items-center gap-2 text-xs font-bold text-white neu-btn px-3.5 py-2 transition-all cursor-pointer group"
         >
-          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform text-blue-600" />
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform text-white" />
           <span>Back to Academic Overview</span>
         </button>
 
-        <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <div className="flex items-center gap-2 text-xs text-[#757575] font-medium">
           <span>Student Portal</span>
           <span>/</span>
           <span>Enrolled Courses</span>
           <span>/</span>
-          <span className="font-bold text-slate-900">{course.code}</span>
+          <span className="font-bold text-white">{course.code}</span>
         </div>
       </div>
 
-      {/* Top Hero Header Card (Rich Blue Gradient) */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white p-6 sm:p-8 shadow-md">
+      {/* Top Hero Header Card (Dark Neumorphic Raised with Crisp White Contrast) */}
+      <div className="neu-card-raised p-6 sm:p-8 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-3 max-w-2xl">
             {/* Pill Tag */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 border border-white/25 text-white text-xs font-bold tracking-wide uppercase backdrop-blur-xs">
-              <span className="w-2 h-2 rounded-full bg-sky-300 animate-pulse" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full neu-badge-white text-xs font-bold tracking-wide uppercase">
+              <span className="w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white] animate-pulse" />
               ACTIVE ASSESSMENT COURSE &bull; {course.credits} Credit Units
             </div>
 
@@ -208,21 +208,21 @@ export default function CourseDrilldown({
             </h1>
 
             {/* Subtitle Metadata */}
-            <p className="text-blue-100 text-xs sm:text-sm font-medium leading-relaxed">
+            <p className="text-[#9e9e9e] text-xs sm:text-sm font-medium leading-relaxed">
               Lead Instructor: <strong className="text-white">{course.instructor}</strong> &bull; Department of Computer Science &bull; Fall Term
             </p>
           </div>
 
           {/* Right-side Metric Badges */}
           <div className="flex items-center gap-3 shrink-0">
-            <div className="px-5 py-3 rounded-2xl bg-white/10 border border-white/20 text-center backdrop-blur-xs">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-blue-100">Class Avg</p>
+            <div className="px-5 py-3 rounded-2xl neu-inset text-center">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Class Avg</p>
               <p className="text-2xl font-black text-white">81.2%</p>
-              <span className="text-[10px] text-blue-200 font-medium">Cohort of 42</span>
+              <span className="text-[10px] text-[#9e9e9e] font-medium">Cohort of 42</span>
             </div>
 
-            <div className="px-5 py-3 rounded-2xl bg-white/15 border border-white/30 text-center backdrop-blur-xs">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-sky-200">Alex&apos;s Avg</p>
+            <div className="px-5 py-3 rounded-2xl neu-inset text-center">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Alex&apos;s Avg</p>
               <p className="text-2xl font-black text-white">89.4%</p>
               <span className="text-[10px] text-white font-bold">Grade A Tier</span>
             </div>
@@ -233,18 +233,18 @@ export default function CourseDrilldown({
       {/* Main Two-Column Drilldown Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Section: Attended Quizzes with Scores List (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4 text-slate-800">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="lg:col-span-7 neu-card p-5 sm:p-6 space-y-4 text-white">
+          <div className="flex items-center justify-between pb-3 border-b border-white/5">
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-slate-900 tracking-tight">
+                <h3 className="text-base font-black text-white tracking-tight">
                   Attended quizzes with scores as list
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold neu-badge-white">
                   7 Completed
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
                 History of evaluated assessments and solution keys
               </p>
             </div>
@@ -255,25 +255,25 @@ export default function CourseDrilldown({
             {ATTENDED_QUIZZES.map((quiz) => (
               <div
                 key={quiz.id}
-                className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 bg-slate-50/60 hover:bg-blue-50/30 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                className="p-4 rounded-xl neu-inset hover:border-white/10 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                    <span className="px-2 py-0.5 rounded-md text-[11px] font-bold neu-card-sm text-white">
                       {quiz.number}
                     </span>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                    <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-white/80 transition-colors">
                       {quiz.title}
                     </h4>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                  <div className="flex items-center gap-3 text-xs text-[#757575] font-medium">
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-blue-600" />
+                      <Calendar className="w-3 h-3 text-white" />
                       {quiz.date}
                     </span>
                     <span>&bull;</span>
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-slate-400" />
+                      <Clock className="w-3 h-3 text-[#757575]" />
                       Time Taken: {quiz.duration}
                     </span>
                   </div>
@@ -282,8 +282,8 @@ export default function CourseDrilldown({
                 <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
                   {/* Score Badge */}
                   <div className="text-right">
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                      <Award className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold neu-badge-white">
+                      <Award className="w-3.5 h-3.5 text-white" />
                       {quiz.score} / {quiz.maxScore} ({quiz.percentage}%)
                     </span>
                   </div>
@@ -291,7 +291,7 @@ export default function CourseDrilldown({
                   {/* Secondary Review Button */}
                   <button
                     onClick={() => onReviewQuiz(quiz)}
-                    className="px-3 py-1 rounded-lg bg-white border border-slate-200 hover:border-blue-400 text-xs font-bold text-slate-700 hover:text-blue-600 transition-colors shadow-2xs cursor-pointer"
+                    className="px-3 py-1.5 neu-btn text-xs font-bold text-white hover:text-white/80 cursor-pointer"
                   >
                     Review
                   </button>
@@ -301,15 +301,15 @@ export default function CourseDrilldown({
           </div>
 
           {/* Footer Text & Download Link */}
-          <div className="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-            <span className="text-slate-500 font-medium">
+          <div className="pt-3 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <span className="text-[#757575] font-medium">
               Showing recent completed quizzes in {course.code}
             </span>
             <button
               onClick={() => alert(`Downloading official solution keys for ${course.code}...`)}
-              className="inline-flex items-center gap-1.5 font-bold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 font-bold text-white hover:text-[#9e9e9e] transition-colors cursor-pointer"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-white" />
               <span>Download All Solution Keys (PDF)</span>
             </button>
           </div>
@@ -318,17 +318,17 @@ export default function CourseDrilldown({
         {/* Right Section: Quizzes to Attempt + Upcoming Quizzes (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
           {/* Right Section Top: List of Quizzes to Attempt (Action Required) */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4 text-slate-800">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div className="neu-card p-5 sm:p-6 space-y-4 text-white">
+            <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-black text-slate-900 tracking-tight">
+                <h3 className="text-base font-black text-white tracking-tight">
                   List of quizzes to attempt
                 </h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 uppercase">
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950/60 text-rose-300 border border-rose-500/30 uppercase">
                   ACTION REQUIRED
                 </span>
               </div>
-              <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+              <span className="text-xs font-bold text-white neu-inset-sm px-2.5 py-0.5">
                 2 Open
               </span>
             </div>
@@ -338,36 +338,36 @@ export default function CourseDrilldown({
               {OPEN_QUIZZES.map((quiz) => (
                 <div
                   key={quiz.id}
-                  className={`rounded-2xl p-4.5 border transition-all ${
+                  className={`rounded-2xl p-4.5 transition-all ${
                     quiz.isDueToday
-                      ? 'bg-blue-50/50 border-blue-300 ring-1 ring-blue-500/20'
-                      : 'bg-slate-50/60 border-slate-200 hover:border-blue-300'
+                      ? 'neu-card-raised border border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]'
+                      : 'neu-inset'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-100 text-blue-700">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="px-2 py-0.5 rounded-md text-[11px] font-bold neu-card-sm text-white">
                           {quiz.number}
                         </span>
                         {quiz.isDueToday ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-600 text-white uppercase">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#00d2ff] text-[#0a0f1d] uppercase shadow-[0_0_8px_rgba(0,210,255,0.4)]">
                             DUE TODAY ({quiz.dueDate})
                           </span>
                         ) : (
-                          <span className="text-[11px] font-semibold text-slate-500">
+                          <span className="text-[11px] font-semibold text-[#9e9e9e]">
                             Due {quiz.dueDate}
                           </span>
                         )}
                       </div>
 
-                      <h4 className="text-sm font-bold text-slate-900 mt-1.5">
+                      <h4 className="text-sm font-bold text-white mt-1.5">
                         {quiz.title}
                       </h4>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 text-xs text-slate-500 font-medium mt-2">
+                  <div className="flex items-center gap-3 text-xs text-[#757575] font-medium mt-2">
                     <span>{quiz.questionCount} Questions</span>
                     <span>&bull;</span>
                     <span>{quiz.timeLimit} Limit</span>
@@ -376,28 +376,28 @@ export default function CourseDrilldown({
                   </div>
 
                   {/* Requirements / Topics */}
-                  <div className="flex flex-wrap gap-1 mt-2.5">
+                  <div className="flex flex-wrap gap-1.5 mt-2.5">
                     {quiz.topics.map((t, i) => (
                       <span
                         key={i}
-                        className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-semibold text-slate-600"
+                        className="px-2 py-0.5 rounded-md neu-inset-sm text-[10px] font-semibold text-[#9e9e9e]"
                       >
                         {t}
                       </span>
                     ))}
                   </div>
 
-                  {/* Action Button */}
-                  <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between">
-                    <span className="text-[11px] text-slate-500 font-medium">
+                  {/* Action Button: Strategic CTA */}
+                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                    <span className="text-[11px] text-[#757575] font-medium">
                       Proctored Environment
                     </span>
                     <button
                       onClick={() => onStartQuiz(quiz)}
-                      className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
+                      className="px-4 py-2 neu-btn-accent text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Start Quiz</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-white" />
+                      <ChevronRight className="w-3.5 h-3.5 text-[#0a0f1d]" />
                     </button>
                   </div>
                 </div>
@@ -406,19 +406,19 @@ export default function CourseDrilldown({
           </div>
 
           {/* Right Section Bottom: Upcoming Quizzes */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-4 text-slate-800">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div className="neu-card p-5 sm:p-6 space-y-4 text-white">
+            <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div>
-                <h3 className="text-base font-black text-slate-900 tracking-tight">
+                <h3 className="text-base font-black text-white tracking-tight">
                   Upcoming quizzes
                 </h3>
-                <p className="text-xs text-slate-500 font-medium mt-0.5">
+                <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
                   Scheduled class tests on syllabus calendar
                 </p>
               </div>
               <button
                 onClick={() => alert('Opening syllabus assessment calendar...')}
-                className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                className="text-xs font-bold text-white hover:underline cursor-pointer"
               >
                 Calendar
               </button>
@@ -429,28 +429,28 @@ export default function CourseDrilldown({
               {UPCOMING_QUIZZES.map((quiz) => (
                 <div
                   key={quiz.id}
-                  className="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center justify-between gap-3"
+                  className="p-3.5 rounded-xl neu-inset flex items-center justify-between gap-3"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold neu-card-sm text-white">
                         {quiz.number}
                       </span>
-                      <h4 className="text-xs font-bold text-slate-900 truncate max-w-[190px]">
+                      <h4 className="text-xs font-bold text-white truncate max-w-[190px]">
                         {quiz.title}
                       </h4>
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium flex items-center gap-1">
-                      <Calendar className="w-3 h-3 text-blue-600" />
+                    <p className="text-[11px] text-[#757575] font-medium flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-white" />
                       {quiz.scheduledDate} &bull; {quiz.scheduledTime}
                     </p>
                   </div>
 
                   <button
                     onClick={() => alert(`Reminder set for ${quiz.title} on ${quiz.scheduledDate}`)}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-blue-600 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors cursor-pointer shrink-0 shadow-2xs"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-white hover:text-[#9e9e9e] neu-btn px-2.5 py-1 transition-colors cursor-pointer shrink-0"
                   >
-                    <Bell className="w-3 h-3 text-blue-600" />
+                    <Bell className="w-3 h-3 text-white" />
                     <span>Set Reminder</span>
                   </button>
                 </div>
@@ -458,13 +458,13 @@ export default function CourseDrilldown({
             </div>
 
             {/* Footer Examination Schedule Link */}
-            <div className="pt-2 border-t border-slate-100 text-center">
+            <div className="pt-2 border-t border-white/5 text-center">
               <button
                 onClick={() => alert('Navigating to full semester exam schedule...')}
-                className="text-xs font-semibold text-slate-500 hover:text-blue-600 inline-flex items-center gap-1 transition-colors cursor-pointer"
+                className="text-xs font-semibold text-[#757575] hover:text-white inline-flex items-center gap-1 transition-colors cursor-pointer"
               >
                 <span>View complete semester examination schedule</span>
-                <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
+                <ChevronRight className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
           </div>

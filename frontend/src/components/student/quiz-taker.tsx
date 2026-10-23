@@ -108,57 +108,57 @@ export default function QuizTaker({
   const currentQ = SAMPLE_QUESTIONS[currentIdx];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200 text-slate-800">
+    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-200 text-white">
       {/* 1. Proctored Anti-Cheat Header Banner */}
-      <div className="rounded-2xl bg-white border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div className="neu-card-raised p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
-            <ShieldAlert className="w-5 h-5 text-blue-600" />
+          <div className="w-10 h-10 rounded-xl neu-inset text-white flex items-center justify-center shrink-0">
+            <ShieldAlert className="w-5 h-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black tracking-wide uppercase text-slate-900">
+              <span className="text-xs font-black tracking-wide uppercase text-white">
                 PROCTORED ASSESSMENT ACTIVE
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 uppercase">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950/60 text-rose-300 border border-rose-500/30 uppercase">
                 AI Tutor Disabled
               </span>
             </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
+            <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
               Anti-Cheat Policy: Socratic AI Tutor &amp; external assistants are strictly locked during this test.
             </p>
           </div>
         </div>
 
         {/* Live Timer */}
-        <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-xl border border-blue-200 shadow-2xs self-start sm:self-auto shrink-0">
-          <Clock className="w-4 h-4 text-blue-600" />
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Time Left:</span>
-          <span className="text-sm font-black text-blue-700 font-mono">
+        <div className="flex items-center gap-2 neu-inset px-4 py-2 self-start sm:self-auto shrink-0">
+          <Clock className="w-4 h-4 text-white" />
+          <span className="text-xs font-bold text-[#757575] uppercase tracking-wider">Time Left:</span>
+          <span className="text-sm font-black text-white font-mono">
             {formatTimer(timeLeft)}
           </span>
         </div>
       </div>
 
       {/* 2. Assessment Body Container */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden">
+      <div className="neu-card-raised overflow-hidden">
         {/* Assessment Title Header */}
-        <div className="p-6 bg-slate-50 text-slate-900 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="p-6 bg-[#232323] border-b border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold neu-card-sm text-white">
                 {quiz.number}
               </span>
-              <span className="text-xs text-slate-500 font-medium">CS-204: Data Structures &amp; Algorithms</span>
+              <span className="text-xs text-[#9e9e9e] font-medium">CS-204: Data Structures &amp; Algorithms</span>
             </div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               {quiz.title}
             </h2>
           </div>
 
           <div className="text-right">
-            <span className="text-xs text-slate-400 font-medium block">Questions</span>
-            <span className="text-lg font-black text-blue-600">
+            <span className="text-xs text-[#757575] font-medium block">Questions</span>
+            <span className="text-lg font-black text-white">
               {currentIdx + 1} of {SAMPLE_QUESTIONS.length}
             </span>
           </div>
@@ -168,15 +168,15 @@ export default function QuizTaker({
           <div className="p-6 sm:p-8 space-y-6">
             {/* Question Prompt */}
             <div className="space-y-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#757575]">
                 Question {currentIdx + 1}
               </span>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-snug">
+              <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
                 {currentQ.prompt}
               </h3>
             </div>
 
-            {/* Multiple Choice Options */}
+            {/* Multiple Choice Options (Neumorphic Inset / Raised States) */}
             <div className="space-y-3 pt-2">
               {currentQ.options.map((option, optIdx) => {
                 const isSelected = selectedAnswers[currentIdx] === optIdx;
@@ -184,18 +184,18 @@ export default function QuizTaker({
                   <div
                     key={optIdx}
                     onClick={() => handleSelectOption(optIdx)}
-                    className={`p-4 rounded-2xl border text-sm font-semibold transition-all cursor-pointer flex items-center justify-between ${
+                    className={`p-4 rounded-2xl text-sm font-semibold transition-all cursor-pointer flex items-center justify-between ${
                       isSelected
-                        ? 'bg-blue-50/70 border-blue-500 text-slate-900 shadow-xs ring-1 ring-blue-500/20'
-                        : 'bg-slate-50/70 border-slate-200 hover:border-slate-300 text-slate-700 hover:bg-slate-100/70'
+                        ? 'neu-card border border-cyan-500/50 shadow-[0_0_20px_rgba(0,210,255,0.18)] text-white ring-1 ring-cyan-500/30'
+                        : 'neu-inset text-[#9e9e9e] hover:text-white hover:border-white/10'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <span
                         className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black ${
                           isSelected
-                            ? 'bg-blue-600 text-white shadow-2xs'
-                            : 'bg-white text-slate-600 border border-slate-200'
+                            ? 'bg-[#00d2ff] text-[#0a0f1d] shadow-[0_0_10px_rgba(0,210,255,0.4)]'
+                            : 'neu-card-sm text-[#757575]'
                         }`}
                       >
                         {String.fromCharCode(65 + optIdx)}
@@ -204,7 +204,7 @@ export default function QuizTaker({
                     </div>
 
                     {isSelected && (
-                      <CheckCircle className="w-5 h-5 text-blue-600 shrink-0" />
+                      <CheckCircle className="w-5 h-5 text-[#00d2ff] shrink-0" />
                     )}
                   </div>
                 );
@@ -212,11 +212,11 @@ export default function QuizTaker({
             </div>
 
             {/* Stepper Navigation & Submit Footer */}
-            <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="pt-6 border-t border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <button
                 type="button"
                 onClick={onCancel}
-                className="text-xs font-bold text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="text-xs font-bold text-[#757575] hover:text-white cursor-pointer"
               >
                 Exit Assessment
               </button>
@@ -226,7 +226,7 @@ export default function QuizTaker({
                   type="button"
                   disabled={currentIdx === 0}
                   onClick={() => setCurrentIdx((prev) => prev - 1)}
-                  className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-xs font-bold text-slate-700 transition-colors cursor-pointer"
+                  className="px-4 py-2 neu-btn disabled:opacity-40 text-xs font-bold text-[#9e9e9e] hover:text-white cursor-pointer"
                 >
                   Previous
                 </button>
@@ -235,18 +235,18 @@ export default function QuizTaker({
                   <button
                     type="button"
                     onClick={() => setCurrentIdx((prev) => prev + 1)}
-                    className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-xs"
+                    className="px-5 py-2 neu-btn-white text-xs font-bold flex items-center gap-1.5 cursor-pointer text-black"
                   >
                     <span>Next Question</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-white" />
+                    <ArrowRight className="w-3.5 h-3.5 text-black" />
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-xs font-black text-white shadow-sm transition-all cursor-pointer active:scale-95 flex items-center gap-2"
+                    className="px-6 py-2.5 neu-btn-accent text-xs font-black cursor-pointer flex items-center gap-2"
                   >
-                    <CheckCircle className="w-4 h-4 text-white" />
+                    <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
                     <span>Submit Assessment</span>
                   </button>
                 )}
@@ -256,28 +256,28 @@ export default function QuizTaker({
         ) : (
           /* Submission Results View */
           <div className="p-8 text-center space-y-6">
-            <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-sm border border-blue-100">
-              <CheckCircle className="w-8 h-8 text-blue-600" />
+            <div className="w-16 h-16 rounded-3xl neu-inset text-white flex items-center justify-center mx-auto">
+              <CheckCircle className="w-8 h-8 text-white" />
             </div>
 
             <div className="space-y-1">
-              <h3 className="text-2xl font-black text-slate-900">
+              <h3 className="text-2xl font-black text-white">
                 Assessment Completed &amp; Evaluated!
               </h3>
-              <p className="text-sm text-slate-500 font-medium">
+              <p className="text-sm text-[#9e9e9e] font-medium">
                 Your deterministic score has been saved to your student record.
               </p>
             </div>
 
-            <div className="max-w-xs mx-auto p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center shadow-2xs">
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Alex&apos;s Score</p>
-              <p className="text-4xl font-black text-blue-600 mt-1">{calculatedScore}%</p>
-              <span className="inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+            <div className="max-w-xs mx-auto p-5 neu-inset text-center border border-white/10">
+              <p className="text-xs font-bold uppercase tracking-wider text-[#757575]">Alex&apos;s Score</p>
+              <p className="text-4xl font-black text-white mt-1">{calculatedScore}%</p>
+              <span className="inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-bold neu-badge-cyan">
                 Mastery Confirmed
               </span>
             </div>
 
-            <div className="text-xs text-slate-500">
+            <div className="text-xs text-[#9e9e9e]">
               AI Tutor is now re-enabled for post-quiz review and concept reinforcement.
             </div>
 
@@ -285,7 +285,7 @@ export default function QuizTaker({
               <button
                 type="button"
                 onClick={() => onFinishQuiz(calculatedScore)}
-                className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs tracking-wide shadow-sm transition-all cursor-pointer"
+                className="px-6 py-3 neu-btn-white text-xs font-bold tracking-wide cursor-pointer text-black"
               >
                 Return to CS-204 Course Page &rarr;
               </button>

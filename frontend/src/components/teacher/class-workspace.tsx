@@ -55,68 +55,68 @@ export default function ClassWorkspace({
   });
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-200 text-slate-800">
+    <div className="space-y-6 animate-in fade-in duration-200 text-white">
       {/* 1. Breadcrumb & Class Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 neu-card-raised p-6">
         <div className="space-y-2">
           {/* Breadcrumb back button */}
           <button
             onClick={onBackToOverview}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-600 transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#9e9e9e] hover:text-white transition-colors cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4 text-blue-600" />
+            <ArrowLeft className="w-4 h-4 text-white" />
             Back to All Classes
           </button>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               {cls.name}
             </h1>
-            <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold font-mono border border-blue-200">
+            <span className="px-3 py-1 rounded-full neu-inset-sm text-white text-xs font-bold font-mono">
               {cls.section} &bull; {cls.code}
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs text-slate-500 font-medium flex-wrap">
+          <div className="flex items-center gap-4 text-xs text-[#757575] font-medium flex-wrap">
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-blue-600" />
+              <Calendar className="w-3.5 h-3.5 text-white" />
               {cls.schedule}
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
+              <Clock className="w-3.5 h-3.5 text-[#757575]" />
               {cls.room}
             </span>
-            <span className="flex items-center gap-1.5 font-bold text-slate-800">
+            <span className="flex items-center gap-1.5 font-bold text-white">
               {cls.studentCount} Active Students
             </span>
           </div>
         </div>
 
         {/* Quick Overall Mastery Badge */}
-        <div className="flex items-center gap-4 bg-blue-50/70 p-4 rounded-2xl border border-blue-100 self-start md:self-auto">
+        <div className="flex items-center gap-4 neu-inset p-4 self-start md:self-auto border border-white/10">
           <div className="text-right">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#757575] block">
               Cohort Mastery
             </span>
-            <span className="text-2xl font-black text-blue-700">
+            <span className="text-2xl font-black text-white">
               {cls.overallMastery}%
             </span>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+          <div className="w-12 h-12 rounded-xl neu-card-sm text-white flex items-center justify-center font-bold text-sm">
             <Award className="w-6 h-6 text-white" />
           </div>
         </div>
       </div>
 
       {/* 2. Internal Sub-Navigation Bar */}
-      <div className="bg-white rounded-2xl p-1.5 border border-slate-200 shadow-sm flex items-center justify-between">
+      <div className="neu-card p-1.5 flex items-center justify-between">
         <div className="flex items-center gap-1 sm:gap-2">
           <button
             onClick={() => setActiveTab('home')}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'home'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'neu-btn-white text-black'
+                : 'neu-btn text-[#9e9e9e] hover:text-white'
             }`}
           >
             Home (Analytics &amp; Insights)
@@ -125,8 +125,8 @@ export default function ClassWorkspace({
             onClick={() => setActiveTab('quizzes')}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'quizzes'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'neu-btn-white text-black'
+                : 'neu-btn text-[#9e9e9e] hover:text-white'
             }`}
           >
             Quizzes &amp; Assessments ({cls.quizzes.length})
@@ -135,8 +135,8 @@ export default function ClassWorkspace({
             onClick={() => setActiveTab('students')}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === 'students'
-                ? 'bg-blue-600 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                ? 'neu-btn-white text-black'
+                : 'neu-btn text-[#9e9e9e] hover:text-white'
             }`}
           >
             Student Roster ({cls.students.length})
@@ -146,7 +146,7 @@ export default function ClassWorkspace({
         {activeTab === 'quizzes' && (
           <button
             onClick={() => setCreateQuizModalOpen(true)}
-            className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+            className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-bold transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             Create Quiz
@@ -162,73 +162,73 @@ export default function ClassWorkspace({
           {/* Charts Section (Grid Layout) */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Performance Trend Chart (2 Columns wide) */}
-            <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between text-slate-800">
+            <div className="lg:col-span-2 neu-card p-6 flex flex-col justify-between text-white">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-base font-black text-slate-900">
+                  <h3 className="text-base font-black text-white">
                     Performance Progression Trend
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#9e9e9e]">
                     Cohort average vs. institutional benchmark (70%) over past quizzes
                   </p>
                 </div>
-                <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 flex items-center gap-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                <span className="text-xs font-bold neu-badge-white px-3 py-1 flex items-center gap-1">
+                  <TrendingUp className="w-3.5 h-3.5 text-white" />
                   +16% Growth
                 </span>
               </div>
 
-              {/* Responsive Area Chart */}
-              <div className="h-64 sm:h-72 w-full pt-2">
+              {/* Responsive Area Chart inside Inset Container */}
+              <div className="neu-inset p-3 rounded-2xl h-64 sm:h-72 w-full pt-2">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart
                     data={cls.trendData}
                     margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                   >
                     <defs>
-                      <linearGradient id="colorAvg" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0.0} />
+                      <linearGradient id="colorAvgNeu" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#00d2ff" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#00d2ff" stopOpacity={0.0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                     <XAxis
                       dataKey="quiz"
-                      stroke="#94a3b8"
+                      stroke="#757575"
                       fontSize={11}
                       tickLine={false}
                     />
                     <YAxis
                       domain={[50, 100]}
-                      stroke="#94a3b8"
+                      stroke="#757575"
                       fontSize={11}
                       tickLine={false}
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderColor: '#e2e8f0',
-                        borderRadius: '12px',
-                        color: '#0f172a',
+                        backgroundColor: '#262626',
+                        borderColor: 'rgba(255,255,255,0.08)',
+                        borderRadius: '14px',
+                        color: '#ffffff',
                         fontSize: '12px',
                         fontWeight: 600,
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
                       }}
                     />
                     <Area
                       type="monotone"
                       dataKey="avgScore"
                       name="Class Average (%)"
-                      stroke="#2563eb"
+                      stroke="#00d2ff"
                       strokeWidth={3}
                       fillOpacity={1}
-                      fill="url(#colorAvg)"
+                      fill="url(#colorAvgNeu)"
                     />
                     <Area
                       type="monotone"
                       dataKey="benchmark"
                       name="Benchmark (70%)"
-                      stroke="#94a3b8"
+                      stroke="#555555"
                       strokeDasharray="4 4"
                       strokeWidth={2}
                       fill="none"
@@ -239,18 +239,18 @@ export default function ClassWorkspace({
             </div>
 
             {/* Score Distribution Donut Chart (1 Column wide) */}
-            <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col justify-between text-slate-800">
+            <div className="neu-card p-6 flex flex-col justify-between text-white">
               <div>
-                <h3 className="text-base font-black text-slate-900">
+                <h3 className="text-base font-black text-white">
                   Score Tier Distribution
                 </h3>
-                <p className="text-xs text-slate-500 mb-4">
+                <p className="text-xs text-[#9e9e9e] mb-4">
                   Breakdown by mastery achievement levels
                 </p>
               </div>
 
-              {/* Donut Chart */}
-              <div className="h-56 w-full flex items-center justify-center">
+              {/* Donut Chart inside Recessed Container */}
+              <div className="neu-inset p-3 rounded-2xl h-56 w-full flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -265,22 +265,22 @@ export default function ClassWorkspace({
                       {cls.distributionData.map((_entry, index) => {
                         const cellColor =
                           index === 0
-                            ? '#2563eb' // Blue-600
+                            ? '#00d2ff' // Electric Cyan
                             : index === 1
-                            ? '#0ea5e9' // Sky-500
-                            : '#f59e0b'; // Amber-500
+                            ? '#38bdf8' // Sky Blue
+                            : '#8b5cf6'; // Violet
                         return <Cell key={`cell-${index}`} fill={cellColor} />;
                       })}
                     </Pie>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#ffffff',
+                        backgroundColor: '#262626',
                         borderRadius: '12px',
-                        color: '#0f172a',
-                        border: '1px solid #e2e8f0',
+                        color: '#ffffff',
+                        border: '1px solid rgba(255,255,255,0.08)',
                         fontSize: '11px',
                         fontWeight: 600,
-                        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
                       }}
                     />
                     <Legend
@@ -288,7 +288,7 @@ export default function ClassWorkspace({
                       height={36}
                       iconType="circle"
                       formatter={(value) => (
-                        <span className="text-[11px] font-bold text-slate-700">
+                        <span className="text-[11px] font-bold text-[#9e9e9e]">
                           {value}
                         </span>
                       )}
@@ -297,8 +297,8 @@ export default function ClassWorkspace({
                 </ResponsiveContainer>
               </div>
 
-              <div className="pt-3 border-t border-slate-100 text-center text-xs text-slate-500 font-medium">
-                <span className="font-bold text-slate-900">
+              <div className="pt-3 border-t border-white/5 text-center text-xs text-[#757575] font-medium">
+                <span className="font-bold text-white">
                   {cls.distributionData[0].value} of {cls.studentCount} students
                 </span>{' '}
                 achieved Mastered tier (&gt;80%).
@@ -306,25 +306,25 @@ export default function ClassWorkspace({
             </div>
           </div>
 
-          {/* Core Insights Section (3 Structured Cards/Panels) */}
+          {/* Core Insights Section (3 Structured Neumorphic Panels) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Panel 1: Weak Areas Panel */}
-            <div className="bg-white rounded-3xl p-6 border border-rose-200 shadow-sm flex flex-col justify-between relative overflow-hidden text-slate-800">
+            <div className="neu-card p-6 flex flex-col justify-between relative overflow-hidden text-white border border-rose-500/20">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200">
-                    <AlertTriangle className="w-5 h-5 text-rose-600" />
+                  <div className="w-10 h-10 rounded-xl neu-inset text-rose-400 flex items-center justify-center">
+                    <AlertTriangle className="w-5 h-5 text-rose-400" />
                   </div>
-                  <span className="text-[11px] font-black text-rose-700 uppercase tracking-wider bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+                  <span className="text-[11px] font-black text-rose-300 uppercase tracking-wider bg-rose-950/60 px-2.5 py-0.5 rounded-full border border-rose-500/30">
                     Action Needed
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="text-base font-black text-slate-900">
+                  <h4 className="text-base font-black text-white">
                     Weak Areas Identified
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#9e9e9e]">
                     Concepts with low average scores requiring intervention.
                   </p>
                 </div>
@@ -333,16 +333,16 @@ export default function ClassWorkspace({
                   {cls.weakAreas.map((item, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-2xl bg-rose-50/50 border border-rose-100 text-xs space-y-1.5"
+                      className="p-3 rounded-2xl neu-inset text-xs space-y-1.5"
                     >
-                      <div className="flex items-center justify-between font-bold text-slate-900">
+                      <div className="flex items-center justify-between font-bold text-white">
                         <span>{item.topic}</span>
-                        <span className="text-rose-600 font-mono text-xs font-black">
+                        <span className="text-rose-400 font-mono text-xs font-black">
                           {item.avgScore}%
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-600 leading-relaxed">
-                        <strong className="text-slate-800">Remediation:</strong>{' '}
+                      <p className="text-[11px] text-[#9e9e9e] leading-relaxed">
+                        <strong className="text-white">Remediation:</strong>{' '}
                         {item.remediation}
                       </p>
                     </div>
@@ -352,22 +352,22 @@ export default function ClassWorkspace({
             </div>
 
             {/* Panel 2: Strong Areas Panel */}
-            <div className="bg-white rounded-3xl p-6 border border-emerald-200 shadow-sm flex flex-col justify-between relative overflow-hidden text-slate-800">
+            <div className="neu-card p-6 flex flex-col justify-between relative overflow-hidden text-white border border-emerald-500/20">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
-                    <CheckCircle className="w-5 h-5 text-emerald-600" />
+                  <div className="w-10 h-10 rounded-xl neu-inset text-emerald-400 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <span className="text-[11px] font-black text-emerald-700 uppercase tracking-wider bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  <span className="text-[11px] font-black text-emerald-300 uppercase tracking-wider bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                     Class Excels
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="text-base font-black text-slate-900">
+                  <h4 className="text-base font-black text-white">
                     Strong Areas &amp; Mastery
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#9e9e9e]">
                     Concepts where cohort demonstrates solid proficiency.
                   </p>
                 </div>
@@ -376,16 +376,16 @@ export default function ClassWorkspace({
                   {cls.strongAreas.map((item, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-2xl bg-emerald-50/50 border border-emerald-100 text-xs space-y-1.5"
+                      className="p-3 rounded-2xl neu-inset text-xs space-y-1.5"
                     >
-                      <div className="flex items-center justify-between font-bold text-slate-900">
+                      <div className="flex items-center justify-between font-bold text-white">
                         <span>{item.topic}</span>
-                        <span className="text-emerald-600 font-mono text-xs font-black">
+                        <span className="text-emerald-400 font-mono text-xs font-black">
                           {item.avgScore}%
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-600 leading-relaxed">
-                        <strong className="text-slate-800">Observation:</strong>{' '}
+                      <p className="text-[11px] text-[#9e9e9e] leading-relaxed">
+                        <strong className="text-white">Observation:</strong>{' '}
                         {item.praise}
                       </p>
                     </div>
@@ -395,22 +395,22 @@ export default function ClassWorkspace({
             </div>
 
             {/* Panel 3: Performance Variation Summary Panel */}
-            <div className="bg-white rounded-3xl p-6 border border-blue-200 shadow-sm flex flex-col justify-between relative overflow-hidden text-slate-800">
+            <div className="neu-card p-6 flex flex-col justify-between relative overflow-hidden text-white border border-white/10">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
-                    <TrendingUp className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl neu-inset text-white flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-white" />
                   </div>
-                  <span className="text-[11px] font-black text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider neu-inset-sm px-2.5 py-0.5">
                     Shift Trajectory
                   </span>
                 </div>
 
                 <div>
-                  <h4 className="text-base font-black text-slate-900">
+                  <h4 className="text-base font-black text-white">
                     Performance Shifts
                   </h4>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#9e9e9e]">
                     Tracking cohort trajectory following assessments and reviews.
                   </p>
                 </div>
@@ -419,21 +419,21 @@ export default function ClassWorkspace({
                   {cls.variationSummary.map((item, idx) => (
                     <div
                       key={idx}
-                      className="p-3 rounded-2xl bg-blue-50/50 border border-blue-100 text-xs space-y-1"
+                      className="p-3 rounded-2xl neu-inset text-xs space-y-1"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-slate-900">
+                        <span className="font-bold text-white">
                           {item.quizTitle}
                         </span>
                         <span
                           className={`font-mono font-bold text-xs ${
-                            item.isPositive ? 'text-blue-600' : 'text-rose-600'
+                            item.isPositive ? 'text-white' : 'text-rose-400'
                           }`}
                         >
                           {item.change}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                      <p className="text-[11px] text-[#9e9e9e] leading-relaxed">
                         {item.detail}
                       </p>
                     </div>
@@ -452,10 +452,10 @@ export default function ClassWorkspace({
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-black text-slate-900">
+              <h3 className="text-lg font-black text-white">
                 Class Quizzes &amp; Assessments
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#9e9e9e]">
                 Manage upcoming and graded assessments for {cls.name}.
               </p>
             </div>
@@ -466,25 +466,25 @@ export default function ClassWorkspace({
             {cls.quizzes.map((quiz) => (
               <div
                 key={quiz.id}
-                className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:border-blue-400 transition-all flex flex-col justify-between space-y-4 text-slate-800"
+                className="neu-card p-6 flex flex-col justify-between space-y-4 text-white hover:border-white/20 transition-all"
               >
                 <div>
                   <div className="flex items-start justify-between">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-bold ${
                         quiz.status === 'Graded'
-                          ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                          : 'bg-amber-50 text-amber-700 border border-amber-200'
+                          ? 'neu-badge-white'
+                          : 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
                       }`}
                     >
                       {quiz.status}
                     </span>
-                    <span className="text-xs text-slate-400 font-medium">
+                    <span className="text-xs text-[#757575] font-medium">
                       {quiz.date}
                     </span>
                   </div>
 
-                  <h4 className="text-lg font-black text-slate-900 mt-2">
+                  <h4 className="text-lg font-black text-white mt-2">
                     {quiz.title}
                   </h4>
 
@@ -493,7 +493,7 @@ export default function ClassWorkspace({
                     {quiz.topics.map((t, i) => (
                       <span
                         key={i}
-                        className="px-2 py-0.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-600 text-[11px] font-semibold"
+                        className="px-2 py-0.5 rounded-lg neu-inset-sm text-[#9e9e9e] text-[11px] font-semibold"
                       >
                         {t}
                       </span>
@@ -501,25 +501,25 @@ export default function ClassWorkspace({
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold">
+                <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
                   <div>
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                    <span className="text-[#757575] block text-[10px] uppercase font-bold">
                       Completion
                     </span>
-                    <span className="text-slate-900 font-black">{quiz.completionRate}%</span>
+                    <span className="text-white font-black">{quiz.completionRate}%</span>
                   </div>
 
                   <div className="text-right">
-                    <span className="text-slate-400 block text-[10px] uppercase font-bold">
+                    <span className="text-[#757575] block text-[10px] uppercase font-bold">
                       Class Average
                     </span>
                     <span
                       className={`text-sm font-black ${
                         quiz.avgScore >= 80
-                          ? 'text-blue-600'
+                          ? 'text-white'
                           : quiz.avgScore >= 60
-                          ? 'text-sky-600'
-                          : 'text-slate-400'
+                          ? 'text-[#9e9e9e]'
+                          : 'text-[#757575]'
                       }`}
                     >
                       {quiz.avgScore > 0 ? `${quiz.avgScore}%` : 'Pending'}
@@ -539,10 +539,10 @@ export default function ClassWorkspace({
         <div className="space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-lg font-black text-slate-900">
+              <h3 className="text-lg font-black text-white">
                 Student Directory &amp; Mastery Matrix
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#9e9e9e]">
                 Individual quiz scores, module progress, and sub-topics mastery index.
               </p>
             </div>
@@ -550,13 +550,13 @@ export default function ClassWorkspace({
             {/* Search and Topic/Tier Filters */}
             <div className="flex items-center gap-3">
               <div className="relative">
-                <Search className="w-4 h-4 text-blue-600 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-white absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={studentSearch}
                   onChange={(e) => setStudentSearch(e.target.value)}
                   placeholder="Search student or ID..."
-                  className="pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 w-48 sm:w-56"
+                  className="pl-9 pr-3 py-2 text-xs neu-input text-white placeholder:text-[#666666] w-48 sm:w-56"
                 />
               </div>
 
@@ -572,37 +572,37 @@ export default function ClassWorkspace({
                       | 'Intervention Needed'
                   )
                 }
-                className="px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-800 font-bold focus:outline-none cursor-pointer"
+                className="px-3 py-2 text-xs neu-input text-white font-bold cursor-pointer"
               >
-                <option value="All">All Mastery Tiers</option>
-                <option value="Mastered">Mastered (&gt;80%)</option>
-                <option value="Developing">Developing (60-79%)</option>
-                <option value="Intervention Needed">Intervention Needed (&lt;60%)</option>
+                <option value="All" className="bg-[#262626] text-white">All Mastery Tiers</option>
+                <option value="Mastered" className="bg-[#262626] text-white">Mastered (&gt;80%)</option>
+                <option value="Developing" className="bg-[#262626] text-white">Developing (60-79%)</option>
+                <option value="Intervention Needed" className="bg-[#262626] text-white">Intervention Needed (&lt;60%)</option>
               </select>
             </div>
           </div>
 
           {/* Master Performance Table */}
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="neu-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-600">
+                  <tr className="bg-[#222222] border-b border-white/5 text-[11px] font-black uppercase tracking-wider text-[#757575]">
                     <th className="py-4 px-6">Student Info</th>
                     <th className="py-4 px-6">Quiz Average</th>
                     <th className="py-4 px-6">Quizzes Done</th>
                     <th className="py-4 px-6">Module Breakdown</th>
                     <th className="py-4 px-6 text-center">
-                      <span className="inline-flex items-center gap-1 text-blue-600 font-black">
+                      <span className="inline-flex items-center gap-1 text-white font-black">
                         Sub-topics Master Score
                       </span>
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-xs">
+                <tbody className="divide-y divide-white/5 text-xs">
                   {filteredStudents.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-8 text-center text-slate-400">
+                      <td colSpan={5} className="py-8 text-center text-[#757575]">
                         No students match the selected search or filter criteria.
                       </td>
                     </tr>
@@ -610,32 +610,29 @@ export default function ClassWorkspace({
                     filteredStudents.map((st) => {
                       let pillClass = '';
                       if (st.subtopicsMastery >= 80) {
-                        pillClass =
-                          'bg-blue-50 text-blue-700 border-blue-200 ring-2 ring-blue-500/10';
+                        pillClass = 'neu-badge-white';
                       } else if (st.subtopicsMastery >= 60) {
-                        pillClass =
-                          'bg-sky-50 text-sky-700 border-sky-200 ring-2 ring-sky-500/10';
+                        pillClass = 'neu-badge-blue';
                       } else {
-                        pillClass =
-                          'bg-rose-50 text-rose-700 border-rose-200 ring-2 ring-rose-400/20';
+                        pillClass = 'bg-rose-950/60 text-rose-300 border-rose-500/30';
                       }
 
                       return (
                         <tr
                           key={st.id}
-                          className="hover:bg-blue-50/30 transition-colors"
+                          className="hover:bg-[#202020] transition-colors"
                         >
                           {/* Student Name / ID */}
                           <td className="py-4 px-6">
                             <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs border border-blue-200">
+                              <div className="w-8 h-8 rounded-full neu-inset text-white flex items-center justify-center font-bold text-xs">
                                 {st.avatar}
                               </div>
                               <div>
-                                <span className="font-bold text-slate-900 block">
+                                <span className="font-bold text-white block">
                                   {st.name}
                                 </span>
-                                <span className="text-[11px] text-slate-400 font-mono">
+                                <span className="text-[11px] text-[#757575] font-mono">
                                   {st.id} &bull; {st.email}
                                 </span>
                               </div>
@@ -643,12 +640,12 @@ export default function ClassWorkspace({
                           </td>
 
                           {/* Individual Quiz Scores */}
-                          <td className="py-4 px-6 font-bold text-slate-900">
+                          <td className="py-4 px-6 font-bold text-white">
                             {st.quizAverage}%
                           </td>
 
                           {/* Completed Quizzes */}
-                          <td className="py-4 px-6 text-slate-600 font-medium">
+                          <td className="py-4 px-6 text-[#9e9e9e] font-medium">
                             {st.completedQuizzes} / {st.totalQuizzes}
                           </td>
 
@@ -659,7 +656,7 @@ export default function ClassWorkspace({
                                 <span
                                   key={idx}
                                   title={`${mb.module}: ${mb.score}%`}
-                                  className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600"
+                                  className="px-2 py-0.5 rounded-md neu-inset-sm text-[10px] font-semibold text-[#9e9e9e]"
                                 >
                                   {mb.module.split(' ')[0]}: {mb.score}%
                                 </span>
@@ -667,10 +664,10 @@ export default function ClassWorkspace({
                             </div>
                           </td>
 
-                          {/* CRUCIAL HIGHLIGHT: Sub-topics Master Score Column */}
+                          {/* Sub-topics Master Score Column */}
                           <td className="py-4 px-6 text-center">
                             <span
-                              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-black text-xs border shadow-2xs ${pillClass}`}
+                              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-black text-xs border ${pillClass}`}
                             >
                               <Award className="w-3.5 h-3.5" />
                               {st.subtopicsMastery}% &bull; {st.status}
@@ -691,15 +688,15 @@ export default function ClassWorkspace({
       {/* CREATE NEW QUIZ MODAL                                          */}
       {/* ============================================================== */}
       {createQuizModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-md rounded-3xl bg-white border border-slate-200 shadow-2xl p-6 space-y-4 animate-in zoom-in-95 text-slate-900">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-black text-slate-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-md rounded-3xl neu-card-raised p-6 space-y-4 animate-in zoom-in-95 text-white border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 className="text-lg font-black text-white">
                 + Create New Quiz
               </h3>
               <button
                 onClick={() => setCreateQuizModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
+                className="p-1 rounded-lg text-[#9e9e9e] hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -707,7 +704,7 @@ export default function ClassWorkspace({
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
                   Quiz Title
                 </label>
                 <input
@@ -715,12 +712,12 @@ export default function ClassWorkspace({
                   value={newQuizTitle}
                   onChange={(e) => setNewQuizTitle(e.target.value)}
                   placeholder="e.g. Quiz #08 - Dynamic Programming Advanced"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                  className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
                   Target Topics
                 </label>
                 <input
@@ -728,15 +725,15 @@ export default function ClassWorkspace({
                   value={newQuizTopic}
                   onChange={(e) => setNewQuizTopic(e.target.value)}
                   placeholder="e.g. Knapsack, LIS, State Compression"
-                  className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
+                  className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
                 />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+            <div className="pt-3 border-t border-white/5 flex items-center justify-end gap-2.5">
               <button
                 onClick={() => setCreateQuizModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+                className="px-4 py-2 neu-btn text-xs font-bold text-[#9e9e9e] hover:text-white cursor-pointer"
               >
                 Cancel
               </button>
@@ -746,7 +743,7 @@ export default function ClassWorkspace({
                   setNewQuizTitle('');
                   setNewQuizTopic('');
                 }}
-                className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold cursor-pointer"
+                className="px-4 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-bold cursor-pointer"
               >
                 Publish Quiz
               </button>

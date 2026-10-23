@@ -95,7 +95,6 @@ export default function AiTutorDrawer({
     setInputText('');
     setIsTyping(true);
 
-    // Simulate Socratic AI Response
     setTimeout(() => {
       let reply = "Let's analyze that concept step by step. What invariant must hold true after each insertion or rotation?";
       let contextTag = 'Algorithmic Invariants';
@@ -123,7 +122,6 @@ export default function AiTutorDrawer({
     }, 600);
   };
 
-  // Anti-Cheat Rule: AI Tutor is completely hidden & disabled during active quiz attempt
   if (isQuizActive || !isVisible) {
     return null;
   }
@@ -133,82 +131,80 @@ export default function AiTutorDrawer({
       {/* 1. Trigger Icon & Attention Dialog Speech Bubble */}
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3">
-          {/* Pulsing Speech Bubble Attention Dialog */}
+          {/* Attention Dialog Speech Bubble */}
           {!dismissBubble && (
             <div
               onClick={() => setIsOpen(true)}
-              className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl bg-white border border-blue-200 shadow-xl cursor-pointer hover:scale-102 transition-all duration-200 animate-bounce group relative text-slate-800"
+              className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl neu-card-sm border border-white/10 shadow-[0_8px_20px_rgba(0,0,0,0.5)] cursor-pointer hover:scale-102 transition-all duration-200 animate-bounce group relative text-white"
             >
-              <div className="w-2 h-2 rounded-full bg-blue-600 animate-ping shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_white] animate-ping shrink-0" />
               <div className="text-left">
-                <p className="text-[11px] font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">
+                <p className="text-[11px] font-bold text-white group-hover:text-white transition-colors leading-tight">
                   Need help with CS-204 quizzes?
                 </p>
-                <p className="text-[10px] text-blue-600 font-semibold">
+                <p className="text-[10px] text-white/80 font-semibold">
                   Ask me anytime! &rarr;
                 </p>
               </div>
 
-              {/* Close mini bubble */}
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation();
                   setDismissBubble(true);
                 }}
-                className="text-slate-400 hover:text-slate-700 ml-1 p-0.5 rounded cursor-pointer"
+                className="text-[#757575] hover:text-white ml-1 p-0.5 rounded cursor-pointer"
                 title="Dismiss hint"
               >
                 <X className="w-3 h-3" />
               </button>
 
-              {/* Dialog speech bubble arrow pointing right */}
-              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-white border-t border-r border-blue-200 rotate-45" />
+              <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-[#262626] border-t border-r border-white/20 rotate-45" />
             </div>
           )}
 
-          {/* Glowing Floating Action Button */}
+          {/* Glowing Floating Action Button (Cyan Neumorphic) */}
           <button
             onClick={() => setIsOpen(true)}
             aria-label="Open Campus AI Tutor"
-            className="relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 text-white shadow-xl hover:shadow-blue-500/25 hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20 cursor-pointer"
+            className="neu-btn-accent flex items-center gap-2.5 px-4.5 py-3 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform"
           >
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-300 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0a0f1d] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0a0f1d]"></span>
             </span>
-            <div className="w-6 h-6 rounded-lg bg-white/20 text-white flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
+            <div className="w-6 h-6 rounded-lg bg-[#0a0f1d]/20 text-[#0a0f1d] flex items-center justify-center font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-[#0a0f1d]" />
             </div>
-            <span className="text-xs font-bold tracking-tight text-white">AI Tutor</span>
+            <span className="text-xs font-black tracking-tight text-[#0a0f1d]">AI Tutor</span>
           </button>
         </div>
       )}
 
-      {/* 2. Slide-in Right Drawer (Exactly 1/4 (25%) of Viewport Width on Desktop) */}
+      {/* 2. Slide-in Right Drawer (Soft Dark UI) */}
       {isOpen && (
         <div
-          className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 md:w-1/4 bg-white border-l border-slate-200 shadow-2xl flex flex-col font-sans transition-all duration-300 ease-in-out animate-in slide-in-from-right text-slate-800"
+          className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 md:w-[380px] bg-[#222222] border-l border-white/5 shadow-[-20px_0_50px_rgba(0,0,0,0.8)] flex flex-col font-sans transition-all duration-300 ease-in-out animate-in slide-in-from-right text-white"
           role="complementary"
           aria-label="Campus AI Tutor Drawer"
         >
           {/* Drawer Header */}
-          <div className="px-5 py-4 bg-slate-50 text-slate-900 border-b border-slate-200 flex items-center justify-between shrink-0">
+          <div className="px-5 py-4 bg-[#262626] border-b border-white/5 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+              <div className="w-9 h-9 rounded-xl neu-inset text-white flex items-center justify-center">
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-sm tracking-tight text-slate-900">
+                  <h3 className="font-bold text-sm tracking-tight text-white">
                     Campus AI Tutor
                   </h3>
-                  <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold neu-badge-white">
                     Socratic
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+                <div className="flex items-center gap-1.5 text-[11px] text-[#9e9e9e] font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse" />
                   <span>Online &bull; Ready to help</span>
                 </div>
               </div>
@@ -218,7 +214,7 @@ export default function AiTutorDrawer({
               <button
                 onClick={() => setIsOpen(false)}
                 title="Minimize Drawer"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#9e9e9e] hover:text-white neu-btn cursor-pointer"
                 aria-label="Minimize drawer"
               >
                 <Minimize2 className="w-4 h-4" />
@@ -226,7 +222,7 @@ export default function AiTutorDrawer({
               <button
                 onClick={() => setIsOpen(false)}
                 title="Close AI Tutor"
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-[#9e9e9e] hover:text-white neu-btn cursor-pointer"
                 aria-label="Close AI Tutor"
               >
                 <X className="w-4 h-4" />
@@ -235,17 +231,17 @@ export default function AiTutorDrawer({
           </div>
 
           {/* Context Banner */}
-          <div className="px-4 py-2 bg-blue-50/60 border-b border-blue-100 flex items-center justify-between text-[11px] text-slate-700 shrink-0">
+          <div className="px-4 py-2.5 bg-[#1b1b1b] border-b border-white/5 flex items-center justify-between text-[11px] text-[#9e9e9e] shrink-0">
             <span className="font-medium truncate max-w-[200px]">
-              Active Course: <span className="font-bold text-slate-900">{currentCourse}</span>
+              Active Course: <span className="font-bold text-white">{currentCourse}</span>
             </span>
-            <span className="text-blue-700 font-bold bg-white px-2 py-0.5 rounded-md border border-blue-200 text-[10px]">
+            <span className="text-white font-bold neu-inset-sm px-2 py-0.5 text-[10px]">
               Anti-Cheat Locked
             </span>
           </div>
 
           {/* Chat Body */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#1e1e1e]">
             {messages.map((msg) => {
               const isTutor = msg.sender === 'tutor';
               return (
@@ -254,23 +250,23 @@ export default function AiTutorDrawer({
                   className={`flex flex-col ${isTutor ? 'items-start' : 'items-end'}`}
                 >
                   <div className="flex items-center gap-1.5 mb-1 px-1">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-[#757575] uppercase tracking-wider">
                       {isTutor ? 'Campus AI' : 'Alex (You)'}
                     </span>
-                    <span className="text-[10px] text-slate-400">&bull; {msg.timestamp}</span>
+                    <span className="text-[10px] text-[#757575]">&bull; {msg.timestamp}</span>
                   </div>
 
                   <div
-                    className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-xs ${
+                    className={`max-w-[90%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
                       isTutor
-                        ? 'bg-white border border-slate-200 text-slate-800 rounded-tl-xs'
-                        : 'bg-blue-600 text-white rounded-tr-xs'
+                        ? 'neu-card text-white rounded-tl-xs border border-white/5'
+                        : 'neu-inset text-white rounded-tr-xs border border-white/10'
                     }`}
                   >
                     <p>{msg.text}</p>
                     {msg.contextTag && (
-                      <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center gap-1 text-[10px] font-semibold text-blue-600">
-                        <BookOpen className="w-3 h-3 text-blue-600" />
+                      <div className="mt-2 pt-1.5 border-t border-white/5 flex items-center gap-1 text-[10px] font-semibold text-white">
+                        <BookOpen className="w-3 h-3 text-white" />
                         <span>Topic: {msg.contextTag}</span>
                       </div>
                     )}
@@ -280,8 +276,8 @@ export default function AiTutorDrawer({
             })}
 
             {isTyping && (
-              <div className="flex items-center gap-2 text-xs text-slate-600 bg-white border border-slate-200 rounded-2xl px-3 py-2 w-fit shadow-xs">
-                <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-spin" />
+              <div className="flex items-center gap-2 text-xs text-[#9e9e9e] neu-card rounded-2xl px-3.5 py-2 w-fit">
+                <Sparkles className="w-3.5 h-3.5 text-white animate-spin" />
                 <span>AI Tutor is reasoning...</span>
               </div>
             )}
@@ -290,9 +286,9 @@ export default function AiTutorDrawer({
           </div>
 
           {/* Suggested Context Prompts */}
-          <div className="p-3 bg-white border-t border-slate-200 shrink-0">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700 mb-2">
-              <HelpCircle className="w-3 h-3 text-blue-600" />
+          <div className="p-3 bg-[#262626] border-t border-white/5 shrink-0">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-white mb-2">
+              <HelpCircle className="w-3 h-3 text-white" />
               <span>Suggested Questions</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -300,7 +296,7 @@ export default function AiTutorDrawer({
                 <button
                   key={i}
                   onClick={() => handleSendMessage(prompt)}
-                  className="text-left text-[11px] px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 text-slate-700 hover:text-blue-700 font-medium transition-colors cursor-pointer"
+                  className="text-left text-[11px] px-2.5 py-1 rounded-lg neu-btn text-[#9e9e9e] hover:text-white transition-colors cursor-pointer"
                 >
                   {prompt}
                 </button>
@@ -309,7 +305,7 @@ export default function AiTutorDrawer({
           </div>
 
           {/* Input Footer */}
-          <div className="p-3.5 bg-white border-t border-slate-200 shrink-0">
+          <div className="p-3.5 bg-[#262626] border-t border-white/5 shrink-0">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -322,21 +318,21 @@ export default function AiTutorDrawer({
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 placeholder="Ask about Data Structures, quizzes..."
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all"
+                className="flex-1 neu-input px-3.5 py-2.5 text-xs text-white placeholder:text-[#666666]"
               />
               <button
                 type="submit"
                 disabled={!inputText.trim()}
-                className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white shadow-xs transition-all cursor-pointer"
+                className="p-2.5 rounded-xl neu-btn-accent disabled:opacity-40 text-[#0a0f1d] cursor-pointer"
                 aria-label="Send message"
               >
-                <Send className="w-4 h-4 text-white" />
+                <Send className="w-4 h-4 text-[#0a0f1d]" />
               </button>
             </form>
-            <div className="flex items-center justify-between text-[10px] text-slate-400 mt-2 px-1">
+            <div className="flex items-center justify-between text-[10px] text-[#757575] mt-2 px-1">
               <span>Socratic Guidance &bull; Anti-Cheat</span>
-              <span className="flex items-center gap-1 text-slate-700 font-semibold">
-                <CheckCircle2 className="w-3 h-3 text-blue-600" /> Grounded in Syllabus
+              <span className="flex items-center gap-1 text-white/80 font-semibold">
+                <CheckCircle2 className="w-3 h-3 text-white" /> Grounded in Syllabus
               </span>
             </div>
           </div>
