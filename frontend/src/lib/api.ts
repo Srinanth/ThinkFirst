@@ -485,7 +485,7 @@ export const materialsApi = {
 
   uploadNotes: async (
     subjectId: string,
-    data: { title: string; file?: File; rawText?: string }
+    data: { title: string; file?: File; rawText?: string; materialType?: string }
   ) => {
     let token = '';
     try {
@@ -500,6 +500,7 @@ export const materialsApi = {
     formData.append('title', data.title);
     if (data.file) formData.append('file', data.file);
     if (data.rawText) formData.append('rawText', data.rawText);
+    if (data.materialType) formData.append('materialType', data.materialType);
 
     const headers: Record<string, string> = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
@@ -509,7 +510,24 @@ export const materialsApi = {
       headers,
       body: formData,
     });
-    return res.json();
+
+    const json = await res.json();
+    if (!res.ok || !json.success) {
+      throw new Error(json.error?.message || `Upload failed with status ${res.status}`);
+    }
+
+    return json.data as {
+      material: {
+        id: string;
+        title: string;
+        file_type: string;
+        processing_status: string;
+        created_at: string;
+      };
+      extractedCharacterCount: number;
+      chunksCount: number;
+      processingStatus: string;
+    };
   },
 
   similaritySearch: (subjectId: string, query: string) =>

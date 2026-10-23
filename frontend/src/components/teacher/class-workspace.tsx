@@ -28,6 +28,12 @@ import {
   FileText,
   UploadCloud,
   BookOpen,
+  FileUp,
+  FileImage,
+  Paperclip,
+  CheckCircle2,
+  Loader2,
+  Trash2,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -99,6 +105,12 @@ export default function ClassWorkspace({
   >([]);
 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [activeUploadTab, setActiveUploadTab] = useState<'file' | 'text'>('file');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadStage, setUploadStage] = useState<'idle' | 'uploading' | 'ocr' | 'chunking' | 'complete'>('idle');
+  const [ingestedStats, setIngestedStats] = useState<{ chunksCount: number; charCount: number } | null>(null);
   const [materialTitle, setMaterialTitle] = useState('');
   const [materialRawText, setMaterialRawText] = useState('');
   const [isUploadingNotes, setIsUploadingNotes] = useState(false);
@@ -211,37 +223,80 @@ export default function ClassWorkspace({
     }
   };
 
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+    setUploadError(null);
+    if (!materialTitle.trim()) {
+      const cleanName = file.name.replace(/\.[^/.]+$/, '');
+      setMaterialTitle(cleanName);
+    }
+  };
+
   const handleUploadNotes = async () => {
-    if (!materialTitle.trim()) return;
+    const finalTitle =
+      materialTitle.trim() ||
+      selectedFile?.name.replace(/\.[^/.]+$/, '') ||
+      'Course Material';
+
+    if (activeUploadTab === 'file' && !selectedFile) {
+      setUploadError('Please choose a document or image file to upload.');
+      return;
+    }
+
+    if (activeUploadTab === 'text' && !materialRawText.trim()) {
+      setUploadError('Please enter notes text or syllabus units to chunk.');
+      return;
+    }
+
     setIsUploadingNotes(true);
+    setUploadError(null);
+    setIngestedStats(null);
+
+    const isOcr =
+      selectedFile &&
+      (selectedFile.type.includes('pdf') ||
+        selectedFile.type.startsWith('image/') ||
+        selectedFile.name.toLowerCase().endsWith('.pdf'));
+
+    setUploadStage(isOcr ? 'ocr' : 'chunking');
+
     try {
-      await materialsApi.uploadNotes(cls.id, {
-        title: materialTitle,
-        rawText: materialRawText,
+      const result = await materialsApi.uploadNotes(cls.id, {
+        title: finalTitle,
+        file: activeUploadTab === 'file' ? (selectedFile || undefined) : undefined,
+        rawText: activeUploadTab === 'text' ? materialRawText : undefined,
       });
+
+      setUploadStage('complete');
+      setIngestedStats({
+        chunksCount: result.chunksCount || 1,
+        charCount: result.extractedCharacterCount || 0,
+      });
+
       const newMat = {
-        id: `mat-${Date.now()}`,
-        title: materialTitle,
-        file_type: 'notes',
+        id: result.material?.id || `mat-${Date.now()}`,
+        title: result.material?.title || finalTitle,
+        file_type:
+          result.material?.file_type ||
+          (selectedFile ? selectedFile.name.split('.').pop() || 'doc' : 'notes'),
         processing_status: 'ready',
         created_at: 'Just now',
       };
+
       setMaterialsList((prev) => [newMat, ...prev]);
-      setUploadModalOpen(false);
-      setMaterialTitle('');
-      setMaterialRawText('');
-    } catch {
-      const newMat = {
-        id: `mat-${Date.now()}`,
-        title: materialTitle,
-        file_type: 'notes',
-        processing_status: 'ready',
-        created_at: 'Just now',
-      };
-      setMaterialsList((prev) => [newMat, ...prev]);
-      setUploadModalOpen(false);
-      setMaterialTitle('');
-      setMaterialRawText('');
+
+      setTimeout(() => {
+        setUploadModalOpen(false);
+        setMaterialTitle('');
+        setMaterialRawText('');
+        setSelectedFile(null);
+        setUploadStage('idle');
+        setIngestedStats(null);
+      }, 1600);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to ingest material';
+      setUploadError(msg);
+      setUploadStage('idle');
     } finally {
       setIsUploadingNotes(false);
     }
@@ -1311,67 +1366,266 @@ export default function ClassWorkspace({
       {/* INGEST MATERIAL (OCR & NOTES) MODAL                             */}
       {/* ============================================================== */}
       {uploadModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-lg rounded-3xl neu-card-raised p-6 space-y-4 animate-in zoom-in-95 text-white border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.8)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-xl rounded-3xl neu-card-raised p-6 sm:p-7 space-y-4 animate-in zoom-in-95 text-white border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.85)] max-h-[92vh] overflow-y-auto">
+            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <div className="flex items-center gap-2">
-                <UploadCloud className="w-5 h-5 text-cyan-400" />
-                <h3 className="text-base font-black text-white">
-                  Ingest Course Notes &amp; Syllabus (OCR)
-                </h3>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl neu-card-sm flex items-center justify-center text-cyan-400">
+                  <UploadCloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">
+                    Ingest Course Notes &amp; Syllabus
+                  </h3>
+                  <p className="text-[11px] text-[#9e9e9e]">
+                    Multimodal Gemini OCR &bull; Semantic Chunking &bull; pgvector
+                  </p>
+                </div>
               </div>
               <button
-                onClick={() => setUploadModalOpen(false)}
-                className="p-1 rounded-lg text-[#9e9e9e] hover:text-white cursor-pointer"
+                onClick={() => {
+                  if (!isUploadingNotes) {
+                    setUploadModalOpen(false);
+                    setUploadError(null);
+                    setSelectedFile(null);
+                  }
+                }}
+                className="p-1.5 rounded-lg text-[#9e9e9e] hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
-                  Material Title
-                </label>
-                <input
-                  type="text"
-                  value={materialTitle}
-                  onChange={(e) => setMaterialTitle(e.target.value)}
-                  placeholder="e.g. Chapter 4: Limits &amp; Continuity Professor Notes"
-                  className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
-                />
+            {/* Error Message Banner */}
+            {uploadError && (
+              <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in shadow-inner">
+                <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+                <span className="flex-1 leading-relaxed">{uploadError}</span>
               </div>
+            )}
 
+            {/* Ingestion Completion Banner */}
+            {ingestedStats && (
+              <div className="p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2.5 animate-in fade-in shadow-inner">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                <span className="flex-1 font-bold">
+                  Successfully ingested and embedded {ingestedStats.chunksCount} semantic chunks ({ingestedStats.charCount.toLocaleString()} chars) into pgvector!
+                </span>
+              </div>
+            )}
+
+            {/* Mode Tabs: File Upload vs Direct Text Input */}
+            <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl neu-inset">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveUploadTab('file');
+                  setUploadError(null);
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  activeUploadTab === 'file'
+                    ? 'neu-btn text-white bg-[#2b2b2b] shadow-sm'
+                    : 'text-[#9e9e9e] hover:text-white'
+                }`}
+              >
+                <FileUp className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Upload Document (OCR)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveUploadTab('text');
+                  setUploadError(null);
+                }}
+                className={`py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                  activeUploadTab === 'text'
+                    ? 'neu-btn text-white bg-[#2b2b2b] shadow-sm'
+                    : 'text-[#9e9e9e] hover:text-white'
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <span>Paste Notes / Text</span>
+              </button>
+            </div>
+
+            {/* Tab 1: Interactive Drag & Drop File Upload */}
+            {activeUploadTab === 'file' && (
+              <div className="space-y-3">
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) handleFileSelect(file);
+                  }}
+                  onClick={() => document.getElementById('course-file-input')?.click()}
+                  className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all ${
+                    isDragging
+                      ? 'border-cyan-400 bg-cyan-950/20 scale-[0.99]'
+                      : selectedFile
+                      ? 'border-emerald-500/40 bg-emerald-950/10'
+                      : 'border-white/10 hover:border-white/20 bg-[#1c1c1c]/50'
+                  }`}
+                >
+                  <input
+                    id="course-file-input"
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.md"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileSelect(file);
+                    }}
+                  />
+
+                  {selectedFile ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-cyan-400">
+                        {selectedFile.type.startsWith('image/') ? (
+                          <FileImage className="w-6 h-6" />
+                        ) : (
+                          <FileText className="w-6 h-6" />
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-black text-white">{selectedFile.name}</p>
+                        <p className="text-[11px] text-[#9e9e9e]">
+                          {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB &bull; {selectedFile.type || 'Document'}
+                        </p>
+                      </div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold neu-badge-white mt-1">
+                        <Sparkles className="w-3 h-3 text-cyan-400" />
+                        {selectedFile.type.includes('pdf') || selectedFile.type.startsWith('image/') || selectedFile.name.toLowerCase().endsWith('.pdf')
+                          ? 'Gemini Multimodal OCR Active'
+                          : 'Direct Structured Text Parser'}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedFile(null);
+                        }}
+                        className="mt-2 text-[11px] text-rose-400 hover:text-rose-300 font-semibold flex items-center gap-1 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Choose a different file</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2.5">
+                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-[#9e9e9e]">
+                        <UploadCloud className="w-6 h-6 text-cyan-400" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-white">
+                          Drag and drop course notes, slides, or syllabus here
+                        </p>
+                        <p className="text-[11px] text-[#757575] mt-0.5">
+                          or click to browse from your device
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-semibold text-[#9e9e9e] neu-inset-sm px-2.5 py-1">
+                        PDF, PNG, JPG, WEBP, TXT, MD &bull; Up to 20MB
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Material Title Field */}
+            <div>
+              <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
+                Material Title <span className="text-white">*</span>
+              </label>
+              <input
+                type="text"
+                value={materialTitle}
+                onChange={(e) => setMaterialTitle(e.target.value)}
+                placeholder="e.g. Lecture 04: AVL Tree Rotations &amp; Invariants"
+                className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
+              />
+            </div>
+
+            {/* Tab 2: Direct Text Area */}
+            {activeUploadTab === 'text' && (
               <div>
                 <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
-                  Paste Notes Text or Syllabus Units
+                  Paste Notes Text or Syllabus Units <span className="text-white">*</span>
                 </label>
                 <textarea
-                  rows={5}
+                  rows={6}
                   value={materialRawText}
                   onChange={(e) => setMaterialRawText(e.target.value)}
-                  placeholder="Paste lecture notes, formulas, theorems, or summaries here. Text will be semantically chunked and embedded in pgvector..."
+                  placeholder="Paste raw lecture transcripts, textbook chapters, math theorems, formulas, or syllabus modules here. Will be semantically split into 500-token chunks with 768-dim embeddings..."
                   className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666] leading-relaxed resize-none"
                 />
               </div>
-            </div>
+            )}
 
+            {/* Ingestion Pipeline Live Progress Indicator */}
+            {isUploadingNotes && (
+              <div className="p-3.5 rounded-2xl neu-inset space-y-2 animate-in fade-in">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-cyan-400 flex items-center gap-2">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {uploadStage === 'uploading' && 'Uploading document to ingestion pipeline...'}
+                    {uploadStage === 'ocr' && 'Extracting text & math equations via Gemini Multimodal OCR...'}
+                    {uploadStage === 'chunking' && 'Splitting semantic chunks (500 tokens) & embedding in pgvector...'}
+                    {uploadStage === 'complete' && 'Ingestion & pgvector indexing finalized!'}
+                  </span>
+                  <span className="text-[10px] font-mono text-[#757575] uppercase">Pipeline Active</span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-[#1e1e1e] overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 animate-pulse w-full" />
+                </div>
+              </div>
+            )}
+
+            {/* Footer Actions */}
             <div className="pt-3 border-t border-white/5 flex items-center justify-end gap-2.5">
               <button
                 type="button"
-                onClick={() => setUploadModalOpen(false)}
-                className="px-4 py-2 neu-btn text-xs font-bold text-[#9e9e9e] hover:text-white cursor-pointer"
+                disabled={isUploadingNotes}
+                onClick={() => {
+                  setUploadModalOpen(false);
+                  setUploadError(null);
+                  setSelectedFile(null);
+                }}
+                className="px-4 py-2 neu-btn text-xs font-bold text-[#9e9e9e] hover:text-white cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="button"
-                disabled={isUploadingNotes || !materialTitle.trim()}
+                disabled={
+                  isUploadingNotes ||
+                  (activeUploadTab === 'file' && !selectedFile) ||
+                  (activeUploadTab === 'text' && !materialRawText.trim())
+                }
                 onClick={handleUploadNotes}
-                className="px-5 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-black cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] text-xs font-black cursor-pointer flex items-center gap-1.5 disabled:opacity-50 transition-all shadow-md rounded-xl"
               >
-                <Sparkles className="w-4 h-4 text-[#0a0f1d]" />
-                <span>{isUploadingNotes ? 'Ingesting Chunks...' : 'Chunk & Embed in pgvector'}</span>
+                {isUploadingNotes ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                    <span>Processing Chunks...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 text-[#0a0f1d]" />
+                    <span>Extract, Chunk &amp; Embed in pgvector</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
