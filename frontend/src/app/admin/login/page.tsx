@@ -15,6 +15,7 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -45,36 +46,40 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
+      // 1. Authenticate via server-side bcrypt endpoint
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: finalEmail, password: finalPassword }),
+      });
 
-      const { data: authData, error: authError } =
-        await supabase.auth.signInWithPassword({
-          email: finalEmail,
-          password: finalPassword,
-        });
+      const json = await res.json();
 
-      if (authError || !authData?.user) {
+      if (!res.ok || !json.success) {
         setLoading(false);
-        setErrorMessage(authError?.message || 'Invalid administrator credentials.');
+        setErrorMessage(json.error?.message || 'Invalid administrator credentials.');
         return;
       }
 
-      // Check role
-      let role = authData.user.user_metadata?.role as string;
-      if (!role) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', authData.user.id)
-          .single();
-        role = profile?.role || 'admin';
-      }
+      const { user, session } = json.data;
 
-      if (role !== 'admin') {
+      if (user.role !== 'admin') {
         setLoading(false);
         setErrorMessage('Access denied. This console is restricted to administrators.');
-        await supabase.auth.signOut();
         return;
+      }
+
+      // 2. Synchronize Supabase browser client session
+      if (session?.access_token && session?.refresh_token) {
+        try {
+          const supabase = createClient();
+          await supabase.auth.setSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+          });
+        } catch (sessErr) {
+          console.warn('Session hydration warning:', sessErr);
+        }
       }
 
       document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';

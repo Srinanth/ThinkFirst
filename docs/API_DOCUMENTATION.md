@@ -98,6 +98,36 @@ Content-Type: application/json
 
 ### Module 1: Authentication & User Profiles (`/auth`, `/profiles`)
 
+#### 1.0 Server-Side User Login with Bcrypt Verification
+- **Method & Path**: `POST /api/v1/auth/login`
+- **Access**: Public
+- **Request Body**:
+```json
+{
+  "email": "tcr2026@institution.edu",
+  "password": "Teacher@2026"
+}
+```
+- **Response `200 OK`**:
+```json
+{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "4925878e-8442-4c5a-bde1-d4b0f690c87d",
+      "email": "tcr2026@institution.edu",
+      "role": "teacher",
+      "full_name": "rinz logic",
+      "college": "Faculty of Engineering"
+    },
+    "session": {
+      "access_token": "eyJhbGciOi...",
+      "refresh_token": "..."
+    }
+  }
+}
+```
+
 #### 1.1 Get Current User Profile
 - **Method & Path**: `GET /api/v1/auth/me`
 - **Access**: Authenticated (`student`, `teacher`, `admin`, `superadmin`)

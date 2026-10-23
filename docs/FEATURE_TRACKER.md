@@ -60,7 +60,7 @@ Progress: [███████████████████░] 93%
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
 | **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | Scaffolding organized in `backend/` (Next.js removed, isolated backend) |
-| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/auth.middleware.ts` (aligned with live `profiles.college`) |
+| **BE-02** | Authentication Service & Middleware (`/login`, `requireAuth`) | `auth` | `P0` | `[x] Completed` | Srinanth | Server-side bcrypt login (`POST /auth/login`) & `backend/src/middlewares/auth.middleware.ts` |
 | **BE-03** | Role-Based Access Control (`requireRole`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/role.middleware.ts` (4 roles) |
 | **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/membership.middleware.ts` |
 | **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/validation.middleware.ts` |

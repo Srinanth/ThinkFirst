@@ -3,6 +3,16 @@ import { authService } from './auth.service.js';
 import { sendSuccess } from '../../utils/response.util.js';
 
 export class AuthController {
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email, password } = req.body;
+      const result = await authService.login(email, password);
+      sendSuccess(res, result);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async getMe(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const profile = await authService.getProfile(req.user!.id);

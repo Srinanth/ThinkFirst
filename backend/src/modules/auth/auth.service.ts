@@ -1,5 +1,6 @@
-import { supabaseAdmin } from '../../config/supabase.js';
-import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
+import bcrypt from 'bcryptjs';
+import { supabase, supabaseAdmin } from '../../config/supabase.js';
+import { BadRequestError, NotFoundError, UnauthorizedError } from '../../utils/errors.util.js';
 
 export interface UpdateProfileInput {
   fullName?: string;
@@ -16,6 +17,109 @@ export interface CreateUserInput {
 }
 
 export class AuthService {
+  /**
+   * Server-side authentication with bcrypt password verification
+   */
+  async login(emailInput: string, passwordInput: string) {
+    const email = emailInput.trim().toLowerCase();
+    const password = passwordInput;
+
+    if (!email || !password) {
+      throw new BadRequestError('Email and password are required.');
+    }
+
+    // 1. Locate auth identity
+    const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+    if (listError || !usersData?.users) {
+      throw new UnauthorizedError('Invalid email or password.');
+    }
+
+    const authUser = usersData.users.find(
+      (u) => u.email?.toLowerCase() === email
+    );
+
+    if (!authUser) {
+      throw new UnauthorizedError('Invalid email or password.');
+    }
+
+    // 2. Fetch corresponding profile
+    const { data: profile, error: profError } = await supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, college, role, password')
+      .eq('id', authUser.id)
+      .single();
+
+    if (profError || !profile) {
+      throw new UnauthorizedError('User profile not found.');
+    }
+
+    // 3. Verify password via bcrypt against profiles.password
+    let isValid = false;
+    if (profile.password && profile.password !== 'NULL') {
+      try {
+        isValid = await bcrypt.compare(password, profile.password);
+      } catch {
+        isValid = false;
+      }
+    }
+
+    // 4. Fallback verification via Supabase Auth
+    if (!isValid) {
+      const { data: signData, error: signError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (!signError && signData?.user) {
+        isValid = true;
+      }
+    }
+
+    if (!isValid) {
+      throw new UnauthorizedError('Invalid email or password.');
+    }
+
+    // 5. Ensure bcrypt hash in profiles and Supabase password are synchronized
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await supabaseAdmin
+      .from('profiles')
+      .update({ password: hashedPassword })
+      .eq('id', authUser.id);
+
+    try {
+      await supabaseAdmin.auth.admin.updateUserById(authUser.id, { password });
+    } catch {
+      // Ignore if already matching
+    }
+
+    // 6. Obtain fresh JWT session token
+    let session: { access_token: string; refresh_token: string } | null = null;
+    try {
+      const { data: signData } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signData?.session) {
+        session = {
+          access_token: signData.session.access_token,
+          refresh_token: signData.session.refresh_token,
+        };
+      }
+    } catch {
+      // In case session creation fails
+    }
+
+    return {
+      user: {
+        id: authUser.id,
+        email: authUser.email,
+        role: profile.role,
+        full_name: profile.full_name,
+        college: profile.college,
+      },
+      session,
+    };
+  }
+
   async getProfile(userId: string) {
     const { data, error } = await supabaseAdmin
       .from('profiles')
@@ -200,6 +304,7 @@ export class AuthService {
       );
     }
 
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .upsert(
@@ -208,6 +313,7 @@ export class AuthService {
           full_name: input.fullName,
           role: input.role,
           college: input.college || 'Faculty of Engineering',
+          password: hashedPassword,
         },
         { onConflict: 'id' }
       )

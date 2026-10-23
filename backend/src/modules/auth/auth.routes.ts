@@ -5,6 +5,7 @@ import { requireRole } from '../../middlewares/role.middleware.js';
 
 const router = Router();
 
+router.post('/login', authController.login);
 router.get('/me', requireAuth, authController.getMe);
 router.put('/me', requireAuth, authController.updateMe);
 router.get('/stats', requireAuth, requireRole(['admin']), authController.getStats);

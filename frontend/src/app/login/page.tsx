@@ -15,6 +15,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { API_BASE_URL } from '@/lib/api';
 
 export default function AcademicLoginPage() {
   const router = useRouter();
@@ -45,36 +46,42 @@ export default function AcademicLoginPage() {
     setLoading(true);
 
     try {
-      const supabase = createClient();
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: targetEmail,
-        password: targetPassword,
+      // 1. Authenticate via server-side bcrypt endpoint
+      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: targetEmail, password: targetPassword }),
       });
 
-      if (error || !data?.user) {
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
         setLoading(false);
-        setErrorMessage(error?.message || 'Invalid email or password.');
+        setErrorMessage(json.error?.message || 'Invalid email or password.');
         return;
       }
 
-      // Determine user role from Supabase user_metadata or profiles table
-      let role = data.user.user_metadata?.role as string;
-      if (!role) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-        role = profile?.role || 'student';
+      const { user, session } = json.data;
+
+      // 2. Synchronize Supabase browser client session
+      if (session?.access_token && session?.refresh_token) {
+        try {
+          const supabase = createClient();
+          await supabase.auth.setSession({
+            access_token: session.access_token,
+            refresh_token: session.refresh_token,
+          });
+        } catch (sessErr) {
+          console.warn('Session hydration warning:', sessErr);
+        }
       }
 
-      // Clear legacy demo cookies and set authenticated role cookie
+      // 3. Clear legacy demo cookies and set authenticated role cookie
       document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
-      document.cookie = `thinkfirst_user_role=${role}; path=/; max-age=86400; SameSite=Lax`;
+      document.cookie = `thinkfirst_user_role=${user.role}; path=/; max-age=86400; SameSite=Lax`;
 
       const targetPath =
-        role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/student';
+        user.role === 'admin' ? '/admin' : user.role === 'teacher' ? '/teacher' : '/student';
       window.location.href = targetPath;
     } catch (err: unknown) {
       setLoading(false);
