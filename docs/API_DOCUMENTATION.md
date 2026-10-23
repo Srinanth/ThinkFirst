@@ -163,10 +163,20 @@ Content-Type: application/json
 - **Access**: Authenticated
 - **Response `200 OK`**: Array of subjects taught by or enrolled in by the user.
 
-#### 2.3 Enroll in Subject (Student Self-Enrollment)
-- **Method & Path**: `POST /api/v1/subjects/:subjectId/join`
-- **Access**: `student`
-- **Response `200 OK`**: Membership confirmation.
+#### 2.3 Enroll Student in Subject (Teacher / Admin Only)
+- **Method & Path**: `POST /api/v1/subjects/:subjectId/enroll`
+- **Access**: Instructor of `:subjectId` or `admin`
+- **Request Body**:
+```json
+{
+  "email": "student@thinkfirst.edu"
+}
+// OR
+{
+  "studentId": "14edad9c-054b-46af-8591-9ae2dfb613d0"
+}
+```
+- **Response `201 Created`**: Membership confirmation record linking student to subject.
 
 #### 2.4 Get Enrolled Students Roster
 - **Method & Path**: `GET /api/v1/subjects/:subjectId/members`

@@ -297,11 +297,14 @@ async function runAllTests() {
 
     await executeHttp({
       category: 'Subjects & Memberships',
-      name: 'Student Self-Enrolls in Subject Offering',
+      name: 'Teacher Enrolls Student into Subject Offering',
       method: 'POST',
-      path: `/api/v1/subjects/${subjectId}/join`,
-      token: student.accessToken,
-      expectedStatus: 200,
+      path: `/api/v1/subjects/${subjectId}/enroll`,
+      token: teacher.accessToken,
+      body: {
+        studentId: student.userId,
+      },
+      expectedStatus: 201,
     });
 
     await executeHttp({

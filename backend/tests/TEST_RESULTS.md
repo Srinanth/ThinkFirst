@@ -1,6 +1,6 @@
 # ThinkFirst Backend — End-to-End Test Execution Report
 
-**Execution Date**: 2026-10-23T16:44:31.246Z  
+**Execution Date**: 2026-10-23T17:13:34.699Z  
 **Environment**: Local Test Suite against live Supabase Database & Google Gemini API  
 **Test Port**: `5055`  
 **Gemini Model**: `gemini-2.5-flash` / `gemini-3.8-flash` | **Embeddings**: `gemini-embedding-001` (768-dim)  
@@ -15,40 +15,40 @@
 | **Passed** | `28` ✅ |
 | **Failed** | `0`  |
 | **Pass Rate** | **100.0%** |
-| **Total Execution Duration** | `69.18s` |
+| **Total Execution Duration** | `65.21s` |
 
 ## 2. Test Execution Matrix
 
 | # | Category | Scenario / Endpoint | Method | Status | Latency | Result |
 |---|---|---|:---:|:---:|:---:|:---:|
-| 1 | System Health | Server Health & Diagnostics Check | `GET` | `200` | 8ms | ✅ PASS |
-| 2 | Auth & Profiles | Retrieve Current Teacher Profile | `GET` | `200` | 536ms | ✅ PASS |
-| 3 | Auth & Profiles | Retrieve Current Student Profile | `GET` | `200` | 479ms | ✅ PASS |
-| 4 | Auth & Profiles | Update Student Profile Metadata | `PUT` | `200` | 968ms | ✅ PASS |
-| 5 | Subjects & Memberships | Teacher Creates Subject Offering | `POST` | `201` | 882ms | ✅ PASS |
-| 6 | Subjects & Memberships | Teacher Lists Owned Subjects | `GET` | `200` | 839ms | ✅ PASS |
-| 7 | Subjects & Memberships | Student Self-Enrolls in Subject Offering | `POST` | `200` | 473ms | ✅ PASS |
-| 8 | Subjects & Memberships | Inspect Subject Roster Members | `GET` | `200` | 1892ms | ✅ PASS |
-| 9 | Curriculum Topics | Teacher Creates Manual Curriculum Topic Node | `POST` | `201` | 925ms | ✅ PASS |
-| 10 | Curriculum Topics | Curriculum Agent: Parse Syllabus into Structured Tree | `POST` | `201` | 8095ms | ✅ PASS |
-| 11 | Curriculum Topics | Retrieve Hierarchical Curriculum Tree | `GET` | `200` | 2045ms | ✅ PASS |
-| 12 | Learning Materials & Vector Search | Teacher Registers Learning Material Metadata | `POST` | `201` | 799ms | ✅ PASS |
-| 13 | Learning Materials & Vector Search | Ingest Text & Generate 768-dim Vector Embeddings | `POST` | `200` | 2138ms | ✅ PASS |
-| 14 | Learning Materials & Vector Search | List Materials Registered Under Subject | `GET` | `200` | 774ms | ✅ PASS |
-| 15 | Learning Materials & Vector Search | Semantic Vector Similarity Search Over Course Notes | `POST` | `200` | 1585ms | ✅ PASS |
-| 16 | Quizzes & Deterministic Mastery | Quiz Agent: Generate Concept-Diagnostic Quiz | `POST` | `201` | 16937ms | ✅ PASS |
-| 17 | Quizzes & Deterministic Mastery | Inspect Quiz Details & Questions | `GET` | `200` | 857ms | ✅ PASS |
-| 18 | Quizzes & Deterministic Mastery | Student Starts Timed Quiz Attempt | `POST` | `201` | 913ms | ✅ PASS |
-| 19 | Quizzes & Deterministic Mastery | Submit Attempt: Evaluator Agent & Deterministic Mastery Update | `POST` | `200` | 1596ms | ✅ PASS |
-| 20 | Quizzes & Deterministic Mastery | Student Inspects Graded Attempt & Evaluator Rubrics | `GET` | `200` | 737ms | ✅ PASS |
-| 21 | Mastery Engine | Student Inspects Own Topic Mastery Score | `GET` | `200` | 729ms | ✅ PASS |
-| 22 | Mastery Engine | Inspect Student Mastery Audit History Timeline | `GET` | `200` | 1259ms | ✅ PASS |
-| 23 | Mastery Engine | Teacher Inspects Class-Wide Mastery Overview Dashboard | `GET` | `200` | 1088ms | ✅ PASS |
-| 24 | Socratic Tutor | Student Starts Socratic Tutoring Conversation | `POST` | `201` | 393ms | ✅ PASS |
-| 25 | Socratic Tutor | Student Inquires with Socratic Tutor (Non-streaming) | `POST` | `201` | 6545ms | ✅ PASS |
-| 26 | Socratic Tutor | Retrieve Conversation Message History | `GET` | `200` | 1025ms | ✅ PASS |
-| 27 | Teacher Insights | Insight Agent: Synthesize Class Diagnostic Insights | `POST` | `201` | 10241ms | ✅ PASS |
-| 28 | Teacher Insights | Teacher Lists Generated Diagnostic Insights | `GET` | `200` | 1335ms | ✅ PASS |
+| 1 | System Health | Server Health & Diagnostics Check | `GET` | `200` | 7ms | ✅ PASS |
+| 2 | Auth & Profiles | Retrieve Current Teacher Profile | `GET` | `200` | 484ms | ✅ PASS |
+| 3 | Auth & Profiles | Retrieve Current Student Profile | `GET` | `200` | 411ms | ✅ PASS |
+| 4 | Auth & Profiles | Update Student Profile Metadata | `PUT` | `200` | 446ms | ✅ PASS |
+| 5 | Subjects & Memberships | Teacher Creates Subject Offering | `POST` | `201` | 442ms | ✅ PASS |
+| 6 | Subjects & Memberships | Teacher Lists Owned Subjects | `GET` | `200` | 481ms | ✅ PASS |
+| 7 | Subjects & Memberships | Teacher Enrolls Student into Subject Offering | `POST` | `201` | 979ms | ✅ PASS |
+| 8 | Subjects & Memberships | Inspect Subject Roster Members | `GET` | `200` | 1331ms | ✅ PASS |
+| 9 | Curriculum Topics | Teacher Creates Manual Curriculum Topic Node | `POST` | `201` | 1330ms | ✅ PASS |
+| 10 | Curriculum Topics | Curriculum Agent: Parse Syllabus into Structured Tree | `POST` | `201` | 6504ms | ✅ PASS |
+| 11 | Curriculum Topics | Retrieve Hierarchical Curriculum Tree | `GET` | `200` | 967ms | ✅ PASS |
+| 12 | Learning Materials & Vector Search | Teacher Registers Learning Material Metadata | `POST` | `201` | 599ms | ✅ PASS |
+| 13 | Learning Materials & Vector Search | Ingest Text & Generate 768-dim Vector Embeddings | `POST` | `200` | 1697ms | ✅ PASS |
+| 14 | Learning Materials & Vector Search | List Materials Registered Under Subject | `GET` | `200` | 674ms | ✅ PASS |
+| 15 | Learning Materials & Vector Search | Semantic Vector Similarity Search Over Course Notes | `POST` | `200` | 1523ms | ✅ PASS |
+| 16 | Quizzes & Deterministic Mastery | Quiz Agent: Generate Concept-Diagnostic Quiz | `POST` | `201` | 17829ms | ✅ PASS |
+| 17 | Quizzes & Deterministic Mastery | Inspect Quiz Details & Questions | `GET` | `200` | 883ms | ✅ PASS |
+| 18 | Quizzes & Deterministic Mastery | Student Starts Timed Quiz Attempt | `POST` | `201` | 722ms | ✅ PASS |
+| 19 | Quizzes & Deterministic Mastery | Submit Attempt: Evaluator Agent & Deterministic Mastery Update | `POST` | `200` | 1361ms | ✅ PASS |
+| 20 | Quizzes & Deterministic Mastery | Student Inspects Graded Attempt & Evaluator Rubrics | `GET` | `200` | 568ms | ✅ PASS |
+| 21 | Mastery Engine | Student Inspects Own Topic Mastery Score | `GET` | `200` | 773ms | ✅ PASS |
+| 22 | Mastery Engine | Inspect Student Mastery Audit History Timeline | `GET` | `200` | 1125ms | ✅ PASS |
+| 23 | Mastery Engine | Teacher Inspects Class-Wide Mastery Overview Dashboard | `GET` | `200` | 1112ms | ✅ PASS |
+| 24 | Socratic Tutor | Student Starts Socratic Tutoring Conversation | `POST` | `201` | 838ms | ✅ PASS |
+| 25 | Socratic Tutor | Student Inquires with Socratic Tutor (Non-streaming) | `POST` | `201` | 6763ms | ✅ PASS |
+| 26 | Socratic Tutor | Retrieve Conversation Message History | `GET` | `200` | 611ms | ✅ PASS |
+| 27 | Teacher Insights | Insight Agent: Synthesize Class Diagnostic Insights | `POST` | `201` | 11481ms | ✅ PASS |
+| 28 | Teacher Insights | Teacher Lists Generated Diagnostic Insights | `GET` | `200` | 917ms | ✅ PASS |
 
 ---
 
@@ -58,7 +58,7 @@
 
 - **Category**: System Health
 - **Endpoint**: `GET /health`
-- **Response Status**: `200 OK` (8ms)
+- **Response Status**: `200 OK` (7ms)
 
 #### Request
 
@@ -77,10 +77,10 @@ Content-Type: application/json
     "status": "healthy",
     "service": "thinkfirst-backend",
     "version": "1.0.0",
-    "timestamp": "2026-10-23T16:43:25.151Z"
+    "timestamp": "2026-10-23T17:12:31.840Z"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:25.152Z"
+    "timestamp": "2026-10-23T17:12:31.841Z"
   }
 }
 ```
@@ -91,7 +91,7 @@ Content-Type: application/json
 
 - **Category**: Auth & Profiles
 - **Endpoint**: `GET /api/v1/auth/me`
-- **Response Status**: `200 OK` (536ms)
+- **Response Status**: `200 OK` (484ms)
 
 #### Request
 
@@ -115,7 +115,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     "created_at": "2026-10-23T16:19:03.072583+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:25.691Z"
+    "timestamp": "2026-10-23T17:12:32.327Z"
   }
 }
 ```
@@ -126,7 +126,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 
 - **Category**: Auth & Profiles
 - **Endpoint**: `GET /api/v1/auth/me`
-- **Response Status**: `200 OK` (479ms)
+- **Response Status**: `200 OK` (411ms)
 
 #### Request
 
@@ -150,7 +150,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     "created_at": "2026-10-23T16:19:04.705514+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:26.170Z"
+    "timestamp": "2026-10-23T17:12:32.737Z"
   }
 }
 ```
@@ -161,7 +161,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 
 - **Category**: Auth & Profiles
 - **Endpoint**: `PUT /api/v1/auth/me`
-- **Response Status**: `200 OK` (968ms)
+- **Response Status**: `200 OK` (446ms)
 
 #### Request
 
@@ -192,7 +192,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     "created_at": "2026-10-23T16:19:04.705514+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:27.139Z"
+    "timestamp": "2026-10-23T17:12:33.183Z"
   }
 }
 ```
@@ -203,7 +203,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 
 - **Category**: Subjects & Memberships
 - **Endpoint**: `POST /api/v1/subjects`
-- **Response Status**: `201 Created` (882ms)
+- **Response Status**: `201 Created` (442ms)
 
 #### Request
 
@@ -216,9 +216,9 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 **Request Payload**:
 ```json
 {
-  "subject": "Differential Calculus & Analysis (Run 7139)",
+  "subject": "Differential Calculus & Analysis (Run 3184)",
   "academicYear": "2025-2026",
-  "className": "Sec-7139"
+  "className": "Sec-3184"
 }
 ```
 
@@ -229,15 +229,15 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+    "id": "399c465e-9772-49c7-b742-a30bf0f0809d",
     "teacher_id": "b4791b46-ecc3-484b-a9d5-c611555661a9",
-    "subject": "Differential Calculus & Analysis (Run 7139)",
+    "subject": "Differential Calculus & Analysis (Run 3184)",
     "academic_year": "2025-2026",
-    "class_name": "Sec-7139",
-    "created_at": "2026-10-23T16:43:28.355907+00:00"
+    "class_name": "Sec-3184",
+    "created_at": "2026-10-23T17:12:34.097419+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:28.022Z"
+    "timestamp": "2026-10-23T17:12:33.626Z"
   }
 }
 ```
@@ -248,7 +248,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 
 - **Category**: Subjects & Memberships
 - **Endpoint**: `GET /api/v1/subjects`
-- **Response Status**: `200 OK` (839ms)
+- **Response Status**: `200 OK` (481ms)
 
 #### Request
 
@@ -266,17 +266,20 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
+      "id": "399c465e-9772-49c7-b742-a30bf0f0809d",
+      "subject": "Differential Calculus & Analysis (Run 3184)",
+      "academic_year": "2025-2026",
+      "class_name": "Sec-3184",
+      "created_at": "2026-10-23T17:12:34.097419+00:00",
+      "studentCount": 0
+    },
+    {
       "id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
       "subject": "Differential Calculus & Analysis (Run 7139)",
       "academic_year": "2025-2026",
       "class_name": "Sec-7139",
       "created_at": "2026-10-23T16:43:28.355907+00:00",
-      "memberships": [
-        {
-          "count": 0
-        }
-      ],
-      "studentCount": 0
+      "studentCount": 1
     },
     {
       "id": "9e961db3-60bd-4462-a276-f5eb66d12003",
@@ -284,34 +287,36 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
       "academic_year": "2025-2026",
       "class_name": "Section Alpha",
       "created_at": "2026-10-23T16:27:19.384977+00:00",
-      "memberships": [
-        {
-          "count": 0
-        }
-      ],
       "studentCount": 0
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:43:28.861Z"
+    "timestamp": "2026-10-23T17:12:34.107Z"
   }
 }
 ```
 
 ---
 
-### Test #7: Student Self-Enrolls in Subject Offering (✅ PASS)
+### Test #7: Teacher Enrolls Student into Subject Offering (✅ PASS)
 
 - **Category**: Subjects & Memberships
-- **Endpoint**: `POST /api/v1/subjects/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/join`
-- **Response Status**: `200 OK` (473ms)
+- **Endpoint**: `POST /api/v1/subjects/399c465e-9772-49c7-b742-a30bf0f0809d/enroll`
+- **Response Status**: `201 Created` (979ms)
 
 #### Request
 
 ```http
-POST /api/v1/subjects/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/join HTTP/1.1
+POST /api/v1/subjects/399c465e-9772-49c7-b742-a30bf0f0809d/enroll HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
+```
+
+**Request Payload**:
+```json
+{
+  "studentId": "14edad9c-054b-46af-8591-9ae2dfb613d0"
+}
 ```
 
 #### Response
@@ -321,12 +326,12 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+    "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
     "student_id": "14edad9c-054b-46af-8591-9ae2dfb613d0",
-    "joined_at": "2026-10-23T16:43:29.780022+00:00"
+    "joined_at": "2026-10-23T17:12:35.419993+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:29.334Z"
+    "timestamp": "2026-10-23T17:12:35.086Z"
   }
 }
 ```
@@ -336,13 +341,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #8: Inspect Subject Roster Members (✅ PASS)
 
 - **Category**: Subjects & Memberships
-- **Endpoint**: `GET /api/v1/subjects/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/members`
-- **Response Status**: `200 OK` (1892ms)
+- **Endpoint**: `GET /api/v1/subjects/399c465e-9772-49c7-b742-a30bf0f0809d/members`
+- **Response Status**: `200 OK` (1331ms)
 
 #### Request
 
 ```http
-GET /api/v1/subjects/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/members HTTP/1.1
+GET /api/v1/subjects/399c465e-9772-49c7-b742-a30bf0f0809d/members HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -355,7 +360,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
-      "joinedAt": "2026-10-23T16:43:29.780022+00:00",
+      "joinedAt": "2026-10-23T17:12:35.419993+00:00",
       "id": "14edad9c-054b-46af-8591-9ae2dfb613d0",
       "role": "student",
       "college": "ThinkFirst Institute of AI & Cognitive Sciences",
@@ -363,7 +368,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:43:31.226Z"
+    "timestamp": "2026-10-23T17:12:36.418Z"
   }
 }
 ```
@@ -373,13 +378,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #9: Teacher Creates Manual Curriculum Topic Node (✅ PASS)
 
 - **Category**: Curriculum Topics
-- **Endpoint**: `POST /api/v1/curriculum/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/topics`
-- **Response Status**: `201 Created` (925ms)
+- **Endpoint**: `POST /api/v1/curriculum/399c465e-9772-49c7-b742-a30bf0f0809d/topics`
+- **Response Status**: `201 Created` (1330ms)
 
 #### Request
 
 ```http
-POST /api/v1/curriculum/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/topics HTTP/1.1
+POST /api/v1/curriculum/399c465e-9772-49c7-b742-a30bf0f0809d/topics HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -400,16 +405,16 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
-    "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+    "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
+    "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
     "parent_topic_id": null,
     "title": "Module 1: Foundations of Limits and Continuity",
     "description": "Epsilon-delta definitions, squeeze theorem, and one-sided limits.",
     "node_type": "module",
-    "created_at": "2026-10-23T16:43:32.567684+00:00"
+    "created_at": "2026-10-23T17:12:38.091662+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:32.151Z"
+    "timestamp": "2026-10-23T17:12:37.747Z"
   }
 }
 ```
@@ -419,13 +424,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #10: Curriculum Agent: Parse Syllabus into Structured Tree (✅ PASS)
 
 - **Category**: Curriculum Topics
-- **Endpoint**: `POST /api/v1/curriculum/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/generate`
-- **Response Status**: `201 Created` (8095ms)
+- **Endpoint**: `POST /api/v1/curriculum/399c465e-9772-49c7-b742-a30bf0f0809d/generate`
+- **Response Status**: `201 Created` (6504ms)
 
 #### Request
 
 ```http
-POST /api/v1/curriculum/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/generate HTTP/1.1
+POST /api/v1/curriculum/399c465e-9772-49c7-b742-a30bf0f0809d/generate HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -449,73 +454,73 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     "totalTopicsCreated": 6,
     "tree": [
       {
-        "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
-        "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+        "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
+        "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
         "parentTopicId": null,
         "title": "Module 1: Foundations of Limits and Continuity",
         "description": "Epsilon-delta definitions, squeeze theorem, and one-sided limits.",
         "nodeType": "module",
-        "createdAt": "2026-10-23T16:43:32.567684+00:00",
+        "createdAt": "2026-10-23T17:12:38.091662+00:00",
         "children": []
       },
       {
-        "id": "45872f41-99a9-4091-8355-f67b4ab22489",
-        "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+        "id": "b4686686-242a-4780-aaa5-7a1f290a62c3",
+        "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
         "parentTopicId": null,
         "title": "Module 2: Differential Foundations and Transcendental Derivatives",
-        "description": "Explores the fundamental definition of the derivative and essential rules for differentiating various functions, including transcendental ones.",
+        "description": "This module establishes the fundamental definition of the derivative and explores essential rules for differentiating various functions, including transcendental ones.",
         "nodeType": "module",
-        "createdAt": "2026-10-23T16:43:39.019593+00:00",
+        "createdAt": "2026-10-23T17:12:42.976356+00:00",
         "children": [
           {
-            "id": "f3aed9ed-08c4-4586-986f-001c98354f6c",
-            "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-            "parentTopicId": "45872f41-99a9-4091-8355-f67b4ab22489",
+            "id": "6f5b6c4f-0b4c-4ad7-b266-a6efb154bb5e",
+            "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+            "parentTopicId": "b4686686-242a-4780-aaa5-7a1f290a62c3",
             "title": "Topic 2.1: The Derivative as a Limit of Difference Quotients",
-            "description": "Covers the formal definition of the derivative using limits of difference quotients, emphasizing its foundational role in calculus.",
+            "description": "Covers the formal definition of the derivative using limits, understanding its geometric interpretation as the slope of a tangent line, and its application in calculating instantaneous rates of change.",
             "nodeType": "topic",
-            "createdAt": "2026-10-23T16:43:39.253388+00:00",
+            "createdAt": "2026-10-23T17:12:43.393841+00:00",
             "children": []
           },
           {
-            "id": "8d953bf1-ef84-4910-80d1-3c38f8c0b999",
-            "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-            "parentTopicId": "45872f41-99a9-4091-8355-f67b4ab22489",
+            "id": "d1ef8928-6ff3-47b8-9610-7f61a3dcc039",
+            "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+            "parentTopicId": "b4686686-242a-4780-aaa5-7a1f290a62c3",
             "title": "Topic 2.2: Product, Quotient, and Chain Rules",
-            "description": "Details the fundamental rules for differentiation: the product rule, quotient rule, and chain rule, crucial for complex function differentiation.",
+            "description": "Explores advanced differentiation techniques for combinations of functions, including the product rule for multiplying functions, the quotient rule for dividing functions, and the chain rule for composite functions.",
             "nodeType": "topic",
-            "createdAt": "2026-10-23T16:43:39.436761+00:00",
+            "createdAt": "2026-10-23T17:12:43.817456+00:00",
             "children": []
           }
         ]
       },
       {
-        "id": "fae08725-57f8-4c58-911d-864dd0af3426",
-        "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+        "id": "31a9ff6c-fbda-4080-b0a6-e96d57b3fabc",
+        "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
         "parentTopicId": null,
         "title": "Module 3: Applications of the Derivative",
-        "description": "Focuses on practical applications of derivatives to solve problems involving rates of change, optimization, and function behavior.",
+        "description": "Focuses on applying derivative concepts to solve real-world problems, including analyzing function behavior, optimization, and related rates.",
         "nodeType": "module",
-        "createdAt": "2026-10-23T16:43:39.738958+00:00",
+        "createdAt": "2026-10-23T17:12:44.252104+00:00",
         "children": [
           {
-            "id": "cbcf05f0-4761-4b38-9bcf-26b575a5674c",
-            "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-            "parentTopicId": "fae08725-57f8-4c58-911d-864dd0af3426",
+            "id": "69a0ec6f-a16a-4441-b830-410af165f5c5",
+            "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+            "parentTopicId": "31a9ff6c-fbda-4080-b0a6-e96d57b3fabc",
             "title": "Topic 3.1: Mean Value Theorem and Extreme Value Theorem",
-            "description": "Examines the Mean Value Theorem and Extreme Value Theorem, their statements, proofs, and implications for function analysis.",
+            "description": "Examines key theorems that describe the behavior of differentiable functions, including the Mean Value Theorem relating average and instantaneous rates of change, and the Extreme Value Theorem guaranteeing maximum and minimum values.",
             "nodeType": "topic",
-            "createdAt": "2026-10-23T16:43:39.972691+00:00",
+            "createdAt": "2026-10-23T17:12:44.438313+00:00",
             "children": []
           },
           {
-            "id": "0dd66ce9-ecbc-494c-bca8-8bc2cb4eda64",
-            "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-            "parentTopicId": "fae08725-57f8-4c58-911d-864dd0af3426",
+            "id": "d7bdbf08-f6c0-4bc2-a456-25b79f31d902",
+            "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+            "parentTopicId": "31a9ff6c-fbda-4080-b0a6-e96d57b3fabc",
             "title": "Topic 3.2: Optimization and Related Rates",
-            "description": "Applies derivatives to solve real-world problems involving finding maximum/minimum values (optimization) and determining rates of change in related quantities.",
+            "description": "Applies derivatives to solve problems involving finding maximum or minimum values (optimization) and determining how rates of change of two or more quantities are related (related rates).",
             "nodeType": "topic",
-            "createdAt": "2026-10-23T16:43:40.2573+00:00",
+            "createdAt": "2026-10-23T17:12:44.542763+00:00",
             "children": []
           }
         ]
@@ -523,7 +528,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     ]
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:40.246Z"
+    "timestamp": "2026-10-23T17:12:44.251Z"
   }
 }
 ```
@@ -533,13 +538,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #11: Retrieve Hierarchical Curriculum Tree (✅ PASS)
 
 - **Category**: Curriculum Topics
-- **Endpoint**: `GET /api/v1/curriculum/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/tree`
-- **Response Status**: `200 OK` (2045ms)
+- **Endpoint**: `GET /api/v1/curriculum/399c465e-9772-49c7-b742-a30bf0f0809d/tree`
+- **Response Status**: `200 OK` (967ms)
 
 #### Request
 
 ```http
-GET /api/v1/curriculum/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/tree HTTP/1.1
+GET /api/v1/curriculum/399c465e-9772-49c7-b742-a30bf0f0809d/tree HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -552,80 +557,80 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
-      "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
-      "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+      "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
+      "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
       "parentTopicId": null,
       "title": "Module 1: Foundations of Limits and Continuity",
       "description": "Epsilon-delta definitions, squeeze theorem, and one-sided limits.",
       "nodeType": "module",
-      "createdAt": "2026-10-23T16:43:32.567684+00:00",
+      "createdAt": "2026-10-23T17:12:38.091662+00:00",
       "children": []
     },
     {
-      "id": "45872f41-99a9-4091-8355-f67b4ab22489",
-      "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+      "id": "b4686686-242a-4780-aaa5-7a1f290a62c3",
+      "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
       "parentTopicId": null,
       "title": "Module 2: Differential Foundations and Transcendental Derivatives",
-      "description": "Explores the fundamental definition of the derivative and essential rules for differentiating various functions, including transcendental ones.",
+      "description": "This module establishes the fundamental definition of the derivative and explores essential rules for differentiating various functions, including transcendental ones.",
       "nodeType": "module",
-      "createdAt": "2026-10-23T16:43:39.019593+00:00",
+      "createdAt": "2026-10-23T17:12:42.976356+00:00",
       "children": [
         {
-          "id": "f3aed9ed-08c4-4586-986f-001c98354f6c",
-          "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-          "parentTopicId": "45872f41-99a9-4091-8355-f67b4ab22489",
+          "id": "6f5b6c4f-0b4c-4ad7-b266-a6efb154bb5e",
+          "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+          "parentTopicId": "b4686686-242a-4780-aaa5-7a1f290a62c3",
           "title": "Topic 2.1: The Derivative as a Limit of Difference Quotients",
-          "description": "Covers the formal definition of the derivative using limits of difference quotients, emphasizing its foundational role in calculus.",
+          "description": "Covers the formal definition of the derivative using limits, understanding its geometric interpretation as the slope of a tangent line, and its application in calculating instantaneous rates of change.",
           "nodeType": "topic",
-          "createdAt": "2026-10-23T16:43:39.253388+00:00",
+          "createdAt": "2026-10-23T17:12:43.393841+00:00",
           "children": []
         },
         {
-          "id": "8d953bf1-ef84-4910-80d1-3c38f8c0b999",
-          "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-          "parentTopicId": "45872f41-99a9-4091-8355-f67b4ab22489",
+          "id": "d1ef8928-6ff3-47b8-9610-7f61a3dcc039",
+          "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+          "parentTopicId": "b4686686-242a-4780-aaa5-7a1f290a62c3",
           "title": "Topic 2.2: Product, Quotient, and Chain Rules",
-          "description": "Details the fundamental rules for differentiation: the product rule, quotient rule, and chain rule, crucial for complex function differentiation.",
+          "description": "Explores advanced differentiation techniques for combinations of functions, including the product rule for multiplying functions, the quotient rule for dividing functions, and the chain rule for composite functions.",
           "nodeType": "topic",
-          "createdAt": "2026-10-23T16:43:39.436761+00:00",
+          "createdAt": "2026-10-23T17:12:43.817456+00:00",
           "children": []
         }
       ]
     },
     {
-      "id": "fae08725-57f8-4c58-911d-864dd0af3426",
-      "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+      "id": "31a9ff6c-fbda-4080-b0a6-e96d57b3fabc",
+      "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
       "parentTopicId": null,
       "title": "Module 3: Applications of the Derivative",
-      "description": "Focuses on practical applications of derivatives to solve problems involving rates of change, optimization, and function behavior.",
+      "description": "Focuses on applying derivative concepts to solve real-world problems, including analyzing function behavior, optimization, and related rates.",
       "nodeType": "module",
-      "createdAt": "2026-10-23T16:43:39.738958+00:00",
+      "createdAt": "2026-10-23T17:12:44.252104+00:00",
       "children": [
         {
-          "id": "cbcf05f0-4761-4b38-9bcf-26b575a5674c",
-          "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-          "parentTopicId": "fae08725-57f8-4c58-911d-864dd0af3426",
+          "id": "69a0ec6f-a16a-4441-b830-410af165f5c5",
+          "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+          "parentTopicId": "31a9ff6c-fbda-4080-b0a6-e96d57b3fabc",
           "title": "Topic 3.1: Mean Value Theorem and Extreme Value Theorem",
-          "description": "Examines the Mean Value Theorem and Extreme Value Theorem, their statements, proofs, and implications for function analysis.",
+          "description": "Examines key theorems that describe the behavior of differentiable functions, including the Mean Value Theorem relating average and instantaneous rates of change, and the Extreme Value Theorem guaranteeing maximum and minimum values.",
           "nodeType": "topic",
-          "createdAt": "2026-10-23T16:43:39.972691+00:00",
+          "createdAt": "2026-10-23T17:12:44.438313+00:00",
           "children": []
         },
         {
-          "id": "0dd66ce9-ecbc-494c-bca8-8bc2cb4eda64",
-          "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-          "parentTopicId": "fae08725-57f8-4c58-911d-864dd0af3426",
+          "id": "d7bdbf08-f6c0-4bc2-a456-25b79f31d902",
+          "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+          "parentTopicId": "31a9ff6c-fbda-4080-b0a6-e96d57b3fabc",
           "title": "Topic 3.2: Optimization and Related Rates",
-          "description": "Applies derivatives to solve real-world problems involving finding maximum/minimum values (optimization) and determining rates of change in related quantities.",
+          "description": "Applies derivatives to solve problems involving finding maximum or minimum values (optimization) and determining how rates of change of two or more quantities are related (related rates).",
           "nodeType": "topic",
-          "createdAt": "2026-10-23T16:43:40.2573+00:00",
+          "createdAt": "2026-10-23T17:12:44.542763+00:00",
           "children": []
         }
       ]
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:43:42.292Z"
+    "timestamp": "2026-10-23T17:12:45.218Z"
   }
 }
 ```
@@ -635,13 +640,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #12: Teacher Registers Learning Material Metadata (✅ PASS)
 
 - **Category**: Learning Materials & Vector Search
-- **Endpoint**: `POST /api/v1/materials/9aed634f-2fb0-4bf7-a062-ddd34bd7298c`
-- **Response Status**: `201 Created` (799ms)
+- **Endpoint**: `POST /api/v1/materials/399c465e-9772-49c7-b742-a30bf0f0809d`
+- **Response Status**: `201 Created` (599ms)
 
 #### Request
 
 ```http
-POST /api/v1/materials/9aed634f-2fb0-4bf7-a062-ddd34bd7298c HTTP/1.1
+POST /api/v1/materials/399c465e-9772-49c7-b742-a30bf0f0809d HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -653,7 +658,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "filePath": "course_materials/lecture_04_squeeze_theorem.pdf",
   "fileType": "pdf",
   "materialType": "lecture_notes",
-  "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a"
+  "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2"
 }
 ```
 
@@ -664,17 +669,17 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "781ab766-49d3-4a75-abf3-d3043edd9b27",
-    "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-    "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+    "id": "347fcd33-d8ff-4619-b7d3-9924f1133df0",
+    "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
+    "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
     "title": "Lecture 04: The Squeeze Theorem and Trigonometric Limits",
     "file_path": "course_materials/lecture_04_squeeze_theorem.pdf",
     "file_type": "pdf",
     "processing_status": "pending",
-    "created_at": "2026-10-23T16:43:43.541162+00:00"
+    "created_at": "2026-10-23T17:12:46.289629+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:43.090Z"
+    "timestamp": "2026-10-23T17:12:45.818Z"
   }
 }
 ```
@@ -684,13 +689,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #13: Ingest Text & Generate 768-dim Vector Embeddings (✅ PASS)
 
 - **Category**: Learning Materials & Vector Search
-- **Endpoint**: `POST /api/v1/materials/detail/781ab766-49d3-4a75-abf3-d3043edd9b27/ingest`
-- **Response Status**: `200 OK` (2138ms)
+- **Endpoint**: `POST /api/v1/materials/detail/347fcd33-d8ff-4619-b7d3-9924f1133df0/ingest`
+- **Response Status**: `200 OK` (1697ms)
 
 #### Request
 
 ```http
-POST /api/v1/materials/detail/781ab766-49d3-4a75-abf3-d3043edd9b27/ingest HTTP/1.1
+POST /api/v1/materials/detail/347fcd33-d8ff-4619-b7d3-9924f1133df0/ingest HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -709,17 +714,17 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "materialId": "781ab766-49d3-4a75-abf3-d3043edd9b27",
+    "materialId": "347fcd33-d8ff-4619-b7d3-9924f1133df0",
     "status": "ready",
     "totalChunks": 1,
     "material": {
-      "id": "781ab766-49d3-4a75-abf3-d3043edd9b27",
+      "id": "347fcd33-d8ff-4619-b7d3-9924f1133df0",
       "title": "Lecture 04: The Squeeze Theorem and Trigonometric Limits",
       "processing_status": "ready"
     }
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:45.228Z"
+    "timestamp": "2026-10-23T17:12:47.514Z"
   }
 }
 ```
@@ -729,13 +734,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #14: List Materials Registered Under Subject (✅ PASS)
 
 - **Category**: Learning Materials & Vector Search
-- **Endpoint**: `GET /api/v1/materials/9aed634f-2fb0-4bf7-a062-ddd34bd7298c`
-- **Response Status**: `200 OK` (774ms)
+- **Endpoint**: `GET /api/v1/materials/399c465e-9772-49c7-b742-a30bf0f0809d`
+- **Response Status**: `200 OK` (674ms)
 
 #### Request
 
 ```http
-GET /api/v1/materials/9aed634f-2fb0-4bf7-a062-ddd34bd7298c HTTP/1.1
+GET /api/v1/materials/399c465e-9772-49c7-b742-a30bf0f0809d HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -748,22 +753,22 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
-      "id": "781ab766-49d3-4a75-abf3-d3043edd9b27",
-      "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+      "id": "347fcd33-d8ff-4619-b7d3-9924f1133df0",
+      "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
       "title": "Lecture 04: The Squeeze Theorem and Trigonometric Limits",
       "file_path": "course_materials/lecture_04_squeeze_theorem.pdf",
       "file_type": "pdf",
       "material_type": "lecture_notes",
       "processing_status": "ready",
-      "created_at": "2026-10-23T16:43:43.541162+00:00",
+      "created_at": "2026-10-23T17:12:46.289629+00:00",
       "curriculum_topics": {
-        "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+        "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
         "title": "Module 1: Foundations of Limits and Continuity"
       }
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:43:46.003Z"
+    "timestamp": "2026-10-23T17:12:48.188Z"
   }
 }
 ```
@@ -773,13 +778,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #15: Semantic Vector Similarity Search Over Course Notes (✅ PASS)
 
 - **Category**: Learning Materials & Vector Search
-- **Endpoint**: `POST /api/v1/materials/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/search`
-- **Response Status**: `200 OK` (1585ms)
+- **Endpoint**: `POST /api/v1/materials/399c465e-9772-49c7-b742-a30bf0f0809d/search`
+- **Response Status**: `200 OK` (1523ms)
 
 #### Request
 
 ```http
-POST /api/v1/materials/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/search HTTP/1.1
+POST /api/v1/materials/399c465e-9772-49c7-b742-a30bf0f0809d/search HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -804,8 +809,8 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     "resultsCount": 1,
     "matches": [
       {
-        "id": "e4244ec0-7972-4007-b2ad-6f6602fe9c42",
-        "learningMaterialId": "781ab766-49d3-4a75-abf3-d3043edd9b27",
+        "id": "9d16afcd-3041-4ae1-84ee-21b2b5c5268f",
+        "learningMaterialId": "347fcd33-d8ff-4619-b7d3-9924f1133df0",
         "chunkIndex": 0,
         "content": "The Squeeze Theorem (also known as the Sandwich Theorem) states that if f(x) <= g(x) <= h(x) for all x in an open interval containing c, and lim_{x->c} f(x) = lim_{x->c} h(x) = L, then lim_{x->c} g(x) = L.\n\nA canonical application of the Squeeze Theorem is evaluating the limit as x approaches 0 of x^2 * sin(1/x). Since the sine function is bounded between -1 and 1, we have -1 <= sin(1/x) <= 1. Multiplying by x^2 yields -x^2 <= x^2 * sin(1/x) <= x^2. Since both -x^2 and x^2 approach 0 as x approaches 0, the squeeze theorem forces lim_{x->0} x^2 * sin(1/x) = 0.\n\nAnother fundamental trigonometric limit derived from geometric bounds on the unit circle is lim_{theta->0} (sin theta)/theta = 1.",
         "similarity": 0.814369023736115
@@ -813,7 +818,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     ]
   },
   "meta": {
-    "timestamp": "2026-10-23T16:43:47.586Z"
+    "timestamp": "2026-10-23T17:12:49.712Z"
   }
 }
 ```
@@ -823,13 +828,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #16: Quiz Agent: Generate Concept-Diagnostic Quiz (✅ PASS)
 
 - **Category**: Quizzes & Deterministic Mastery
-- **Endpoint**: `POST /api/v1/quizzes/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/generate`
-- **Response Status**: `201 Created` (16937ms)
+- **Endpoint**: `POST /api/v1/quizzes/399c465e-9772-49c7-b742-a30bf0f0809d/generate`
+- **Response Status**: `201 Created` (17829ms)
 
 #### Request
 
 ```http
-POST /api/v1/quizzes/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/generate HTTP/1.1
+POST /api/v1/quizzes/399c465e-9772-49c7-b742-a30bf0f0809d/generate HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -838,7 +843,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```json
 {
   "title": "Diagnostic Quiz: Squeeze Theorem & Continuity",
-  "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a",
+  "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
   "difficulty": "medium",
   "questionCount": 2,
   "examDuration": 15
@@ -852,59 +857,59 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "1a6cbdd5-2f58-4202-bd9b-822ba840dad3",
-    "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-    "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+    "id": "062263fb-569a-421c-b399-8251728e493a",
+    "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
+    "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
     "title": "Diagnostic Quiz: Squeeze Theorem & Continuity",
     "description": "AI-generated diagnostic quiz covering Module 1: Foundations of Limits and Continuity",
     "difficulty": "medium",
     "question_count": 2,
     "exam_duration": 15,
     "status": "published",
-    "created_at": "2026-10-23T16:44:03.486629+00:00",
+    "created_at": "2026-10-23T17:13:07.320397+00:00",
     "curriculum_topics": {
-      "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+      "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
       "title": "Module 1: Foundations of Limits and Continuity"
     },
     "questions": [
       {
-        "id": "1473f7c0-4f5d-40b5-b753-73b6cee436da",
+        "id": "27deca2d-d1bc-4122-846e-3b0034a46230",
         "position": 0,
-        "questionText": "Using the Squeeze Theorem, evaluate the limit: `lim_{x->0} x * cos(1/x)`.",
+        "questionText": "Evaluate the limit: `lim_{x->0} (x * cos(1/x))`",
         "questionType": "multiple_choice",
         "options": [
           "0",
           "1",
-          "The limit does not exist.",
-          "Undefined because `cos(1/x)` oscillates infinitely."
+          "Undefined",
+          "-1"
         ],
         "difficulty": "medium",
         "marks": 1,
-        "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a",
+        "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
         "correctAnswer": "0",
-        "explanation": "The cosine function is bounded, so we know that `-1 <= cos(1/x) <= 1` for all `x != 0`. \nTo apply the Squeeze Theorem, we multiply the inequality by `|x|` (since `|x| >= 0`), which gives us `-|x| <= x * cos(1/x) <= |x|`. \n(Alternatively, if `x > 0`, then `-x <= x * cos(1/x) <= x`. If `x < 0`, then `x <= x * cos(1/x) <= -x`. Both cases are covered by `-|x| <= x * cos(1/x) <= |x|`).\nWe then evaluate the limits of the bounding functions:\n`lim_{x->0} -|x| = 0`\n`lim_{x->0} |x| = 0`\nSince both bounding functions approach 0 as `x` approaches 0, by the Squeeze Theorem, `lim_{x->0} x * cos(1/x) = 0`.\nOptions C and D are incorrect because while `cos(1/x)` oscillates infinitely as `x -> 0`, the multiplication by `x` (which approaches 0) 'squeezes' the function towards 0. Option B is incorrect as it might be confused with the fundamental trigonometric limit `lim_{x->0} sin(x)/x = 1`."
+        "explanation": "To evaluate `lim_{x->0} (x * cos(1/x))`, we can use the Squeeze Theorem. We know that the cosine function is bounded between -1 and 1 for all real numbers, so `-1 <= cos(1/x) <= 1` for all `x != 0`. \n\nTo apply the Squeeze Theorem, we need to multiply the inequality by `x`. Since `x` can be positive or negative as `x` approaches 0, it's safer to work with absolute values: `|x * cos(1/x)| = |x| * |cos(1/x)|`. \n\nSince `|cos(1/x)| <= 1`, it follows that `|x * cos(1/x)| <= |x| * 1 = |x|`. \n\nThis inequality can be rewritten as `-|x| <= x * cos(1/x) <= |x|`. \n\nNow, we evaluate the limits of the bounding functions as `x -> 0`: \n`lim_{x->0} -|x| = 0` \n`lim_{x->0} |x| = 0` \n\nSince both bounding functions approach 0 as `x -> 0`, by the Squeeze Theorem, `lim_{x->0} (x * cos(1/x)) = 0`.\n\nDistractor '1' might arise from confusing this with `lim_{x->0} (sin x)/x = 1` or incorrectly assuming `cos(0)=1` applies directly. Distractor 'Undefined' is a common misconception when dealing with `1/x` at `x=0` or the oscillation of `cos(1/x)`, failing to recognize how the `x` factor 'damps' this behavior. Distractor '-1' is similar to '1' but with an incorrect sign."
       },
       {
-        "id": "4838de13-e2bc-427c-afce-ed84897e0f73",
+        "id": "1289f81c-10d9-4310-9e9d-7239571e1dde",
         "position": 1,
-        "questionText": "Consider the function `f(x) = (x^2 + 1) * sin(1/x)`. Which of the following statements is true regarding `lim_{x->0} f(x)`?",
+        "questionText": "Which of the following statements about the Squeeze Theorem is FALSE?",
         "questionType": "multiple_choice",
         "options": [
-          "The limit is 0, by the Squeeze Theorem.",
-          "The limit is 1, because `lim_{x->0} (x^2 + 1) = 1`.",
-          "The limit is -1, because `sin(1/x)` can be -1.",
-          "The limit does not exist, because the bounding functions for `f(x)` do not converge to the same value."
+          "If `f(x) <= g(x) <= h(x)` for all `x` in an open interval containing `c`, and `lim_{x->c} f(x) = L` and `lim_{x->c} h(x) = L`, then `lim_{x->c} g(x) = L`.",
+          "The Squeeze Theorem can be used to evaluate limits where direct substitution results in an indeterminate form involving a bounded oscillating function multiplied by a function approaching zero.",
+          "For the Squeeze Theorem to apply, the functions `f(x)` and `h(x)` must be continuous at `x=c`.",
+          "If `lim_{x->c} f(x) = L` and `lim_{x->c} h(x) = M` where `L != M`, and `f(x) <= g(x) <= h(x)`, then `lim_{x->c} g(x)` cannot be determined by the Squeeze Theorem."
         ],
         "difficulty": "medium",
         "marks": 1,
-        "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a",
-        "correctAnswer": "The limit does not exist, because the bounding functions for `f(x)` do not converge to the same value.",
-        "explanation": "We know that the sine function is bounded, so `-1 <= sin(1/x) <= 1` for `x != 0`. \nTo find bounds for `f(x)`, we multiply the inequality by `(x^2 + 1)`. Since `x^2 + 1` is always positive, the inequality signs remain the same:\n`-(x^2 + 1) <= (x^2 + 1) * sin(1/x) <= (x^2 + 1)`.\nNext, we evaluate the limits of these bounding functions as `x -> 0`:\n`lim_{x->0} -(x^2 + 1) = -(0^2 + 1) = -1`\n`lim_{x->0} (x^2 + 1) = (0^2 + 1) = 1`\nFor the Squeeze Theorem to apply and conclude that the limit exists, the lower and upper bounding functions must converge to the *same* limit. In this case, they converge to -1 and 1, respectively, which are different values. Therefore, the Squeeze Theorem cannot be used to determine the limit. \nSince `sin(1/x)` oscillates infinitely between -1 and 1 as `x -> 0`, and `(x^2 + 1)` approaches 1, the function `f(x)` will oscillate between values close to -1 and 1. Thus, the limit `lim_{x->0} f(x)` does not exist.\nOption A is incorrect because the Squeeze Theorem requires the bounding functions to converge to the same limit. Option B is incorrect because `sin(1/x)` does not approach 1; it oscillates. Option C is incorrect because `sin(1/x)` also takes values close to 1, so the function oscillates between -1 and 1, not just approaching -1."
+        "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
+        "correctAnswer": "For the Squeeze Theorem to apply, the functions `f(x)` and `h(x)` must be continuous at `x=c`.",
+        "explanation": "Let's analyze each statement:\n\n*   **Statement A:** This is the precise definition of the Squeeze Theorem. It correctly states the conditions and conclusion. Thus, it is TRUE.\n\n*   **Statement B:** This describes a canonical application of the Squeeze Theorem, such as `lim_{x->0} x^2 * sin(1/x)`. Here, `sin(1/x)` is a bounded oscillating function, and `x^2` approaches zero. The theorem is indeed very useful for such indeterminate forms. Thus, it is TRUE.\n\n*   **Statement C:** This statement is FALSE. The Squeeze Theorem only requires that the *limits* of `f(x)` and `h(x)` exist and are equal at `x=c`. The functions `f(x)` and `h(x)` themselves do not need to be continuous at `x=c`, nor do they even need to be defined at `x=c`. For example, `f(x)` could have a hole or a jump discontinuity at `x=c`, as long as its limit exists.\n\n*   **Statement D:** This statement correctly identifies a limitation of the Squeeze Theorem. If the limits of the bounding functions `f(x)` and `h(x)` are not equal, the theorem cannot be used to determine the limit of `g(x)`. The limit of `g(x)` might still exist, but the Squeeze Theorem does not provide that information. Thus, it is TRUE.\n\nTherefore, the FALSE statement is that `f(x)` and `h(x)` must be continuous at `x=c`."
       }
     ]
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:04.524Z"
+    "timestamp": "2026-10-23T17:13:07.541Z"
   }
 }
 ```
@@ -914,13 +919,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #17: Inspect Quiz Details & Questions (✅ PASS)
 
 - **Category**: Quizzes & Deterministic Mastery
-- **Endpoint**: `GET /api/v1/quizzes/detail/1a6cbdd5-2f58-4202-bd9b-822ba840dad3`
-- **Response Status**: `200 OK` (857ms)
+- **Endpoint**: `GET /api/v1/quizzes/detail/062263fb-569a-421c-b399-8251728e493a`
+- **Response Status**: `200 OK` (883ms)
 
 #### Request
 
 ```http
-GET /api/v1/quizzes/detail/1a6cbdd5-2f58-4202-bd9b-822ba840dad3 HTTP/1.1
+GET /api/v1/quizzes/detail/062263fb-569a-421c-b399-8251728e493a HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -932,55 +937,55 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "1a6cbdd5-2f58-4202-bd9b-822ba840dad3",
-    "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-    "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+    "id": "062263fb-569a-421c-b399-8251728e493a",
+    "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
+    "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
     "title": "Diagnostic Quiz: Squeeze Theorem & Continuity",
     "description": "AI-generated diagnostic quiz covering Module 1: Foundations of Limits and Continuity",
     "difficulty": "medium",
     "question_count": 2,
     "exam_duration": 15,
     "status": "published",
-    "created_at": "2026-10-23T16:44:03.486629+00:00",
+    "created_at": "2026-10-23T17:13:07.320397+00:00",
     "curriculum_topics": {
-      "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+      "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
       "title": "Module 1: Foundations of Limits and Continuity"
     },
     "questions": [
       {
-        "id": "1473f7c0-4f5d-40b5-b753-73b6cee436da",
+        "id": "27deca2d-d1bc-4122-846e-3b0034a46230",
         "position": 0,
-        "questionText": "Using the Squeeze Theorem, evaluate the limit: `lim_{x->0} x * cos(1/x)`.",
+        "questionText": "Evaluate the limit: `lim_{x->0} (x * cos(1/x))`",
         "questionType": "multiple_choice",
         "options": [
           "0",
           "1",
-          "The limit does not exist.",
-          "Undefined because `cos(1/x)` oscillates infinitely."
+          "Undefined",
+          "-1"
         ],
         "difficulty": "medium",
         "marks": 1,
-        "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a"
+        "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2"
       },
       {
-        "id": "4838de13-e2bc-427c-afce-ed84897e0f73",
+        "id": "1289f81c-10d9-4310-9e9d-7239571e1dde",
         "position": 1,
-        "questionText": "Consider the function `f(x) = (x^2 + 1) * sin(1/x)`. Which of the following statements is true regarding `lim_{x->0} f(x)`?",
+        "questionText": "Which of the following statements about the Squeeze Theorem is FALSE?",
         "questionType": "multiple_choice",
         "options": [
-          "The limit is 0, by the Squeeze Theorem.",
-          "The limit is 1, because `lim_{x->0} (x^2 + 1) = 1`.",
-          "The limit is -1, because `sin(1/x)` can be -1.",
-          "The limit does not exist, because the bounding functions for `f(x)` do not converge to the same value."
+          "If `f(x) <= g(x) <= h(x)` for all `x` in an open interval containing `c`, and `lim_{x->c} f(x) = L` and `lim_{x->c} h(x) = L`, then `lim_{x->c} g(x) = L`.",
+          "The Squeeze Theorem can be used to evaluate limits where direct substitution results in an indeterminate form involving a bounded oscillating function multiplied by a function approaching zero.",
+          "For the Squeeze Theorem to apply, the functions `f(x)` and `h(x)` must be continuous at `x=c`.",
+          "If `lim_{x->c} f(x) = L` and `lim_{x->c} h(x) = M` where `L != M`, and `f(x) <= g(x) <= h(x)`, then `lim_{x->c} g(x)` cannot be determined by the Squeeze Theorem."
         ],
         "difficulty": "medium",
         "marks": 1,
-        "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a"
+        "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2"
       }
     ]
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:05.381Z"
+    "timestamp": "2026-10-23T17:13:08.424Z"
   }
 }
 ```
@@ -990,13 +995,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #18: Student Starts Timed Quiz Attempt (✅ PASS)
 
 - **Category**: Quizzes & Deterministic Mastery
-- **Endpoint**: `POST /api/v1/quizzes/detail/1a6cbdd5-2f58-4202-bd9b-822ba840dad3/attempts`
-- **Response Status**: `201 Created` (913ms)
+- **Endpoint**: `POST /api/v1/quizzes/detail/062263fb-569a-421c-b399-8251728e493a/attempts`
+- **Response Status**: `201 Created` (722ms)
 
 #### Request
 
 ```http
-POST /api/v1/quizzes/detail/1a6cbdd5-2f58-4202-bd9b-822ba840dad3/attempts HTTP/1.1
+POST /api/v1/quizzes/detail/062263fb-569a-421c-b399-8251728e493a/attempts HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1008,18 +1013,18 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "6e34981f-8f67-4b13-9f75-34a0d60f96d6",
-    "quiz_id": "1a6cbdd5-2f58-4202-bd9b-822ba840dad3",
+    "id": "73c1e6b8-4b1d-4089-bd3e-2eef5835a2f2",
+    "quiz_id": "062263fb-569a-421c-b399-8251728e493a",
     "student_id": "14edad9c-054b-46af-8591-9ae2dfb613d0",
     "score": null,
     "max_score": 2,
     "status": "in_progress",
-    "started_at": "2026-10-23T16:44:06.714365+00:00",
+    "started_at": "2026-10-23T17:13:09.62761+00:00",
     "submitted_at": null,
     "graded_at": null
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:06.294Z"
+    "timestamp": "2026-10-23T17:13:09.146Z"
   }
 }
 ```
@@ -1029,13 +1034,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #19: Submit Attempt: Evaluator Agent & Deterministic Mastery Update (✅ PASS)
 
 - **Category**: Quizzes & Deterministic Mastery
-- **Endpoint**: `POST /api/v1/quizzes/attempts/6e34981f-8f67-4b13-9f75-34a0d60f96d6/submit`
-- **Response Status**: `200 OK` (1596ms)
+- **Endpoint**: `POST /api/v1/quizzes/attempts/73c1e6b8-4b1d-4089-bd3e-2eef5835a2f2/submit`
+- **Response Status**: `200 OK` (1361ms)
 
 #### Request
 
 ```http
-POST /api/v1/quizzes/attempts/6e34981f-8f67-4b13-9f75-34a0d60f96d6/submit HTTP/1.1
+POST /api/v1/quizzes/attempts/73c1e6b8-4b1d-4089-bd3e-2eef5835a2f2/submit HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1045,7 +1050,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "responses": [
     {
-      "questionId": "1473f7c0-4f5d-40b5-b753-73b6cee436da",
+      "questionId": "27deca2d-d1bc-4122-846e-3b0034a46230",
       "studentAnswer": "The limit is 0 because -x^2 <= x^2 sin(1/x) <= x^2, and both bounds tend to 0."
     }
   ]
@@ -1060,22 +1065,22 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": {
     "attempt": {
-      "id": "6e34981f-8f67-4b13-9f75-34a0d60f96d6",
-      "quiz_id": "1a6cbdd5-2f58-4202-bd9b-822ba840dad3",
+      "id": "73c1e6b8-4b1d-4089-bd3e-2eef5835a2f2",
+      "quiz_id": "062263fb-569a-421c-b399-8251728e493a",
       "student_id": "14edad9c-054b-46af-8591-9ae2dfb613d0",
       "score": 0,
       "max_score": 1,
       "status": "graded",
-      "started_at": "2026-10-23T16:44:06.714365+00:00",
-      "submitted_at": "2026-10-23T16:44:07.718+00:00",
-      "graded_at": "2026-10-23T16:44:07.718+00:00"
+      "started_at": "2026-10-23T17:13:09.62761+00:00",
+      "submitted_at": "2026-10-23T17:13:10.35+00:00",
+      "graded_at": "2026-10-23T17:13:10.35+00:00"
     },
     "score": 0,
     "maxScore": 1,
     "percentage": 0
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:07.891Z"
+    "timestamp": "2026-10-23T17:13:10.507Z"
   }
 }
 ```
@@ -1085,13 +1090,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #20: Student Inspects Graded Attempt & Evaluator Rubrics (✅ PASS)
 
 - **Category**: Quizzes & Deterministic Mastery
-- **Endpoint**: `GET /api/v1/quizzes/attempts/6e34981f-8f67-4b13-9f75-34a0d60f96d6/results`
-- **Response Status**: `200 OK` (737ms)
+- **Endpoint**: `GET /api/v1/quizzes/attempts/73c1e6b8-4b1d-4089-bd3e-2eef5835a2f2/results`
+- **Response Status**: `200 OK` (568ms)
 
 #### Request
 
 ```http
-GET /api/v1/quizzes/attempts/6e34981f-8f67-4b13-9f75-34a0d60f96d6/results HTTP/1.1
+GET /api/v1/quizzes/attempts/73c1e6b8-4b1d-4089-bd3e-2eef5835a2f2/results HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1103,41 +1108,41 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "6e34981f-8f67-4b13-9f75-34a0d60f96d6",
-    "quiz_id": "1a6cbdd5-2f58-4202-bd9b-822ba840dad3",
+    "id": "73c1e6b8-4b1d-4089-bd3e-2eef5835a2f2",
+    "quiz_id": "062263fb-569a-421c-b399-8251728e493a",
     "student_id": "14edad9c-054b-46af-8591-9ae2dfb613d0",
     "score": 0,
     "max_score": 1,
     "status": "graded",
-    "started_at": "2026-10-23T16:44:06.714365+00:00",
-    "submitted_at": "2026-10-23T16:44:07.718+00:00",
-    "graded_at": "2026-10-23T16:44:07.718+00:00",
+    "started_at": "2026-10-23T17:13:09.62761+00:00",
+    "submitted_at": "2026-10-23T17:13:10.35+00:00",
+    "graded_at": "2026-10-23T17:13:10.35+00:00",
     "quizzes": {
-      "id": "1a6cbdd5-2f58-4202-bd9b-822ba840dad3",
+      "id": "062263fb-569a-421c-b399-8251728e493a",
       "title": "Diagnostic Quiz: Squeeze Theorem & Continuity",
       "difficulty": "medium"
     },
     "responses": [
       {
-        "id": "bbd16be4-fe4a-4c9f-b850-b5b2eac3d6ed",
-        "question_id": "1473f7c0-4f5d-40b5-b753-73b6cee436da",
+        "id": "a03a056d-b920-4b07-a1ff-0ac331b15cec",
+        "question_id": "27deca2d-d1bc-4122-846e-3b0034a46230",
         "student_answer": "The limit is 0 because -x^2 <= x^2 sin(1/x) <= x^2, and both bounds tend to 0.",
         "is_correct": false,
         "marks_awarded": 0,
         "feedback": "Incorrect. The correct answer was: 0",
-        "answered_at": "2026-10-23T16:44:07.081+00:00",
+        "answered_at": "2026-10-23T17:13:09.694+00:00",
         "quiz_questions": {
-          "id": "1473f7c0-4f5d-40b5-b753-73b6cee436da",
+          "id": "27deca2d-d1bc-4122-846e-3b0034a46230",
           "marks": 1,
           "options": [
             "0",
             "1",
-            "The limit does not exist.",
-            "Undefined because `cos(1/x)` oscillates infinitely."
+            "Undefined",
+            "-1"
           ],
           "position": 0,
-          "explanation": "The cosine function is bounded, so we know that `-1 <= cos(1/x) <= 1` for all `x != 0`. \nTo apply the Squeeze Theorem, we multiply the inequality by `|x|` (since `|x| >= 0`), which gives us `-|x| <= x * cos(1/x) <= |x|`. \n(Alternatively, if `x > 0`, then `-x <= x * cos(1/x) <= x`. If `x < 0`, then `x <= x * cos(1/x) <= -x`. Both cases are covered by `-|x| <= x * cos(1/x) <= |x|`).\nWe then evaluate the limits of the bounding functions:\n`lim_{x->0} -|x| = 0`\n`lim_{x->0} |x| = 0`\nSince both bounding functions approach 0 as `x` approaches 0, by the Squeeze Theorem, `lim_{x->0} x * cos(1/x) = 0`.\nOptions C and D are incorrect because while `cos(1/x)` oscillates infinitely as `x -> 0`, the multiplication by `x` (which approaches 0) 'squeezes' the function towards 0. Option B is incorrect as it might be confused with the fundamental trigonometric limit `lim_{x->0} sin(x)/x = 1`.",
-          "question_text": "Using the Squeeze Theorem, evaluate the limit: `lim_{x->0} x * cos(1/x)`.",
+          "explanation": "To evaluate `lim_{x->0} (x * cos(1/x))`, we can use the Squeeze Theorem. We know that the cosine function is bounded between -1 and 1 for all real numbers, so `-1 <= cos(1/x) <= 1` for all `x != 0`. \n\nTo apply the Squeeze Theorem, we need to multiply the inequality by `x`. Since `x` can be positive or negative as `x` approaches 0, it's safer to work with absolute values: `|x * cos(1/x)| = |x| * |cos(1/x)|`. \n\nSince `|cos(1/x)| <= 1`, it follows that `|x * cos(1/x)| <= |x| * 1 = |x|`. \n\nThis inequality can be rewritten as `-|x| <= x * cos(1/x) <= |x|`. \n\nNow, we evaluate the limits of the bounding functions as `x -> 0`: \n`lim_{x->0} -|x| = 0` \n`lim_{x->0} |x| = 0` \n\nSince both bounding functions approach 0 as `x -> 0`, by the Squeeze Theorem, `lim_{x->0} (x * cos(1/x)) = 0`.\n\nDistractor '1' might arise from confusing this with `lim_{x->0} (sin x)/x = 1` or incorrectly assuming `cos(0)=1` applies directly. Distractor 'Undefined' is a common misconception when dealing with `1/x` at `x=0` or the oscillation of `cos(1/x)`, failing to recognize how the `x` factor 'damps' this behavior. Distractor '-1' is similar to '1' but with an incorrect sign.",
+          "question_text": "Evaluate the limit: `lim_{x->0} (x * cos(1/x))`",
           "question_type": "multiple_choice",
           "correct_answer": "0"
         }
@@ -1145,7 +1150,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     ]
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:08.627Z"
+    "timestamp": "2026-10-23T17:13:11.076Z"
   }
 }
 ```
@@ -1155,13 +1160,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #21: Student Inspects Own Topic Mastery Score (✅ PASS)
 
 - **Category**: Mastery Engine
-- **Endpoint**: `GET /api/v1/mastery/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/me`
-- **Response Status**: `200 OK` (729ms)
+- **Endpoint**: `GET /api/v1/mastery/399c465e-9772-49c7-b742-a30bf0f0809d/me`
+- **Response Status**: `200 OK` (773ms)
 
 #### Request
 
 ```http
-GET /api/v1/mastery/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/me HTTP/1.1
+GET /api/v1/mastery/399c465e-9772-49c7-b742-a30bf0f0809d/me HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1176,10 +1181,10 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     {
       "masteryScore": 0,
       "confidence": 0.235,
-      "lastAssessedAt": "2026-10-23T16:44:07.394+00:00",
-      "updatedAt": "2026-10-23T16:44:07.394+00:00",
+      "lastAssessedAt": "2026-10-23T17:13:10.018+00:00",
+      "updatedAt": "2026-10-23T17:13:10.018+00:00",
       "topic": {
-        "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+        "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
         "title": "Module 1: Foundations of Limits and Continuity",
         "node_type": "module",
         "description": "Epsilon-delta definitions, squeeze theorem, and one-sided limits.",
@@ -1188,7 +1193,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:44:09.357Z"
+    "timestamp": "2026-10-23T17:13:11.848Z"
   }
 }
 ```
@@ -1198,13 +1203,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #22: Inspect Student Mastery Audit History Timeline (✅ PASS)
 
 - **Category**: Mastery Engine
-- **Endpoint**: `GET /api/v1/mastery/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/history`
-- **Response Status**: `200 OK` (1259ms)
+- **Endpoint**: `GET /api/v1/mastery/399c465e-9772-49c7-b742-a30bf0f0809d/history`
+- **Response Status**: `200 OK` (1125ms)
 
 #### Request
 
 ```http
-GET /api/v1/mastery/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/history HTTP/1.1
+GET /api/v1/mastery/399c465e-9772-49c7-b742-a30bf0f0809d/history HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1217,20 +1222,20 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
-      "id": "e856b2eb-434d-4dce-afb7-ccc273f99b53",
+      "id": "7f197777-e5e7-40f9-b6c3-09a7695ba37f",
       "mastery_score": 0,
       "confidence": 0.235,
       "assessment_source": "quiz",
-      "assessed_at": "2026-10-23T16:44:07.394+00:00",
-      "source_quiz_id": "1a6cbdd5-2f58-4202-bd9b-822ba840dad3",
+      "assessed_at": "2026-10-23T17:13:10.018+00:00",
+      "source_quiz_id": "062263fb-569a-421c-b399-8251728e493a",
       "curriculum_topics": {
-        "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+        "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
         "title": "Module 1: Foundations of Limits and Continuity"
       }
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:44:10.617Z"
+    "timestamp": "2026-10-23T17:13:12.974Z"
   }
 }
 ```
@@ -1240,13 +1245,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #23: Teacher Inspects Class-Wide Mastery Overview Dashboard (✅ PASS)
 
 - **Category**: Mastery Engine
-- **Endpoint**: `GET /api/v1/mastery/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/overview`
-- **Response Status**: `200 OK` (1088ms)
+- **Endpoint**: `GET /api/v1/mastery/399c465e-9772-49c7-b742-a30bf0f0809d/overview`
+- **Response Status**: `200 OK` (1112ms)
 
 #### Request
 
 ```http
-GET /api/v1/mastery/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/overview HTTP/1.1
+GET /api/v1/mastery/399c465e-9772-49c7-b742-a30bf0f0809d/overview HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1259,7 +1264,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
-      "topicId": "a46d1009-6591-488b-b60b-a0e4a323147a",
+      "topicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
       "title": "Module 1: Foundations of Limits and Continuity",
       "nodeType": "module",
       "studentCount": 1,
@@ -1268,7 +1273,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
       "isStrugglingTopic": true
     },
     {
-      "topicId": "45872f41-99a9-4091-8355-f67b4ab22489",
+      "topicId": "b4686686-242a-4780-aaa5-7a1f290a62c3",
       "title": "Module 2: Differential Foundations and Transcendental Derivatives",
       "nodeType": "module",
       "studentCount": 0,
@@ -1277,7 +1282,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
       "isStrugglingTopic": false
     },
     {
-      "topicId": "f3aed9ed-08c4-4586-986f-001c98354f6c",
+      "topicId": "6f5b6c4f-0b4c-4ad7-b266-a6efb154bb5e",
       "title": "Topic 2.1: The Derivative as a Limit of Difference Quotients",
       "nodeType": "topic",
       "studentCount": 0,
@@ -1286,7 +1291,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
       "isStrugglingTopic": false
     },
     {
-      "topicId": "8d953bf1-ef84-4910-80d1-3c38f8c0b999",
+      "topicId": "d1ef8928-6ff3-47b8-9610-7f61a3dcc039",
       "title": "Topic 2.2: Product, Quotient, and Chain Rules",
       "nodeType": "topic",
       "studentCount": 0,
@@ -1295,7 +1300,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
       "isStrugglingTopic": false
     },
     {
-      "topicId": "fae08725-57f8-4c58-911d-864dd0af3426",
+      "topicId": "31a9ff6c-fbda-4080-b0a6-e96d57b3fabc",
       "title": "Module 3: Applications of the Derivative",
       "nodeType": "module",
       "studentCount": 0,
@@ -1304,7 +1309,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
       "isStrugglingTopic": false
     },
     {
-      "topicId": "cbcf05f0-4761-4b38-9bcf-26b575a5674c",
+      "topicId": "69a0ec6f-a16a-4441-b830-410af165f5c5",
       "title": "Topic 3.1: Mean Value Theorem and Extreme Value Theorem",
       "nodeType": "topic",
       "studentCount": 0,
@@ -1313,7 +1318,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
       "isStrugglingTopic": false
     },
     {
-      "topicId": "0dd66ce9-ecbc-494c-bca8-8bc2cb4eda64",
+      "topicId": "d7bdbf08-f6c0-4bc2-a456-25b79f31d902",
       "title": "Topic 3.2: Optimization and Related Rates",
       "nodeType": "topic",
       "studentCount": 0,
@@ -1323,7 +1328,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:44:11.704Z"
+    "timestamp": "2026-10-23T17:13:14.086Z"
   }
 }
 ```
@@ -1334,7 +1339,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 
 - **Category**: Socratic Tutor
 - **Endpoint**: `POST /api/v1/tutor/conversations`
-- **Response Status**: `201 Created` (393ms)
+- **Response Status**: `201 Created` (838ms)
 
 #### Request
 
@@ -1347,8 +1352,8 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 **Request Payload**:
 ```json
 {
-  "teacherSubjectId": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
-  "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a",
+  "teacherSubjectId": "399c465e-9772-49c7-b742-a30bf0f0809d",
+  "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
   "title": "Mastering Squeeze Theorem Bounding Conditions",
   "sessionType": "ai_tutor"
 }
@@ -1361,18 +1366,18 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "2aa3d682-05cf-4f78-9344-50d3bf79acfe",
+    "id": "abad2eaf-6bb5-4b38-9830-5e5549f8205f",
     "student_id": "14edad9c-054b-46af-8591-9ae2dfb613d0",
-    "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+    "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
     "title": "Mastering Squeeze Theorem Bounding Conditions",
     "session_type": "ai_tutor",
-    "started_at": "2026-10-23T16:44:12.597574+00:00",
+    "started_at": "2026-10-23T17:13:15.370358+00:00",
     "ended_at": null,
-    "created_at": "2026-10-23T16:44:12.597574+00:00",
-    "updated_at": "2026-10-23T16:44:12.597574+00:00"
+    "created_at": "2026-10-23T17:13:15.370358+00:00",
+    "updated_at": "2026-10-23T17:13:15.370358+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:12.097Z"
+    "timestamp": "2026-10-23T17:13:14.924Z"
   }
 }
 ```
@@ -1382,13 +1387,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #25: Student Inquires with Socratic Tutor (Non-streaming) (✅ PASS)
 
 - **Category**: Socratic Tutor
-- **Endpoint**: `POST /api/v1/tutor/conversations/2aa3d682-05cf-4f78-9344-50d3bf79acfe/chat`
-- **Response Status**: `201 Created` (6545ms)
+- **Endpoint**: `POST /api/v1/tutor/conversations/abad2eaf-6bb5-4b38-9830-5e5549f8205f/chat`
+- **Response Status**: `201 Created` (6763ms)
 
 #### Request
 
 ```http
-POST /api/v1/tutor/conversations/2aa3d682-05cf-4f78-9344-50d3bf79acfe/chat HTTP/1.1
+POST /api/v1/tutor/conversations/abad2eaf-6bb5-4b38-9830-5e5549f8205f/chat HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1397,7 +1402,7 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```json
 {
   "message": "Can you explain why we need both an upper and lower bound function in the Squeeze Theorem?",
-  "curriculumTopicId": "a46d1009-6591-488b-b60b-a0e4a323147a",
+  "curriculumTopicId": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
   "stream": false
 }
 ```
@@ -1409,15 +1414,15 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 {
   "success": true,
   "data": {
-    "id": "087dac2d-736c-4162-aba2-cd3a64721d36",
-    "conversation_id": "2aa3d682-05cf-4f78-9344-50d3bf79acfe",
+    "id": "1daadb77-4459-4f56-be57-f24e6159ef65",
+    "conversation_id": "abad2eaf-6bb5-4b38-9830-5e5549f8205f",
     "role": "assistant",
-    "content": "That's an excellent question that gets right to the heart of why the Squeeze Theorem works! Think about the name \"Sandwich Theorem\" or \"Squeeze Theorem\" itself.\n\nImagine you have a piece of cheese (that's our function g(x)) and you want to know exactly where it's going. If you place it between two slices of bread (f(x) and h(x)), and then you bring *both* slices of bread together to meet at a very specific point, what *must* happen to the cheese?\n\nWhat if you only had one slice of bread – say, just an upper bound? Could the cheese still wander off in one direction, even if it couldn't go above that slice?\n\nHow does having *both* an upper and a lower bound help us determine the exact limit of the function in the middle?",
-    "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
-    "created_at": "2026-10-23T16:44:18.551002+00:00"
+    "content": "That's a great question that gets right to the heart of why the Squeeze Theorem works! The name \"Sandwich Theorem\" in your notes gives a pretty good hint.\n\nImagine you have a piece of filling (our function g(x)) that you want to know the exact position of.\n\nIf you only had a bottom slice of bread (our function f(x)) and knew where it was going, what could you say about the filling? Could it go anywhere above that slice, or would it be forced to a specific point?",
+    "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
+    "created_at": "2026-10-23T17:13:21.822004+00:00"
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:18.642Z"
+    "timestamp": "2026-10-23T17:13:21.687Z"
   }
 }
 ```
@@ -1427,13 +1432,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #26: Retrieve Conversation Message History (✅ PASS)
 
 - **Category**: Socratic Tutor
-- **Endpoint**: `GET /api/v1/tutor/conversations/2aa3d682-05cf-4f78-9344-50d3bf79acfe/messages`
-- **Response Status**: `200 OK` (1025ms)
+- **Endpoint**: `GET /api/v1/tutor/conversations/abad2eaf-6bb5-4b38-9830-5e5549f8205f/messages`
+- **Response Status**: `200 OK` (611ms)
 
 #### Request
 
 ```http
-GET /api/v1/tutor/conversations/2aa3d682-05cf-4f78-9344-50d3bf79acfe/messages HTTP/1.1
+GET /api/v1/tutor/conversations/abad2eaf-6bb5-4b38-9830-5e5549f8205f/messages HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1446,24 +1451,24 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
-      "id": "fb8a880b-b370-42ad-88c2-c093468af51e",
-      "conversation_id": "2aa3d682-05cf-4f78-9344-50d3bf79acfe",
+      "id": "7c0cbce9-f50d-4592-a29a-de209a4cbe2b",
+      "conversation_id": "abad2eaf-6bb5-4b38-9830-5e5549f8205f",
       "role": "user",
       "content": "Can you explain why we need both an upper and lower bound function in the Squeeze Theorem?",
-      "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
-      "created_at": "2026-10-23T16:44:13.603873+00:00"
+      "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
+      "created_at": "2026-10-23T17:13:16.462615+00:00"
     },
     {
-      "id": "087dac2d-736c-4162-aba2-cd3a64721d36",
-      "conversation_id": "2aa3d682-05cf-4f78-9344-50d3bf79acfe",
+      "id": "1daadb77-4459-4f56-be57-f24e6159ef65",
+      "conversation_id": "abad2eaf-6bb5-4b38-9830-5e5549f8205f",
       "role": "assistant",
-      "content": "That's an excellent question that gets right to the heart of why the Squeeze Theorem works! Think about the name \"Sandwich Theorem\" or \"Squeeze Theorem\" itself.\n\nImagine you have a piece of cheese (that's our function g(x)) and you want to know exactly where it's going. If you place it between two slices of bread (f(x) and h(x)), and then you bring *both* slices of bread together to meet at a very specific point, what *must* happen to the cheese?\n\nWhat if you only had one slice of bread – say, just an upper bound? Could the cheese still wander off in one direction, even if it couldn't go above that slice?\n\nHow does having *both* an upper and a lower bound help us determine the exact limit of the function in the middle?",
-      "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
-      "created_at": "2026-10-23T16:44:18.551002+00:00"
+      "content": "That's a great question that gets right to the heart of why the Squeeze Theorem works! The name \"Sandwich Theorem\" in your notes gives a pretty good hint.\n\nImagine you have a piece of filling (our function g(x)) that you want to know the exact position of.\n\nIf you only had a bottom slice of bread (our function f(x)) and knew where it was going, what could you say about the filling? Could it go anywhere above that slice, or would it be forced to a specific point?",
+      "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
+      "created_at": "2026-10-23T17:13:21.822004+00:00"
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:44:19.667Z"
+    "timestamp": "2026-10-23T17:13:22.298Z"
   }
 }
 ```
@@ -1473,13 +1478,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #27: Insight Agent: Synthesize Class Diagnostic Insights (✅ PASS)
 
 - **Category**: Teacher Insights
-- **Endpoint**: `POST /api/v1/insights/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/generate`
-- **Response Status**: `201 Created` (10241ms)
+- **Endpoint**: `POST /api/v1/insights/399c465e-9772-49c7-b742-a30bf0f0809d/generate`
+- **Response Status**: `201 Created` (11481ms)
 
 #### Request
 
 ```http
-POST /api/v1/insights/9aed634f-2fb0-4bf7-a062-ddd34bd7298c/generate HTTP/1.1
+POST /api/v1/insights/399c465e-9772-49c7-b742-a30bf0f0809d/generate HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1494,40 +1499,40 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
     "message": "Successfully synthesized 2 pedagogical insights",
     "insights": [
       {
-        "id": "12b14f4d-b9d9-4dd5-a8b6-66856031e574",
-        "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+        "id": "735eed5a-7e03-405e-82da-d2c520141765",
+        "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
         "insight_type": "weak_areas",
         "title": "Critical Gap: Module 1: Foundations of Limits and Continuity",
-        "description": "The student has not yet demonstrated mastery in the foundational concepts of limits and continuity. This module is crucial as it underpins all subsequent topics in differential calculus. A lack of understanding here will impede progress in derivatives and their applications. Focus on the intuitive understanding of limits, formal definitions, and the conditions for continuity.",
-        "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+        "description": "The sole enrolled student demonstrates no mastery in the foundational concepts of limits and continuity. This is a critical prerequisite for all subsequent calculus topics. A lack of understanding here will impede progress in differentiation and integration. It's essential to ensure a solid grasp of how limits are defined, evaluated, and applied to determine continuity, as these concepts underpin the definition of the derivative itself.",
+        "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
         "student_id": null,
         "evidence": {
           "affectedCount": 1,
           "averageMastery": 0
         },
         "status": "active",
-        "created_at": "2026-10-23T16:44:29.839487+00:00",
-        "updated_at": "2026-10-23T16:44:29.839487+00:00"
+        "created_at": "2026-10-23T17:13:33.882211+00:00",
+        "updated_at": "2026-10-23T17:13:33.882211+00:00"
       },
       {
-        "id": "8ac3a7bb-a5d5-4b11-a884-53c6e9a497d5",
-        "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+        "id": "4461aa92-4f6e-4421-9101-a59bdc438225",
+        "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
         "insight_type": "summary",
-        "title": "Immediate Pedagogical Focus",
-        "description": "Given that the single enrolled student has not yet achieved mastery in any topic, and specifically struggled with Module 1, the immediate priority is to re-establish a strong foundation in 'Limits and Continuity'. It is imperative to ensure this core understanding is solid before progressing to derivatives. Consider one-on-one review sessions, targeted practice problems focusing on conceptual understanding, and visual aids to explain limits and continuity. Ensure the student can articulate the definitions and implications of these concepts.",
+        "title": "Immediate Pedagogical Focus: Rebuilding Foundational Understanding",
+        "description": "Given the universal lack of mastery, particularly in Module 1, the immediate priority is to revisit and reinforce the 'Foundations of Limits and Continuity'. Engage the student in a diagnostic session to pinpoint specific areas of confusion within this module. Utilize a variety of teaching methods, including graphical interpretations, numerical approaches, and algebraic manipulations of limits. Provide ample practice with step-by-step feedback. Consider reviewing relevant pre-calculus concepts (e.g., function behavior, asymptotes) if underlying gaps are identified. Do not proceed to Module 2 until a basic level of mastery in Module 1 is established.",
         "curriculum_topic_id": null,
         "student_id": null,
         "evidence": {
-          "actionItem": "Thorough review and re-teaching of Module 1: Foundations of Limits and Continuity. Do not proceed until foundational understanding is confirmed."
+          "actionItem": "Dedicated review of Module 1: Foundations of Limits and Continuity, with individualized diagnostic and targeted practice."
         },
         "status": "active",
-        "created_at": "2026-10-23T16:44:30.246962+00:00",
-        "updated_at": "2026-10-23T16:44:30.246962+00:00"
+        "created_at": "2026-10-23T17:13:34.317162+00:00",
+        "updated_at": "2026-10-23T17:13:34.317162+00:00"
       }
     ]
   },
   "meta": {
-    "timestamp": "2026-10-23T16:44:29.909Z"
+    "timestamp": "2026-10-23T17:13:33.779Z"
   }
 }
 ```
@@ -1537,13 +1542,13 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ### Test #28: Teacher Lists Generated Diagnostic Insights (✅ PASS)
 
 - **Category**: Teacher Insights
-- **Endpoint**: `GET /api/v1/insights/9aed634f-2fb0-4bf7-a062-ddd34bd7298c`
-- **Response Status**: `200 OK` (1335ms)
+- **Endpoint**: `GET /api/v1/insights/399c465e-9772-49c7-b742-a30bf0f0809d`
+- **Response Status**: `200 OK` (917ms)
 
 #### Request
 
 ```http
-GET /api/v1/insights/9aed634f-2fb0-4bf7-a062-ddd34bd7298c HTTP/1.1
+GET /api/v1/insights/399c465e-9772-49c7-b742-a30bf0f0809d HTTP/1.1
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
 ```
@@ -1556,46 +1561,46 @@ Authorization: Bearer eyJhbGciOiJFUzI1Ni...[TRUNCATED]
   "success": true,
   "data": [
     {
-      "id": "8ac3a7bb-a5d5-4b11-a884-53c6e9a497d5",
-      "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+      "id": "4461aa92-4f6e-4421-9101-a59bdc438225",
+      "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
       "insight_type": "summary",
-      "title": "Immediate Pedagogical Focus",
-      "description": "Given that the single enrolled student has not yet achieved mastery in any topic, and specifically struggled with Module 1, the immediate priority is to re-establish a strong foundation in 'Limits and Continuity'. It is imperative to ensure this core understanding is solid before progressing to derivatives. Consider one-on-one review sessions, targeted practice problems focusing on conceptual understanding, and visual aids to explain limits and continuity. Ensure the student can articulate the definitions and implications of these concepts.",
+      "title": "Immediate Pedagogical Focus: Rebuilding Foundational Understanding",
+      "description": "Given the universal lack of mastery, particularly in Module 1, the immediate priority is to revisit and reinforce the 'Foundations of Limits and Continuity'. Engage the student in a diagnostic session to pinpoint specific areas of confusion within this module. Utilize a variety of teaching methods, including graphical interpretations, numerical approaches, and algebraic manipulations of limits. Provide ample practice with step-by-step feedback. Consider reviewing relevant pre-calculus concepts (e.g., function behavior, asymptotes) if underlying gaps are identified. Do not proceed to Module 2 until a basic level of mastery in Module 1 is established.",
       "curriculum_topic_id": null,
       "student_id": null,
       "evidence": {
-        "actionItem": "Thorough review and re-teaching of Module 1: Foundations of Limits and Continuity. Do not proceed until foundational understanding is confirmed."
+        "actionItem": "Dedicated review of Module 1: Foundations of Limits and Continuity, with individualized diagnostic and targeted practice."
       },
       "status": "active",
-      "created_at": "2026-10-23T16:44:30.246962+00:00",
-      "updated_at": "2026-10-23T16:44:30.246962+00:00",
+      "created_at": "2026-10-23T17:13:34.317162+00:00",
+      "updated_at": "2026-10-23T17:13:34.317162+00:00",
       "curriculum_topics": null,
       "profiles": null
     },
     {
-      "id": "12b14f4d-b9d9-4dd5-a8b6-66856031e574",
-      "teacher_subject_id": "9aed634f-2fb0-4bf7-a062-ddd34bd7298c",
+      "id": "735eed5a-7e03-405e-82da-d2c520141765",
+      "teacher_subject_id": "399c465e-9772-49c7-b742-a30bf0f0809d",
       "insight_type": "weak_areas",
       "title": "Critical Gap: Module 1: Foundations of Limits and Continuity",
-      "description": "The student has not yet demonstrated mastery in the foundational concepts of limits and continuity. This module is crucial as it underpins all subsequent topics in differential calculus. A lack of understanding here will impede progress in derivatives and their applications. Focus on the intuitive understanding of limits, formal definitions, and the conditions for continuity.",
-      "curriculum_topic_id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+      "description": "The sole enrolled student demonstrates no mastery in the foundational concepts of limits and continuity. This is a critical prerequisite for all subsequent calculus topics. A lack of understanding here will impede progress in differentiation and integration. It's essential to ensure a solid grasp of how limits are defined, evaluated, and applied to determine continuity, as these concepts underpin the definition of the derivative itself.",
+      "curriculum_topic_id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
       "student_id": null,
       "evidence": {
         "affectedCount": 1,
         "averageMastery": 0
       },
       "status": "active",
-      "created_at": "2026-10-23T16:44:29.839487+00:00",
-      "updated_at": "2026-10-23T16:44:29.839487+00:00",
+      "created_at": "2026-10-23T17:13:33.882211+00:00",
+      "updated_at": "2026-10-23T17:13:33.882211+00:00",
       "curriculum_topics": {
-        "id": "a46d1009-6591-488b-b60b-a0e4a323147a",
+        "id": "b760b1c6-366a-4f58-b20a-5a92c22796a2",
         "title": "Module 1: Foundations of Limits and Continuity"
       },
       "profiles": null
     }
   ],
   "meta": {
-    "timestamp": "2026-10-23T16:44:31.244Z"
+    "timestamp": "2026-10-23T17:13:34.696Z"
   }
 }
 ```

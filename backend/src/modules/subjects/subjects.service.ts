@@ -218,13 +218,6 @@ export class SubjectsService {
   }
 
   /**
-   * Self-enroll current student into a subject
-   */
-  async joinSubject(subjectId: string, studentId: string) {
-    return this.enrollStudent(subjectId, { studentId });
-  }
-
-  /**
    * Get class roster
    */
   async getRoster(subjectId: string) {

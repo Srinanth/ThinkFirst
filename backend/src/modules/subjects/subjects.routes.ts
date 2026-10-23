@@ -47,14 +47,7 @@ router.delete(
   subjectsController.delete
 );
 
-// Student Roster & Enrollment
-router.post(
-  '/:subjectId/join',
-  requireAuth,
-  requireRole(['student']),
-  subjectsController.join
-);
-
+// Student Roster & Enrollment (Teacher & Admin Only)
 router.post(
   '/:subjectId/enroll',
   requireAuth,

@@ -57,18 +57,6 @@ export class SubjectsController {
     }
   }
 
-  async join(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const membership = await subjectsService.joinSubject(
-        req.params.subjectId as string,
-        req.user!.id
-      );
-      sendSuccess(res, membership, 200);
-    } catch (err) {
-      next(err);
-    }
-  }
-
   async getRoster(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const roster = await subjectsService.getRoster(req.params.subjectId as string);
