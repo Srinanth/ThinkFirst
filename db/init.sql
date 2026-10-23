@@ -15,21 +15,13 @@ CREATE EXTENSION IF NOT EXISTS "vector";
 -- 2. TABLE CREATION
 -- ============================================================================
 
--- Table 0: colleges (Institutions managed by platform Superadmins)
-CREATE TABLE IF NOT EXISTS public.colleges (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  code TEXT NOT NULL UNIQUE,
-  domain TEXT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
 -- Table 1: profiles (Users belonging to a college with 4-tier RBAC hierarchy)
 -- Hierarchy: superadmin -> college admin -> teacher -> student
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   college_id UUID REFERENCES public.colleges(id) ON DELETE SET NULL,
   full_name TEXT NOT NULL,
+  college TEXT,
   role TEXT NOT NULL CHECK (role IN ('superadmin', 'admin', 'teacher', 'student')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -38,7 +30,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 CREATE TABLE IF NOT EXISTS public.teacher_subjects (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
-  title TEXT NULL,
   subject TEXT NOT NULL,
   academic_year TEXT NOT NULL,
   class_name TEXT NOT NULL,
@@ -62,7 +53,6 @@ CREATE TABLE IF NOT EXISTS public.curriculum_topics (
   name TEXT NOT NULL,
   node_type TEXT NOT NULL CHECK (node_type IN ('module', 'topic', 'subtopic')),
   description TEXT NULL,
-  position INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -91,58 +81,150 @@ CREATE TABLE IF NOT EXISTS public.note_embeddings (
 );
 
 -- Table 7: quizzes
+
 CREATE TABLE IF NOT EXISTS public.quizzes (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  teacher_subject_id UUID NOT NULL REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
-  curriculum_topic_id UUID REFERENCES public.curriculum_topics(id) ON DELETE SET NULL,
-  created_by UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
-  title TEXT NOT NULL,
-  description TEXT NULL,
-  difficulty TEXT NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
-  question_count INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    teacher_subject_id UUID NOT NULL
+        REFERENCES public.teacher_subjects(id)
+        ON DELETE CASCADE,
+
+    curriculum_topic_id UUID
+        REFERENCES public.curriculum_topics(id)
+        ON DELETE SET NULL,
+
+    created_by UUID NOT NULL
+        REFERENCES public.profiles(id)
+        ON DELETE RESTRICT,
+
+    title TEXT NOT NULL,
+
+    description TEXT,
+
+    difficulty TEXT NOT NULL
+        CHECK (difficulty IN ('easy', 'medium', 'hard')),
+
+    question_count INTEGER NOT NULL DEFAULT 0,
+
+    exam_duration INTEGER NOT NULL DEFAULT 30
+        CHECK (exam_duration > 0),
+
+    status TEXT NOT NULL DEFAULT 'draft'
+        CHECK (status IN ('draft', 'published', 'archived')),
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
 
 -- Table 8: quiz_questions
 CREATE TABLE IF NOT EXISTS public.quiz_questions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  quiz_id UUID NOT NULL REFERENCES public.quizzes(id) ON DELETE CASCADE,
-  curriculum_topic_id UUID REFERENCES public.curriculum_topics(id) ON DELETE SET NULL,
+
+  quiz_id UUID NOT NULL
+    REFERENCES public.quizzes(id)
+    ON DELETE CASCADE,
+
+  curriculum_topic_id UUID
+    REFERENCES public.curriculum_topics(id)
+    ON DELETE SET NULL,
+
   question_text TEXT NOT NULL,
-  question_type TEXT NOT NULL CHECK (question_type IN ('single_choice', 'multiple_choice', 'true_false', 'short_answer', 'reasoning_step')),
+
+  question_type TEXT NOT NULL
+CHECK (
+  question_type IN (
+    'multiple_choice',
+    'short_answer',
+    'long_answer'
+  )
+  ),
+
+
   options JSONB NULL,
+
   correct_answer JSONB NOT NULL,
+
   explanation TEXT NULL,
-  difficulty TEXT NOT NULL,
-  marks NUMERIC NOT NULL DEFAULT 1,
+
+  difficulty TEXT NOT NULL
+    CHECK (difficulty IN ('easy', 'medium', 'hard')),
+
+  marks NUMERIC NOT NULL DEFAULT 1
+    CHECK (marks > 0),
+
   position INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT uq_quiz_question_position
+    UNIQUE (quiz_id, position)
 );
 
 -- Table 9: quiz_attempts
 CREATE TABLE IF NOT EXISTS public.quiz_attempts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  quiz_id UUID NOT NULL REFERENCES public.quizzes(id) ON DELETE CASCADE,
-  student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  score NUMERIC NULL,
-  max_score NUMERIC NULL,
-  status TEXT NOT NULL DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'submitted', 'graded')),
+
+  quiz_id UUID NOT NULL
+    REFERENCES public.quizzes(id)
+    ON DELETE CASCADE,
+
+  student_id UUID NOT NULL
+    REFERENCES public.profiles(id)
+    ON DELETE CASCADE,
+
+  score NUMERIC NULL
+    CHECK (score IS NULL OR score >= 0),
+
+  max_score NUMERIC NULL
+    CHECK (max_score IS NULL OR max_score >= 0),
+
+  status TEXT NOT NULL DEFAULT 'in_progress'
+    CHECK (status IN ('in_progress', 'submitted', 'graded')),
+
   started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
   submitted_at TIMESTAMPTZ NULL,
-  graded_at TIMESTAMPTZ NULL
+
+  graded_at TIMESTAMPTZ NULL,
+
+  CONSTRAINT chk_attempt_score_max
+    CHECK (
+      score IS NULL
+      OR max_score IS NULL
+      OR score <= max_score
+    ),
+    CONSTRAINT uq_quiz_attempt_student
+  UNIQUE (quiz_id, student_id)
 );
 
 -- Table 10: quiz_responses
 CREATE TABLE IF NOT EXISTS public.quiz_responses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  quiz_attempt_id UUID NOT NULL REFERENCES public.quiz_attempts(id) ON DELETE CASCADE,
-  question_id UUID NOT NULL REFERENCES public.quiz_questions(id) ON DELETE CASCADE,
+
+  quiz_attempt_id UUID NOT NULL
+    REFERENCES public.quiz_attempts(id)
+    ON DELETE CASCADE,
+
+  question_id UUID NOT NULL
+    REFERENCES public.quiz_questions(id)
+    ON DELETE CASCADE,
+
   student_answer JSONB NOT NULL,
+
   is_correct BOOLEAN NULL,
-  marks_awarded NUMERIC NULL,
+
+  marks_awarded NUMERIC NULL
+    CHECK (
+      marks_awarded IS NULL
+      OR marks_awarded >= 0
+    ),
+
   feedback TEXT NULL,
-  answered_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+  answered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT uq_attempt_question
+    UNIQUE (quiz_attempt_id, question_id)
 );
 
 -- Table 11: student_topic_mastery
@@ -157,50 +239,146 @@ CREATE TABLE IF NOT EXISTS public.student_topic_mastery (
   PRIMARY KEY (student_id, teacher_subject_id, curriculum_topic_id)
 );
 
--- Table 12: learning_sessions
-CREATE TABLE IF NOT EXISTS public.learning_sessions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  teacher_subject_id UUID NOT NULL REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
-  started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  ended_at TIMESTAMPTZ NULL,
-  session_type TEXT NOT NULL CHECK (session_type IN ('ai_tutor', 'revision', 'practice'))
-);
-
--- Table 13: tutor_conversations
+-- Table 12: tutor_conversations
 CREATE TABLE IF NOT EXISTS public.tutor_conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  teacher_subject_id UUID NOT NULL REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
-  learning_session_id UUID REFERENCES public.learning_sessions(id) ON DELETE SET NULL,
+
+  student_id UUID NOT NULL
+    REFERENCES public.profiles(id)
+    ON DELETE CASCADE,
+
+  teacher_subject_id UUID NOT NULL
+    REFERENCES public.teacher_subjects(id)
+    ON DELETE CASCADE,
+
   title TEXT NULL,
+
+  session_type TEXT NOT NULL
+    CHECK (session_type IN ('ai_tutor', 'revision', 'practice')),
+
+  started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  ended_at TIMESTAMPTZ NULL,
+
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT tutor_conversations_valid_time
+    CHECK (
+      ended_at IS NULL OR ended_at >= started_at
+    ),
+
+  CONSTRAINT tutor_conversations_updated_time
+    CHECK (updated_at >= created_at)
 );
 
--- Table 14: tutor_messages
+
+-- Table 13: tutor_messages
 CREATE TABLE IF NOT EXISTS public.tutor_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  conversation_id UUID NOT NULL REFERENCES public.tutor_conversations(id) ON DELETE CASCADE,
-  role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system')),
+
+  conversation_id UUID NOT NULL
+    REFERENCES public.tutor_conversations(id)
+    ON DELETE CASCADE,
+
+  role TEXT NOT NULL
+    CHECK (role IN ('user', 'assistant', 'system')),
+
   content TEXT NOT NULL,
-  curriculum_topic_id UUID REFERENCES public.curriculum_topics(id) ON DELETE SET NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+  curriculum_topic_id UUID
+    REFERENCES public.curriculum_topics(id)
+    ON DELETE SET NULL,
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT tutor_messages_content_not_empty
+    CHECK (LENGTH(TRIM(content)) > 0)
 );
 
--- Table 15: teacher_insights
+CREATE INDEX idx_tutor_messages_conversation
+ON public.tutor_messages (
+  conversation_id,
+  created_at
+);
+-- Table 14: teacher_insights
 CREATE TABLE IF NOT EXISTS public.teacher_insights (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  teacher_subject_id UUID NOT NULL REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
-  insight_type TEXT NOT NULL CHECK (insight_type IN ('struggling_topic', 'student_needs_support', 'class_progress')),
+
+  teacher_subject_id UUID NOT NULL
+    REFERENCES public.teacher_subjects(id)
+    ON DELETE CASCADE,
+
+  insight_type TEXT NOT NULL
+    CHECK (
+      insight_type IN (
+        'weak_areas',
+        'strong_areas',
+        'summary'
+      )
+    ),
+
   title TEXT NOT NULL,
+
   description TEXT NOT NULL,
-  curriculum_topic_id UUID REFERENCES public.curriculum_topics(id) ON DELETE SET NULL,
-  student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+
+  curriculum_topic_id UUID
+    REFERENCES public.curriculum_topics(id)
+    ON DELETE SET NULL,
+
+  student_id UUID
+    REFERENCES public.profiles(id)
+    ON DELETE CASCADE,
+
   evidence JSONB NULL,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'dismissed', 'resolved')),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+
+  status TEXT NOT NULL DEFAULT 'active'
+    CHECK (status IN ('active', 'dismissed', 'resolved')),
+
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT teacher_insights_valid_time
+    CHECK (updated_at >= created_at)
 );
+
+--Table:15 student_mastery_history
+CREATE TABLE IF NOT EXISTS public.student_mastery_history (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+  student_id UUID NOT NULL
+    REFERENCES public.profiles(id) ON DELETE CASCADE,
+
+  teacher_subject_id UUID NOT NULL
+    REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
+
+  curriculum_topic_id UUID NOT NULL
+    REFERENCES public.curriculum_topics(id) ON DELETE CASCADE,
+
+  mastery_score NUMERIC NOT NULL
+    CHECK (mastery_score >= 0 AND mastery_score <= 1),
+
+  confidence NUMERIC NOT NULL
+    CHECK (confidence >= 0 AND confidence <= 1),
+
+  assessment_source TEXT NOT NULL
+    CHECK (assessment_source IN ('quiz', 'ai_tutor')),
+
+  assessed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+  source_quiz_id UUID
+    REFERENCES public.quizzes(id) ON DELETE SET NULL
+);
+
+CREATE INDEX idx_mastery_history_student_topic
+ON public.student_mastery_history (
+  student_id,
+  curriculum_topic_id,
+  assessed_at
+);
+
 
 -- ============================================================================
 -- 3. PERFORMANCE INDEXES
