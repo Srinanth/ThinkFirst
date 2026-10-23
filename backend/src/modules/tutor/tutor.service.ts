@@ -2,7 +2,6 @@ import { Response } from 'express';
 import { supabaseAdmin } from '../../config/supabase.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
 import {
-  generateSocraticResponse,
   generateInteractiveSocraticTurn,
   streamSocraticResponse,
   TutorMessageHistory,

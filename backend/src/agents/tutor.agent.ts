@@ -64,38 +64,6 @@ RULES:
 `;
 
 /**
- * Generate standard text response for Socratic tutor turn
- */
-export async function generateSocraticResponse(input: TutorDialogueInput): Promise<string> {
-  let prompt = '';
-
-  if (input.contextNotes) {
-    prompt += `[RELEVANT COURSE NOTES]:\n${input.contextNotes}\n\n`;
-  }
-
-  if (input.topicTitle) {
-    prompt += `[CURRENT TOPIC]: ${input.topicTitle}\n`;
-  }
-
-  if (input.studentMasteryLevel !== undefined) {
-    prompt += `[STUDENT ESTIMATED MASTERY]: ${(input.studentMasteryLevel * 100).toFixed(0)}%\n\n`;
-  }
-
-  prompt += `[RECENT CONVERSATION HISTORY]:\n`;
-  for (const msg of input.history.slice(-6)) {
-    prompt += `${msg.role.toUpperCase()}: ${msg.content}\n`;
-  }
-
-  prompt += `\nSTUDENT'S LATEST MESSAGE:\n"${input.studentMessage}"\n\nProvide your Socratic response:`;
-
-  return generateText({
-    prompt,
-    systemInstruction: SOCRATIC_SYSTEM_PROMPT,
-    temperature: 0.4,
-  });
-}
-
-/**
  * Generate Method 2 Interactive Socratic Turn with Action Widgets & Real-time Insight updates
  */
 export async function generateInteractiveSocraticTurn(
