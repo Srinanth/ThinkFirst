@@ -13,10 +13,11 @@ export const updateSubjectSchema = z.object({
 });
 
 export const enrollStudentSchema = z.object({
-  studentId: z.string().uuid().optional(),
-  email: z.string().email().optional(),
-}).refine(data => data.studentId || data.email, {
-  message: 'Either studentId or email must be provided to enroll a student',
+  studentId: z.string().optional(),
+  email: z.string().optional(),
+  identifier: z.string().optional(),
+}).refine(data => Boolean(data.studentId || data.email || data.identifier), {
+  message: 'Either studentId, email, or identifier must be provided to enroll a student',
 });
 
 export type CreateSubjectInput = z.infer<typeof createSubjectSchema>;

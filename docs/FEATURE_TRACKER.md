@@ -106,7 +106,7 @@ Progress: [███████████████████░] 93%
 | **FE-05** | Student Hub: Topic Progress & Mastery Meter | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Live student courses from Postgres, interactive mastery meter, and course drilldown |
 | **FE-06** | Student Study Room: Socratic Tutor Chat (Method 2) | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Method 2 with clickable action widgets, live mastery gauge, resolution triggers |
 | **FE-07** | Student Quiz Runner & Evaluator Agent Diagnosis Handoff | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Assessment runner with live questions, proctored timer, Evaluator Agent gap mission handoff |
-| **FE-08** | Teacher Roster & Enrollment Modals | `frontend` | `P1` | `[x] Completed` | Antony / Srinanth | Student & faculty admission modals with live Supabase auth and profile persistence |
+| **FE-08** | Teacher Roster & Enrollment Modals | `frontend` | `P1` | `[x] Completed` | Antony / Srinanth | Flexible student enrollment accepting name, email, roll ID, or UUID with live roster synchronization |
 
 ---
 

@@ -461,12 +461,12 @@ export const subjectsApi = {
   getRoster: (subjectId: string) =>
     fetchWithAuth<StudentRosterMember[]>(`/subjects/${subjectId}/roster`),
 
-  enrollStudent: (subjectId: string, studentId: string) =>
+  enrollStudent: (subjectId: string, identifier: string) =>
     fetchWithAuth<{ teacherSubjectId: string; studentId: string; joinedAt: string }>(
       `/subjects/${subjectId}/enroll`,
       {
         method: 'POST',
-        body: JSON.stringify({ studentId }),
+        body: JSON.stringify({ identifier, studentId: identifier }),
       }
     ),
 };

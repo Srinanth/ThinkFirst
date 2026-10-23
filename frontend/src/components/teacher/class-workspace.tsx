@@ -1673,18 +1673,18 @@ export default function ClassWorkspace({
             <form onSubmit={handleEnrollStudent} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
-                  Student Roll / Login ID or Email
+                  Student Name, Email, or Roll ID <span className="text-white">*</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={enrollIdentifier}
                   onChange={(e) => setEnrollIdentifier(e.target.value)}
-                  placeholder="e.g. STD-2026-9999 or student@institution.edu"
+                  placeholder="e.g. antonyamal, std2026@institution.edu, or STD-2026-..."
                   className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
                 />
                 <p className="text-[11px] text-[#757575] mt-1.5">
-                  Enter the student&apos;s institutional Roll Number or email address registered by Campus Admin.
+                  Enter student&apos;s name (e.g. antonyamal), email address, or institutional Roll ID to enroll them.
                 </p>
               </div>
 

@@ -180,41 +180,93 @@ export class SubjectsService {
 
   /**
    * Enroll a student into a subject offering.
-   * Accepts UUID, student email, or Roll Number (login_id, e.g. STD-2026-XXXX).
+   * Accepts UUID, student email, Roll Number (login_id, e.g. STD-2026-XXXX), or student name.
    */
   async enrollStudent(subjectId: string, input: EnrollStudentInput) {
-    let studentId = input.studentId?.trim();
-    const email = input.email?.trim();
+    const rawQuery = (input.identifier || input.studentId || input.email || '').trim();
+    if (!rawQuery) {
+      throw new BadRequestError('Student identifier is required');
+    }
 
-    // If identifier is not a standard UUID, search auth users
-    if (!studentId || !UUID_REGEX.test(studentId)) {
+    let resolvedStudentId: string | null = null;
+
+    // 1. Direct UUID match
+    if (UUID_REGEX.test(rawQuery)) {
+      const { data: prof } = await supabaseAdmin
+        .from('profiles')
+        .select('id, role')
+        .eq('id', rawQuery)
+        .single();
+      if (prof && prof.role === 'student') {
+        resolvedStudentId = prof.id;
+      }
+    }
+
+    // 2. Search student accounts by email, roll ID, or full name
+    if (!resolvedStudentId) {
       const { data: usersData, error: userError } = await supabaseAdmin.auth.admin.listUsers();
       if (userError) throw new BadRequestError(userError.message);
 
-      const target = usersData.users.find((u) => {
-        if (email && u.email?.toLowerCase() === email.toLowerCase()) return true;
-        if (studentId) {
-          const meta = u.user_metadata as Record<string, any> | undefined;
-          if (u.id === studentId) return true;
-          if (u.email?.toLowerCase() === studentId.toLowerCase()) return true;
-          if (meta?.login_id && meta.login_id.toLowerCase() === studentId.toLowerCase()) return true;
-        }
-        return false;
-      });
+      const { data: studentProfiles } = await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name, role')
+        .eq('role', 'student');
 
-      if (!target) {
-        throw new NotFoundError(
-          `No student account found for ${studentId ? `'${studentId}'` : `'${email}'`}. Check student email or Roll Number.`
-        );
+      const queryLower = rawQuery.toLowerCase();
+      const users = usersData.users || [];
+
+      // A. Match by auth email
+      const byEmail = users.find((u) => u.email?.toLowerCase() === queryLower);
+      if (byEmail) {
+        resolvedStudentId = byEmail.id;
       }
-      studentId = target.id;
+
+      // B. Match by roll number / login_id (e.g. STD-2026-XXXX)
+      if (!resolvedStudentId) {
+        const byLoginId = users.find((u) => {
+          const meta = u.user_metadata as Record<string, any> | undefined;
+          return meta?.login_id && meta.login_id.toLowerCase() === queryLower;
+        });
+        if (byLoginId) resolvedStudentId = byLoginId.id;
+      }
+
+      // C. Match by student full_name (e.g. "antonyamal" matches "antonyamal varghese")
+      if (!resolvedStudentId && studentProfiles) {
+        const exactName = studentProfiles.find(
+          (p) => p.full_name?.toLowerCase() === queryLower
+        );
+        if (exactName) {
+          resolvedStudentId = exactName.id;
+        } else {
+          const partialName = studentProfiles.find((p) =>
+            p.full_name?.toLowerCase().includes(queryLower)
+          );
+          if (partialName) {
+            resolvedStudentId = partialName.id;
+          }
+        }
+      }
+
+      // D. Substring email match
+      if (!resolvedStudentId) {
+        const partialEmail = users.find((u) =>
+          u.email?.toLowerCase().includes(queryLower)
+        );
+        if (partialEmail) resolvedStudentId = partialEmail.id;
+      }
+    }
+
+    if (!resolvedStudentId) {
+      throw new NotFoundError(
+        `No student account found for '${rawQuery}'. Please verify student name, email, or Roll ID.`
+      );
     }
 
     const { data, error } = await supabaseAdmin
       .from('memberships')
       .insert({
         teacher_subject_id: subjectId,
-        student_id: studentId,
+        student_id: resolvedStudentId,
       })
       .select('teacher_subject_id, student_id, joined_at')
       .single();
