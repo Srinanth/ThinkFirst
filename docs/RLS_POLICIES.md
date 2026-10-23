@@ -23,22 +23,35 @@ RETURNS TEXT LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT role FROM public.profiles WHERE id = auth.uid();
 $$;
 
--- 2. Check if current user is platform Admin
-CREATE OR REPLACE FUNCTION public.is_admin()
+-- 2. Check if current user is Superadmin (platform owner)
+CREATE OR REPLACE FUNCTION public.is_superadmin()
 RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
-  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin');
+  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'superadmin');
 $$;
 
--- 3. Check if user is the assigned instructor of a subject offering
+-- 3. Check if current user is College Admin for specific college
+CREATE OR REPLACE FUNCTION public.is_college_admin(col_id UUID)
+RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin' AND college_id = col_id
+  ) OR public.is_superadmin();
+$$;
+
+-- 4. Check if user is the assigned instructor of a subject offering (or college admin of that college, or superadmin)
 CREATE OR REPLACE FUNCTION public.is_subject_teacher(sub_id UUID)
 RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT EXISTS (
-    SELECT 1 FROM public.teacher_subjects 
-    WHERE id = sub_id AND teacher_id = auth.uid()
-  ) OR public.is_admin();
+    SELECT 1 FROM public.teacher_subjects ts
+    JOIN public.profiles p ON p.id = ts.teacher_id
+    WHERE ts.id = sub_id AND (
+      ts.teacher_id = auth.uid()
+      OR (public.get_current_role() = 'admin' AND p.college_id = (SELECT college_id FROM public.profiles WHERE id = auth.uid()))
+    )
+  ) OR public.is_superadmin();
 $$;
 
--- 4. Check if user is an enrolled member (student or teacher) of a subject offering
+-- 5. Check if user is an enrolled member (student or teacher) of a subject offering
 CREATE OR REPLACE FUNCTION public.is_subject_member(sub_id UUID)
 RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT EXISTS (
@@ -52,9 +65,15 @@ $$;
 
 ## 3. RLS Policies by Table
 
+### 3.0 `colleges`
+- **ALL**: Superadmins have full CRUD permissions over all institutions.
+- **SELECT**: Users can view their own college record (`id = get_user_college_id()`).
+
 ### 3.1 `profiles`
-- **SELECT**: Accessible by all authenticated users (to display instructor and student names).
-- **UPDATE**: Users can update their own row, but cannot change their `role`.
+- **ALL**: Superadmins can manage all profiles across the platform.
+- **ALL**: College Admins can manage profiles belonging to their `college_id`.
+- **SELECT**: Users can view peers and instructors within their own college.
+- **UPDATE**: Users can update their own name, but cannot elevate their role or change college.
 
 ### 3.2 `teacher_subjects`
 - **SELECT**: Visible to the instructor (`teacher_id = auth.uid()`), enrolled students (`public.is_subject_member(id)`), or platform admins.

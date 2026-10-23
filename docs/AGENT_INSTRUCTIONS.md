@@ -32,10 +32,10 @@ The repository uses a disciplined team branching model:
 - `main`: Locked production-ready code.
 - `development`: Primary integration branch.
 - Developer branches:
-  - `dev/srinanth` — Backend, Database, Core APIs.
-  - `dev/deepak` — Curriculum Agent & Notes Retrieval Agent.
-  - `dev/rinz` — Frontend Web App (Next.js 15, Tailwind v4, shadcn/ui).
-  - `dev/antony` — **Current working branch** (Quiz Agent & Evaluator Agent).
+  - `dev/srinanth` — (Backend Core APIs, Mastra Agent Workflows, Deterministic Mastery Engine).
+  - `dev/rinz` — Database Architecture (Supabase schema, migrations, RLS policies, pgvector, storage buckets).
+  - `dev/deepak` — Frontend Web App & UI (Student Hub, Socratic Tutor Chat interface, Mastery Meter, UI components).
+  - `dev/antony` — **Current working branch** (Frontend Web App & UI: Teacher Studio, Ingestion UI, Analytics Dashboard, Quiz Runner).
 - All development by Antony must occur on **`dev/antony`**.
 
 ### Rule 3: ALWAYS KEEP DOCUMENTATION IN SYNC WITH CODE
@@ -53,46 +53,52 @@ Whenever code changes, **immediately update the corresponding documentation**:
 
 ## 2. Codebase Architecture & Modularity
 
-The backend must follow a strict **Feature-Based Modular Monolith** architecture:
+The backend follows a strict **Feature-Based Modular Monolith** inside the `backend/` directory, while Next.js frontend resides at the project root:
 
 ```
-backend/
-├── src/
-│   ├── config/                        # Environment variables, database & AI clients
-│   │   ├── env.ts                     # Zod-validated environment config
-│   │   └── supabase.ts                # Supabase client singleton & admin client
-│   │
-│   ├── middlewares/                   # Global and route-level middlewares
-│   │   ├── auth.middleware.ts         # Verifies Supabase Bearer JWT
-│   │   ├── role.middleware.ts         # RBAC guard (requireRole(['teacher', 'admin']))
-│   │   ├── membership.middleware.ts   # Multi-tenancy guard for teacher_subjects
-│   │   ├── validation.middleware.ts   # Generic Zod validator (validateRequest)
-│   │   └── errorHandler.middleware.ts # Global error boundary & response formatter
-│   │
-│   ├── utils/                         # Reusable utilities (DRY principle)
-│   │   ├── response.util.ts           # Standard API envelopes (sendSuccess, sendError)
-│   │   ├── errors.util.ts             # AppError class hierarchy (NotFound, BadRequest, etc.)
-│   │   └── vector.util.ts             # Vector search RPC helper
-│   │
-│   ├── modules/                       # Domain-specific feature modules
-│   │   ├── auth/                      # Profile & user hooks
-│   │   ├── subjects/                  # Teacher subjects & memberships
-│   │   ├── curriculum/                # Syllabus ingestion & curriculum_topics
-│   │   ├── materials/                 # Learning materials & note_embeddings
-│   │   ├── quizzes/                   # Quizzes, questions & attempts
-│   │   ├── tutor/                     # Socratic chat sessions & SSE streaming
-│   │   ├── mastery/                   # Deterministic Mastery Engine & student_topic_mastery
-│   │   └── insights/                  # Teacher insights & diagnostics
-│   │
-│   ├── app.ts                         # Express app setup & middleware mounting
-│   └── server.ts                      # Server bootstrap
+ThinkFirst/
+├── backend/                           # Srinanth's domain (Express REST API, Mastra AI, Deterministic Engine)
+│   ├── src/
+│   │   ├── config/                    # Environment variables, database & AI clients
+│   │   │   ├── env.ts                 # Zod-validated environment config
+│   │   │   └── supabase.ts            # Supabase client singleton & admin client
+│   │   │
+│   │   ├── middlewares/               # Global and route-level middlewares
+│   │   │   ├── auth.middleware.ts     # Verifies Supabase Bearer JWT
+│   │   │   ├── role.middleware.ts     # RBAC guard (requireRole(['admin', 'teacher', 'student']))
+│   │   │   ├── membership.middleware.ts# Multi-tenancy guard for teacher_subjects
+│   │   │   ├── validation.middleware.ts# Generic Zod validator (validateRequest)
+│   │   │   └── errorHandler.middleware.ts # Global error boundary & response formatter
+│   │   │
+│   │   ├── utils/                     # Reusable utilities (DRY principle)
+│   │   │   ├── response.util.ts       # Standard API envelopes (sendSuccess, sendError)
+│   │   │   ├── errors.util.ts         # AppError class hierarchy (NotFound, BadRequest, etc.)
+│   │   │   └── vector.util.ts         # Vector search RPC helper
+│   │   │
+│   │   ├── modules/                   # Domain-specific feature modules
+│   │   │   ├── auth/                  # Profile & user hooks
+│   │   │   ├── subjects/              # Teacher subjects & memberships
+│   │   │   ├── curriculum/            # Syllabus ingestion & curriculum_topics
+│   │   │   ├── materials/             # Learning materials & note_embeddings
+│   │   │   ├── quizzes/               # Quizzes, questions & attempts
+│   │   │   ├── tutor/                 # Socratic chat sessions & SSE streaming
+│   │   │   ├── mastery/               # Deterministic Mastery Engine & student_topic_mastery
+│   │   │   └── insights/              # Teacher insights & diagnostics
+│   │   │
+│   │   ├── app.ts                     # Express app setup & middleware mounting
+│   │   └── server.ts                  # Server bootstrap
+│   ├── package.json                   # Express dependencies
+│   ├── tsconfig.json                  # Node backend TypeScript configuration
+│   └── .env.example                   # Backend environment template
 │
-├── db/                                # Supabase database scripts
-│   ├── init.sql                       # 1-click database initialization script
+├── db/                                # Supabase database scripts (Rinz's domain)
+│   ├── init.sql                       # Canonical Supabase initialization script
 │   └── README.md                      # Database setup instructions
 │
-├── package.json
-└── tsconfig.json
+├── docs/                              # Shared documentation
+├── render.yaml                        # Render Blueprint (configured with rootDir: backend)
+├── .gitignore                         # Project-wide ignore rules
+└── AGENTS.md                          # Team guidelines
 ```
 
 ---

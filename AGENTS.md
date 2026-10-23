@@ -17,7 +17,7 @@ This file provides immediate operational rules and reference links for the **Thi
    - *"Agents reason over evidence; deterministic services maintain canonical learning state."*
    - AI Agents extract structured evidence tokens; the Deterministic Mastery Engine calculates student mastery scores in `student_topic_mastery`. Never let an LLM directly set or modify student grades.
 4. **MODULAR MONOLITH STANDARD**:
-   - Follow `src/modules/<feature-name>/` with dedicated routes, controller, service, schemas, and types. Use middlewares and utils for repeated logic.
+   - Follow `backend/src/modules/<feature-name>/` with dedicated routes, controller, service, schemas, and types. Use middlewares and utils for repeated logic.
 
 ---
 
@@ -26,10 +26,10 @@ This file provides immediate operational rules and reference links for the **Thi
 - **Remote**: `https://github.com/Srinanth/ThinkFirst.git`
 - `main`: Production-ready locked releases.
 - `development`: Primary integration branch.
-- `dev/srinanth`: **Current active working branch** (Backend & Database).
-- `dev/deepak`: Curriculum Agent & Notes Retrieval Agent.
-- `dev/rinz`: Next.js Frontend & UI.
-- `dev/antony`: Quiz Agent & Evaluator Agent.
+- `dev/srinanth`: **Current active working branch** (Backend Core APIs, Agentic AI Orchestration, Deterministic Mastery Engine).
+- `dev/rinz`: Database Architecture (Supabase schema, migrations, RLS policies, pgvector, storage buckets).
+- `dev/deepak`: Next.js Frontend & UI (Student Hub, Socratic Tutor Chat interface, Mastery Meter, UI components).
+- `dev/antony`: Next.js Frontend & UI (Teacher Studio, Ingestion UI, Analytics Dashboard, Quiz Runner).
 
 ---
 
@@ -44,4 +44,5 @@ This file provides immediate operational rules and reference links for the **Thi
 | **Row-Level Security (RLS)** | [`docs/RLS_POLICIES.md`](file:///c:/Users/Srinanth%20MV/Personal%20Projects/realm-hack/docs/RLS_POLICIES.md) | Supabase multi-tenant isolation, RBAC policies, and SQL security helper functions |
 | **REST API Documentation** | [`docs/API_DOCUMENTATION.md`](file:///c:/Users/Srinanth%20MV/Personal%20Projects/realm-hack/docs/API_DOCUMENTATION.md) | All endpoints, request/response JSON contracts, middlewares, and error formats |
 | **Feature Tracker** | [`docs/FEATURE_TRACKER.md`](file:///c:/Users/Srinanth%20MV/Personal%20Projects/realm-hack/docs/FEATURE_TRACKER.md) | Progress matrix, completion status, task assignments, and post-hackathon roadmap |
+| **Render Cloud & Workflows Guide** | [`docs/RENDER_SETUP.md`](file:///c:/Users/Srinanth%20MV/Personal%20Projects/realm-hack/docs/RENDER_SETUP.md) | Render Blueprint deployment, Render Workflows AI pipelines, and MCP server setup |
 | **Detailed Agent Instructions** | [`docs/AGENT_INSTRUCTIONS.md`](file:///c:/Users/Srinanth%20MV/Personal%20Projects/realm-hack/docs/AGENT_INSTRUCTIONS.md) | Step-by-step developer guidelines, modular design rules, commit instructions |
