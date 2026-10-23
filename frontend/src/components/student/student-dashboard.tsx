@@ -1,0 +1,420 @@
+'use client';
+
+import React from 'react';
+import {
+  BookOpen,
+  ArrowRight,
+  TrendingUp,
+  Layers,
+} from 'lucide-react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ReferenceLine,
+} from 'recharts';
+
+export interface CourseItem {
+  id: string;
+  code: string;
+  title: string;
+  instructor: string;
+  location: string;
+  grade: string;
+  percentage: number;
+  credits: number;
+  color: string;
+}
+
+export const ENROLLED_COURSES: CourseItem[] = [
+  {
+    id: 'cs-204',
+    code: 'CS-204',
+    title: 'Data Structures & Algorithms',
+    instructor: 'Prof. Dr. Sharma',
+    location: 'Room 302B',
+    grade: 'A',
+    percentage: 91.4,
+    credits: 4,
+    color: '#ffffff',
+  },
+  {
+    id: 'cs-206',
+    code: 'CS-206',
+    title: 'Database Management Systems',
+    instructor: 'Prof. Rachel Gomez',
+    location: 'Lab 4A',
+    grade: 'B+',
+    percentage: 86.2,
+    credits: 4,
+    color: '#e2e8f0',
+  },
+  {
+    id: 'cs-208',
+    code: 'CS-208',
+    title: 'Computer Networks & Protocols',
+    instructor: 'Prof. Marcus Sterling',
+    location: 'Room 114',
+    grade: 'A-',
+    percentage: 88.7,
+    credits: 4,
+    color: '#cbd5e1',
+  },
+  {
+    id: 'ma-202',
+    code: 'MA-202',
+    title: 'Discrete Mathematics & Logic',
+    instructor: 'Prof. Arthur Pendleton',
+    location: 'Hall C',
+    grade: 'B',
+    percentage: 82.0,
+    credits: 4,
+    color: '#94a3b8',
+  },
+];
+
+// Weekly quiz performance trend Weeks 1 to 9
+const WEEKLY_TREND_DATA = [
+  { week: 'W1', score: 82, target: 80 },
+  { week: 'W2', score: 85, target: 80 },
+  { week: 'W3', score: 76, target: 80 }, // Lowest
+  { week: 'W4', score: 81, target: 80 },
+  { week: 'W5', score: 84, target: 80 },
+  { week: 'W6', score: 88, target: 80 },
+  { week: 'W7', score: 86, target: 80 },
+  { week: 'W8', score: 95, target: 80 }, // Peak
+  { week: 'W9', score: 92, target: 80 },
+];
+
+interface StudentDashboardProps {
+  onSelectCourse: (course: CourseItem) => void;
+  onOpenAddModal?: (type: 'student' | 'teacher') => void;
+}
+
+export default function StudentDashboard({
+  onSelectCourse,
+  onOpenAddModal,
+}: StudentDashboardProps) {
+  return (
+    <div className="space-y-6 animate-in fade-in duration-200 text-white">
+      {/* Top Workspace Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/5 gap-2">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_white]" />
+          <h2 className="text-xs sm:text-sm font-black tracking-wider uppercase text-white">
+            WORKSPACE 1: PERFORMANCE &amp; ACADEMIC OVERVIEW
+          </h2>
+        </div>
+        <div className="flex items-center gap-2">
+          {onOpenAddModal && (
+            <button
+              onClick={() => onOpenAddModal('student')}
+              className="text-[11px] font-bold text-[#9e9e9e] hover:text-white neu-btn px-3 py-1 rounded-lg transition-colors cursor-pointer"
+            >
+              Admissions Protocol
+            </button>
+          )}
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold neu-badge-white">
+            Live Telemetry
+          </span>
+        </div>
+      </div>
+
+      {/* Student Bio Header Card (Soft Raised Neumorphic in White Contrast) */}
+      <div className="neu-card-raised p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#222222] to-[#2e2e2e] border border-white/10 text-white flex items-center justify-center font-black text-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6)] shrink-0">
+            AJ
+          </div>
+          <div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                Alex Johnson
+              </h1>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold neu-badge-white">
+                Active Student
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-[#9e9e9e] font-medium mt-0.5">
+              B.S. in Computer Science &bull; Semester 3 &bull; Academic Year 2026–27
+            </p>
+            <div className="flex items-center gap-3 text-xs text-[#757575] font-medium mt-1 flex-wrap">
+              <span>Student ID: <strong className="text-white">CS-8841</strong></span>
+              <span>&bull;</span>
+              <span>Advisor: <strong className="text-white">Dr. Eleanor Vance</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Academic Standing</p>
+            <p className="text-sm font-black text-white">Dean&apos;s Honor List</p>
+          </div>
+          <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Total Credits</p>
+            <p className="text-sm font-black text-white">48 / 120 Units</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Enrolled Classes (4 Active Courses) - 7 cols */}
+        <div className="lg:col-span-7 space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-black text-white tracking-tight">
+                Enrolled Classes
+              </h3>
+              <p className="text-xs text-[#9e9e9e] font-medium">
+                Fall Semester &bull; 4 active courses
+              </p>
+            </div>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold neu-badge text-white">
+              <Layers className="w-3.5 h-3.5 text-white" />
+              16 Credit Hours
+            </span>
+          </div>
+
+          {/* Class Cards 1 to 4 */}
+          <div className="space-y-3.5">
+            {ENROLLED_COURSES.map((course) => (
+              <div
+                key={course.id}
+                onClick={() => onSelectCourse(course)}
+                className="neu-card p-5 hover:shadow-[10px_10px_24px_rgba(0,0,0,0.55),-5px_-5px_15px_rgba(255,255,255,0.04)] hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold neu-inset-sm text-white font-mono">
+                        {course.code}
+                      </span>
+                      <span className="text-xs text-[#757575] font-medium">
+                        {course.credits} Credits &bull; {course.location}
+                      </span>
+                    </div>
+
+                    <h4 className="text-base font-black text-white group-hover:text-white/80 transition-colors">
+                      {course.title}
+                    </h4>
+
+                    <p className="text-xs text-[#9e9e9e] font-medium">
+                      Instructor: <span className="text-white font-semibold">{course.instructor}</span>
+                    </p>
+                  </div>
+
+                  {/* Grade Badge */}
+                  <div className="text-right shrink-0">
+                    <span className="text-xs font-bold text-[#757575] block uppercase tracking-wider">
+                      Current Grade
+                    </span>
+                    <span className="text-xl font-black text-white">
+                      {course.grade}{' '}
+                      <span className="text-xs font-bold text-[#9e9e9e]">
+                        ({course.percentage}%)
+                      </span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Subtle Progress Fill Bar */}
+                <div className="mt-3 w-full bg-[#181818] rounded-full h-1.5 overflow-hidden shadow-inner">
+                  <div
+                    className="h-full rounded-full bg-white/70 transition-all duration-500"
+                    style={{ width: `${course.percentage}%` }}
+                  />
+                </div>
+
+                {/* Card Footer Link */}
+                <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between text-xs">
+                  <span className="text-[#9e9e9e] font-medium flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-white" />
+                    Assessments &amp; Syllabus
+                  </span>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 font-bold text-white group-hover:text-white/80 transition-colors cursor-pointer"
+                  >
+                    <span>Manage Quizzes</span>
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column: Analytics & Progress - 5 cols */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* 1. Quiz Performance Card */}
+          <div className="neu-card p-5 sm:p-6 space-y-5 text-white">
+            <div>
+              <h3 className="text-base font-black text-white tracking-tight">
+                Average score of quizzes attended
+              </h3>
+              <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
+                Cumulative quiz performance across all current semester subjects
+              </p>
+            </div>
+
+            {/* Circular Progress & Trend Badge */}
+            <div className="flex items-center justify-between p-4 neu-inset">
+              <div className="flex items-center gap-4">
+                {/* SVG Progress Ring in Crisp White */}
+                <div className="relative w-18 h-18 flex items-center justify-center">
+                  <svg className="w-18 h-18 -rotate-90 transform" viewBox="0 0 36 36">
+                    <path
+                      stroke="#222222"
+                      strokeWidth="3.2"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                    <path
+                      stroke="#ffffff"
+                      strokeDasharray="84.5, 100"
+                      strokeWidth="3.2"
+                      strokeLinecap="round"
+                      fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                    />
+                  </svg>
+                  <div className="absolute text-center">
+                    <span className="text-base font-black text-white">84.5%</span>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#757575]">Overall Avg</p>
+                  <p className="text-sm font-extrabold text-white">High Proficiency</p>
+                </div>
+              </div>
+
+              <div className="text-right">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold neu-badge-white">
+                  <TrendingUp className="w-3.5 h-3.5 text-white" />
+                  &uarr; +32% vs prev term
+                </span>
+              </div>
+            </div>
+
+            {/* Breakdown List with Color Indicators */}
+            <div className="space-y-2 pt-1">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#757575]">
+                Course-by-Course Quiz Breakdown
+              </p>
+              {ENROLLED_COURSES.map((course) => (
+                <div
+                  key={course.id}
+                  className="flex items-center justify-between text-xs p-2 rounded-lg hover:bg-[#202020] transition-colors"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_6px_white]"
+                    />
+                    <span className="font-bold text-white">{course.code}:</span>
+                    <span className="text-[#9e9e9e] truncate max-w-[170px]">
+                      {course.title}
+                    </span>
+                  </div>
+                  <span className="font-black text-white">
+                    {course.percentage}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* 2. Academic Progress Graph Card (Strategic Peak Point Highlighted) */}
+          <div className="neu-card p-5 sm:p-6 space-y-4 text-white">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-black text-white tracking-tight">
+                  Academic progress graph
+                </h3>
+                <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
+                  Weekly quiz performance trend Weeks 1 to 9
+                </p>
+              </div>
+              <span className="text-[11px] font-bold text-white neu-inset-sm px-2.5 py-1">
+                Target: 80%
+              </span>
+            </div>
+
+            {/* Recharts Line Chart inside Recessed Container */}
+            <div className="neu-inset p-3 rounded-2xl h-52 w-full pt-2">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={WEEKLY_TREND_DATA} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.04)" />
+                  <XAxis
+                    dataKey="week"
+                    tick={{ fill: '#757575', fontSize: 11, fontWeight: 600 }}
+                    axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    domain={[65, 100]}
+                    tick={{ fill: '#757575', fontSize: 11, fontWeight: 600 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `${v}%`}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#262626',
+                      borderRadius: '14px',
+                      color: '#ffffff',
+                      border: '1px solid rgba(255,255,255,0.12)',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                    }}
+                    formatter={(value: unknown, name: unknown) => [
+                      `${String(value)}%`,
+                      String(name) === 'score' ? "Alex's Score" : 'Benchmark Target',
+                    ]}
+                  />
+                  <ReferenceLine
+                    y={80}
+                    stroke="#555555"
+                    strokeDasharray="4 4"
+                    label={{ value: 'Target 80%', fill: '#757575', fontSize: 10, position: 'insideTopRight' }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="score"
+                    stroke="#ffffff"
+                    strokeWidth={2.5}
+                    dot={{ fill: '#1e1e1e', r: 4, strokeWidth: 2, stroke: '#ffffff' }}
+                    activeDot={{ r: 6, fill: '#00d2ff', stroke: '#ffffff', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Bottom Performance Callouts (Strategic Accent on Peak Only) */}
+            <div className="grid grid-cols-3 gap-2.5 pt-2 border-t border-white/5 text-center">
+              <div className="p-2.5 rounded-xl neu-inset">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Lowest</p>
+                <p className="text-xs font-black text-white/80">76% in W3</p>
+              </div>
+              <div className="p-2.5 rounded-xl neu-card-sm border border-cyan-500/40 shadow-[0_0_15px_rgba(0,210,255,0.2)]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#00d2ff]">Peak</p>
+                <p className="text-xs font-black text-[#00d2ff]">95% in W8</p>
+              </div>
+              <div className="p-2.5 rounded-xl neu-inset">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Projected</p>
+                <p className="text-xs font-black text-white">87.5% (A)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
