@@ -25,7 +25,6 @@
 
 ```mermaid
 erDiagram
-    colleges ||--o{ profiles : "employs / enrolls"
     profiles ||--o{ teacher_subjects : "teaches"
     profiles ||--o{ memberships : "enrolled in"
     teacher_subjects ||--o{ memberships : "has students"
@@ -45,14 +44,16 @@ erDiagram
     profiles ||--o{ student_topic_mastery : "holds mastery"
     curriculum_topics ||--o{ student_topic_mastery : "evaluated on"
     teacher_subjects ||--o{ student_topic_mastery : "scoped by"
-    profiles ||--o{ learning_sessions : "attends"
-    teacher_subjects ||--o{ learning_sessions : "hosts session"
+    profiles ||--o{ student_mastery_history : "logs history"
+    curriculum_topics ||--o{ student_mastery_history : "tracks topic"
+    teacher_subjects ||--o{ student_mastery_history : "scopes history"
+    quizzes ||--o{ student_mastery_history : "sourced from"
     profiles ||--o{ tutor_conversations : "chats in"
     teacher_subjects ||--o{ tutor_conversations : "scopes chat"
-    learning_sessions ||--o{ tutor_conversations : "links"
     tutor_conversations ||--o{ tutor_messages : "contains turns"
     curriculum_topics ||--o{ tutor_messages : "contextualizes"
     teacher_subjects ||--o{ teacher_insights : "receives alerts"
+    curriculum_topics ||--o{ teacher_insights : "analyzes topic"
     profiles ||--o{ teacher_insights : "flags student"
 ```
 
@@ -270,22 +271,6 @@ Chronological audit log tracking mastery progression over time per student and t
 
 ---
 
-### 3.13 `learning_sessions`
-Records tutoring or independent learning study blocks.
-
-| Column | Type | Constraints | Description |
-|---|---|---|---|
-| `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Session ID |
-| `student_id` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE CASCADE` | Student ID |
-| `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Subject class |
-| `started_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Start timestamp |
-| `ended_at` | `TIMESTAMPTZ` | `NULL` | End timestamp |
-| `session_type` | `TEXT` | `NOT NULL, CHECK (session_type = ANY (ARRAY['ai_tutor'::text, 'revision'::text, 'practice'::text]))` | Study modality |
-| **Constraint** | `CHECK (ended_at IS NULL OR ended_at >= started_at)` | | Valid duration constraint |
-| `session_type` | `TEXT` | `NOT NULL, CHECK (session_type IN ('ai_tutor', 'revision', 'practice'))` | Study modality |
-
----
-
 ### 3.13 `tutor_conversations`
 Persistent conversation threads between student and AI Tutor scoped to a subject.
 
@@ -294,10 +279,12 @@ Persistent conversation threads between student and AI Tutor scoped to a subject
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Conversation ID |
 | `student_id` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE CASCADE` | Student ID |
 | `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Scoped subject class |
-| `learning_session_id` | `UUID` | `NULL`, references `learning_sessions(id) ON DELETE SET NULL` | Parent session |
 | `title` | `TEXT` | `NULL` | Descriptive topic title |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Conversation start |
-| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Last message time |
+| `session_type` | `TEXT` | `NOT NULL, CHECK (session_type = ANY (ARRAY['ai_tutor'::text, 'revision'::text, 'practice'::text]))` | Learning mode |
+| `started_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Conversation start time |
+| `ended_at` | `TIMESTAMPTZ` | `NULL` | Session end time |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Record created time |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Last update timestamp |
 
 ---
 
@@ -308,10 +295,11 @@ Individual dialogue turns exchanged in a Socratic conversation.
 |---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Message ID |
 | `conversation_id` | `UUID` | `NOT NULL`, references `tutor_conversations(id) ON DELETE CASCADE` | Conversation container |
-| `role` | `TEXT` | `NOT NULL, CHECK (role IN ('user', 'assistant', 'system'))` | Message author |
-| `content` | `TEXT` | `NOT NULL` | Dialogue text |
+| `role` | `TEXT` | `NOT NULL, CHECK (role = ANY (ARRAY['user'::text, 'assistant'::text, 'system'::text]))` | Message author |
+| `content` | `TEXT` | `NOT NULL, CHECK (length(TRIM(BOTH FROM content)) > 0)` | Dialogue text |
 | `curriculum_topic_id` | `UUID` | `NULL`, references `curriculum_topics(id) ON DELETE SET NULL` | Focus concept |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Timestamp |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Timestamp |
+| **Index** | `idx_tutor_messages_conversation` | `(conversation_id, created_at)` | Fast conversation turn retrieval |
 
 ---
 
@@ -322,14 +310,15 @@ AI-generated diagnostic signals for teachers based on aggregated student evidenc
 |---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Insight ID |
 | `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Subject class |
-| `insight_type` | `TEXT` | `NOT NULL, CHECK (insight_type IN ('struggling_topic', 'student_needs_support', 'class_progress'))` | Diagnostic category |
+| `insight_type` | `TEXT` | `NOT NULL, CHECK (insight_type = ANY (ARRAY['weak_areas'::text, 'strong_areas'::text, 'summary'::text]))` | Diagnostic category |
 | `title` | `TEXT` | `NOT NULL` | Summary headline |
 | `description` | `TEXT` | `NOT NULL` | Pedagogical explanation |
 | `curriculum_topic_id` | `UUID` | `NULL`, references `curriculum_topics(id) ON DELETE SET NULL` | Impacted topic |
 | `student_id` | `UUID` | `NULL`, references `profiles(id) ON DELETE CASCADE` | Flagged student |
 | `evidence` | `JSONB` | `NULL` | Supporting stats / response traces |
-| `status` | `TEXT` | `NOT NULL DEFAULT 'active', CHECK (status IN ('active', 'dismissed', 'resolved'))` | Insight state |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Generation timestamp |
+| `status` | `TEXT` | `NOT NULL DEFAULT 'active'::text, CHECK (status = ANY (ARRAY['active'::text, 'dismissed'::text, 'resolved'::text]))` | Insight state |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Generation timestamp |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Last update timestamp |
 
 ---
 

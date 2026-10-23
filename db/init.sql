@@ -2,7 +2,7 @@
 -- ThinkFirst — Supabase Canonical Database Initialization Script
 -- Project: ThinkFirst | Team Odysseus | RealmHack 2026
 -- Source of Truth: Canonical Supabase Database (Project: qbazezxihrczscigtqel)
--- Last Synced: October 2026
+-- Last Synced: October 2026 (All 15 Canonical Tables Synced)
 -- ============================================================================
 
 -- 1. EXTENSIONS
@@ -164,15 +164,42 @@ CREATE TABLE IF NOT EXISTS public.student_mastery_history (
   source_quiz_id UUID NULL REFERENCES public.quizzes(id) ON DELETE SET NULL
 );
 
--- 13. Table: learning_sessions
-CREATE TABLE IF NOT EXISTS public.learning_sessions (
+-- 13. Table: tutor_conversations
+CREATE TABLE IF NOT EXISTS public.tutor_conversations (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
   teacher_subject_id UUID NOT NULL REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
+  title TEXT NULL,
+  session_type TEXT NOT NULL CHECK (session_type = ANY (ARRAY['ai_tutor'::text, 'revision'::text, 'practice'::text])),
   started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   ended_at TIMESTAMPTZ NULL,
-  session_type TEXT NOT NULL CHECK (session_type = ANY (ARRAY['ai_tutor'::text, 'revision'::text, 'practice'::text])),
-  CONSTRAINT learning_sessions_valid_time CHECK ((ended_at IS NULL) OR (ended_at >= started_at))
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 14. Table: tutor_messages
+CREATE TABLE IF NOT EXISTS public.tutor_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID NOT NULL REFERENCES public.tutor_conversations(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role = ANY (ARRAY['user'::text, 'assistant'::text, 'system'::text])),
+  content TEXT NOT NULL CHECK (length(TRIM(BOTH FROM content)) > 0),
+  curriculum_topic_id UUID NULL REFERENCES public.curriculum_topics(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 15. Table: teacher_insights
+CREATE TABLE IF NOT EXISTS public.teacher_insights (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  teacher_subject_id UUID NOT NULL REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
+  insight_type TEXT NOT NULL CHECK (insight_type = ANY (ARRAY['weak_areas'::text, 'strong_areas'::text, 'summary'::text])),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  curriculum_topic_id UUID NULL REFERENCES public.curriculum_topics(id) ON DELETE SET NULL,
+  student_id UUID NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  evidence JSONB NULL,
+  status TEXT NOT NULL DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'dismissed'::text, 'resolved'::text])),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================================
@@ -181,6 +208,9 @@ CREATE TABLE IF NOT EXISTS public.learning_sessions (
 
 CREATE INDEX IF NOT EXISTS idx_mastery_history_student_topic 
 ON public.student_mastery_history USING btree (student_id, curriculum_topic_id, assessed_at);
+
+CREATE INDEX IF NOT EXISTS idx_tutor_messages_conversation 
+ON public.tutor_messages USING btree (conversation_id, created_at);
 
 -- Vector similarity index (HNSW with Cosine distance)
 CREATE INDEX IF NOT EXISTS idx_note_embeddings_vector 
@@ -204,4 +234,6 @@ ALTER TABLE public.quiz_attempts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quiz_responses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.student_topic_mastery ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.student_mastery_history ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.learning_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tutor_conversations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.tutor_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.teacher_insights ENABLE ROW LEVEL SECURITY;

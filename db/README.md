@@ -58,9 +58,8 @@ ThinkFirst implements an institutional multi-tenant hierarchy:
    - `pgvector` (Vector similarity search using `vector(768)`)
    - `uuid-ossp` and `pgcrypto` (Cryptographic UUID functions)
 
-2. **15 Relational & Vector Tables**:
-   - `colleges`: Colleges/Universities created by Superadmins.
-   - `profiles`: User profiles linked to `auth.users`, associated with `college_id`, with 4-tier roles (`superadmin`, `admin`, `teacher`, `student`).
+2. **15 Canonical PostgreSQL Tables**:
+   - `profiles`: User profiles linked to `auth.users`, with roles (`admin`, `teacher`, `student`).
    - `teacher_subjects`: Subject cohorts created by teachers (e.g. "Physics 101 - 2026").
    - `memberships`: Student enrollment in teacher subjects.
    - `curriculum_topics`: Hierarchical syllabus tree (`module`, `topic`, `subtopic`).
@@ -71,7 +70,7 @@ ThinkFirst implements an institutional multi-tenant hierarchy:
    - `quiz_attempts`: Student quiz test sessions.
    - `quiz_responses`: Granular student answer logs and evaluation feedback.
    - `student_topic_mastery`: Deterministic mastery scores ($0.0 \rightarrow 1.0$) and confidence values.
-   - `learning_sessions`: Student study/tutoring sessions.
+   - `student_mastery_history`: Historical audit trail of student mastery evaluations over time.
    - `tutor_conversations`: Socratic chat threads scoped to subject and student.
    - `tutor_messages`: Individual conversation turns (`user`, `assistant`, `system`).
    - `teacher_insights`: Aggregated pedagogical signals and intervention recommendations.

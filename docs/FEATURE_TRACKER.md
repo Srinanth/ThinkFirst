@@ -45,7 +45,7 @@ Progress: [████████████░░░░░░░░] 52%
 ### Phase 2: Database & Data Infrastructure (Rinz's Focus)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **DB-01** | Master Supabase SQL Init Script | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Synchronized with live Supabase schema in `db/init.sql` (13 canonical tables incl. `student_mastery_history`) |
+| **DB-01** | Master Supabase SQL Init Script | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Synchronized with live Supabase schema in `db/init.sql` (all 15 canonical tables incl. `tutor_conversations`, `tutor_messages`, `teacher_insights`) |
 | **DB-02** | Database Documentation & Run Guide | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Created in `db/README.md` |
 | **DB-03** | Enable `pgvector` & HNSW Indexing | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Vector(768) HNSW index scripted |
 | **DB-04** | RLS Policies Scripting for All 15 Tables | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Fully integrated into `db/init.sql` with 4-tier roles |
