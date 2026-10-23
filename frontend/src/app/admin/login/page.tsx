@@ -79,8 +79,7 @@ export default function AdminLoginPage() {
 
       document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
       document.cookie = 'thinkfirst_user_role=admin; path=/; max-age=86400; SameSite=Lax';
-      router.push('/admin');
-      router.refresh();
+      window.location.href = '/admin';
     } catch (err: unknown) {
       setLoading(false);
       setErrorMessage(err instanceof Error ? err.message : 'Authentication failed.');

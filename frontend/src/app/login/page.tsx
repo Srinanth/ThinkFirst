@@ -73,15 +73,9 @@ export default function AcademicLoginPage() {
       document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
       document.cookie = `thinkfirst_user_role=${role}; path=/; max-age=86400; SameSite=Lax`;
 
-      if (role === 'admin') {
-        router.push('/admin');
-      } else if (role === 'teacher') {
-        router.push('/teacher');
-      } else {
-        router.push('/student');
-      }
-
-      router.refresh();
+      const targetPath =
+        role === 'admin' ? '/admin' : role === 'teacher' ? '/teacher' : '/student';
+      window.location.href = targetPath;
     } catch (err: unknown) {
       setLoading(false);
       setErrorMessage(err instanceof Error ? err.message : 'Sign in failed.');
