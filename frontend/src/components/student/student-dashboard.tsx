@@ -30,53 +30,6 @@ export interface CourseItem {
   color: string;
 }
 
-export const ENROLLED_COURSES: CourseItem[] = [
-  {
-    id: 'cs-204',
-    code: 'CS-204',
-    title: 'Data Structures & Algorithms',
-    instructor: 'Prof. Dr. Sharma',
-    location: 'Room 302B',
-    grade: 'A',
-    percentage: 91.4,
-    credits: 4,
-    color: '#ffffff',
-  },
-  {
-    id: 'cs-206',
-    code: 'CS-206',
-    title: 'Database Management Systems',
-    instructor: 'Prof. Rachel Gomez',
-    location: 'Lab 4A',
-    grade: 'B+',
-    percentage: 86.2,
-    credits: 4,
-    color: '#e2e8f0',
-  },
-  {
-    id: 'cs-208',
-    code: 'CS-208',
-    title: 'Computer Networks & Protocols',
-    instructor: 'Prof. Marcus Sterling',
-    location: 'Room 114',
-    grade: 'A-',
-    percentage: 88.7,
-    credits: 4,
-    color: '#cbd5e1',
-  },
-  {
-    id: 'ma-202',
-    code: 'MA-202',
-    title: 'Discrete Mathematics & Logic',
-    instructor: 'Prof. Arthur Pendleton',
-    location: 'Hall C',
-    grade: 'B',
-    percentage: 82.0,
-    credits: 4,
-    color: '#94a3b8',
-  },
-];
-
 // Weekly quiz performance trend Weeks 1 to 9
 const WEEKLY_TREND_DATA = [
   { week: 'W1', score: 82, target: 80 },

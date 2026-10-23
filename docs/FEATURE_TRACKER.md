@@ -100,7 +100,7 @@ Progress: [███████████████████░] 93%
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
 | **FE-01** | Next.js 16 Setup with Tailwind v4 & Neumorphic UI | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Next.js App Router & dark soft-UI design system |
-| **FE-02** | Authentication Pages (Direct Email & Institutional ID)| `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Direct email/password auth & institutional ID support (`/login`, `/admin/login`) with strict user isolation and no credential override |
+| **FE-02** | Live Authentication & Session Lifecycle | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Pure email & password login (`/login`, `/admin/login`), complete removal of demo switches, proper Supabase `signOut` session teardown, and dynamic profile binding |
 | **FE-03** | Teacher Studio: Vector RAG Notes & Syllabus Ingestion | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Live notes/text upload, multimodal OCR chunking, and similarity search connected to backend |
 | **FE-04** | Teacher Dashboard: Insights & Performance | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Live teacher subjects, student gap dossiers with active/resolved filter, dynamic stats |
 | **FE-05** | Student Hub: Topic Progress & Mastery Meter | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Live student courses from Postgres, interactive mastery meter, and course drilldown |

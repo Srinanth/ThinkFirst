@@ -66,21 +66,35 @@ interface AiTutorDrawerProps {
   isVisible?: boolean;
   initialMission?: RemediationMissionData | null;
   forceOpen?: boolean;
+  studentName?: string;
   onClose?: () => void;
 }
 
 export default function AiTutorDrawer({
-  currentCourse = 'CS-204: Data Structures & Algorithms',
+  currentCourse = 'Academic Course',
   subjectId,
   curriculumTopicId,
   isQuizActive = false,
   isVisible = true,
   initialMission = null,
   forceOpen = false,
+  studentName = 'Student',
   onClose,
 }: AiTutorDrawerProps) {
   const [isOpen, setIsOpen] = useState(forceOpen || Boolean(initialMission));
-  const [messages, setMessages] = useState<ChatMessage[]>(DEFAULT_MESSAGES);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: 'm-1',
+      sender: 'tutor',
+      text: `Hello ${studentName}! I'm your Campus Socratic AI Tutor. How can I guide you through your course concepts today?`,
+      timestamp: 'Just now',
+      contextTag: 'Socratic Learning',
+      actionWidgets: [
+        { type: 'pill', label: 'Ask a Question', value: 'I have a question about this course' },
+        { type: 'pill', label: 'Review Key Topics', value: 'Can you summarize key topics?' },
+      ],
+    },
+  ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [dismissBubble, setDismissBubble] = useState(false);
@@ -438,7 +452,7 @@ export default function AiTutorDrawer({
                 >
                   <div className="flex items-center gap-1.5 mb-1 px-1">
                     <span className="text-[10px] font-bold text-[#757575] uppercase tracking-wider">
-                      {isTutor ? 'Campus AI Tutor' : 'Alex (You)'}
+                      {isTutor ? 'Campus AI Tutor' : `${studentName} (You)`}
                     </span>
                     <span className="text-[10px] text-[#757575]">&bull; {msg.timestamp}</span>
                   </div>

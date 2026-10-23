@@ -14,6 +14,7 @@ import QuizTaker from '@/components/student/quiz-taker';
 import AiTutorDrawer, { RemediationMissionData } from '@/components/student/ai-tutor-drawer';
 import AdmissionModals from '@/components/modals/admission-modals';
 import { authApi, subjectsApi, SubjectOffering } from '@/lib/api';
+import { createClient } from '@/lib/supabase/client';
 import { CheckCircle, X, Clock, Calendar } from 'lucide-react';
 
 export default function StudentPage() {
@@ -52,6 +53,14 @@ export default function StudentPage() {
 
   useEffect(() => {
     let isMounted = true;
+
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data?.session && isMounted) {
+        router.push('/login');
+        return;
+      }
+    });
 
     // 1. Fetch authenticated student profile
     authApi
@@ -109,9 +118,15 @@ export default function StudentPage() {
     };
   }, []);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
     document.cookie = 'thinkfirst_user_role=; Max-Age=0; path=/;';
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
     router.push('/login');
     router.refresh();
   };
@@ -206,6 +221,7 @@ export default function StudentPage() {
         <AiTutorDrawer
           currentCourse={`${selectedCourse.code}: ${selectedCourse.title}`}
           subjectId={selectedCourse.id}
+          studentName={studentName}
           isVisible={activeView === 'course'}
           isQuizActive={activeView === 'taking_quiz'}
           forceOpen={tutorForceOpen}

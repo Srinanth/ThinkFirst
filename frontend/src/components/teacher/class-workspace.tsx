@@ -1426,7 +1426,7 @@ export default function ClassWorkspace({
                   required
                   value={enrollIdentifier}
                   onChange={(e) => setEnrollIdentifier(e.target.value)}
-                  placeholder="e.g. STD-2026-9999 or student.demo@thinkfirst.edu"
+                  placeholder="e.g. STD-2026-9999 or student@institution.edu"
                   className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
                 />
                 <p className="text-[11px] text-[#757575] mt-1.5">

@@ -7,6 +7,7 @@ import TeacherOverview from '@/components/teacher/teacher-overview';
 import ClassWorkspace from '@/components/teacher/class-workspace';
 import { ClassData } from '@/data/mock-data';
 import { authApi, subjectsApi, SubjectOffering } from '@/lib/api';
+import { createClient } from '@/lib/supabase/client';
 import { X, Plus, CheckCircle, BookOpen, Loader2 } from 'lucide-react';
 
 export default function TeacherPage() {
@@ -31,6 +32,13 @@ export default function TeacherPage() {
   const loadTeacherData = async () => {
     try {
       setLoading(true);
+      const supabase = createClient();
+      const { data: sessionData } = await supabase.auth.getSession();
+      if (!sessionData?.session) {
+        router.push('/login');
+        return;
+      }
+
       // 1. Fetch live profile
       try {
         const profile = await authApi.getMe();
@@ -89,9 +97,15 @@ export default function TeacherPage() {
     loadTeacherData();
   }, []);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
     document.cookie = 'thinkfirst_user_role=; Max-Age=0; path=/;';
+    try {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
     router.push('/login');
     router.refresh();
   };

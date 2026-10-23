@@ -19,38 +19,7 @@ export async function POST(request: NextRequest) {
 
     const trimmedId = String(loginId).trim();
 
-    // 0. Sample / Institutional Admin Credentials (Instant Evaluation)
-    if (
-      (trimmedId.toUpperCase() === 'ADM-89421' ||
-        trimmedId.toLowerCase() === 'admin@institution.edu' ||
-        trimmedId.toUpperCase() === 'ADM-89421!') &&
-      (password === 'Admin2026!' || password === 'admin2026')
-    ) {
-      const response = NextResponse.json({
-        success: true,
-        isDemo: true,
-        user: {
-          id: 'demo-admin-id',
-          email: 'admin@institution.edu',
-        },
-        profile: {
-          id: 'demo-admin-id',
-          full_name: 'Dr. Alexander Vance',
-          role: 'admin',
-          college: 'Faculty of Engineering',
-        },
-      });
-
-      // Set session cookie for Next.js SSR middleware
-      response.cookies.set('thinkfirst_demo_admin', 'true', {
-        path: '/',
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24, // 24 hours
-      });
-
-      return response;
-    }
+    // Direct Supabase authentication
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey =

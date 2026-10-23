@@ -12,9 +12,6 @@ import {
   AlertCircle,
   Loader2,
   ArrowRight,
-  GraduationCap,
-  Users,
-  CheckCircle2,
   ShieldAlert,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -29,10 +26,11 @@ export default function AcademicLoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleLogin = async (overrideEmail?: string, overridePassword?: string) => {
+  const handleLogin = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMessage(null);
-    const targetEmail = (overrideEmail ?? email).trim().toLowerCase();
-    const targetPassword = overridePassword ?? password;
+    const targetEmail = email.trim().toLowerCase();
+    const targetPassword = password;
 
     if (!targetEmail) {
       setErrorMessage('Please enter your email address.');
@@ -60,18 +58,26 @@ export default function AcademicLoginPage() {
         return;
       }
 
-      // Determine user role from Supabase user_metadata
-      const role = (data.user.user_metadata?.role as string) || 'student';
+      // Determine user role from Supabase user_metadata or profiles table
+      let role = data.user.user_metadata?.role as string;
+      if (!role) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+        role = profile?.role || 'student';
+      }
+
+      // Clear legacy demo cookies and set authenticated role cookie
+      document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
+      document.cookie = `thinkfirst_user_role=${role}; path=/; max-age=86400; SameSite=Lax`;
 
       if (role === 'admin') {
-        document.cookie = 'thinkfirst_demo_admin=true; path=/; max-age=86400; SameSite=Lax';
-        document.cookie = 'thinkfirst_user_role=admin; path=/; max-age=86400; SameSite=Lax';
         router.push('/admin');
       } else if (role === 'teacher') {
-        document.cookie = 'thinkfirst_user_role=teacher; path=/; max-age=86400; SameSite=Lax';
         router.push('/teacher');
       } else {
-        document.cookie = 'thinkfirst_user_role=student; path=/; max-age=86400; SameSite=Lax';
         router.push('/student');
       }
 
@@ -80,18 +86,6 @@ export default function AcademicLoginPage() {
       setLoading(false);
       setErrorMessage(err instanceof Error ? err.message : 'Sign in failed.');
     }
-  };
-
-  const handleDemoTeacher = () => {
-    setEmail('teacher.demo@thinkfirst.edu');
-    setPassword('Teacher@2026');
-    handleLogin('teacher.demo@thinkfirst.edu', 'Teacher@2026');
-  };
-
-  const handleDemoStudent = () => {
-    setEmail('student.demo@thinkfirst.edu');
-    setPassword('Student@2026');
-    handleLogin('student.demo@thinkfirst.edu', 'Student@2026');
   };
 
   return (
@@ -121,19 +115,11 @@ export default function AcademicLoginPage() {
           {errorMessage && (
             <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in leading-relaxed shadow-inner">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-              <div className="flex-1">
-                {errorMessage}
-              </div>
+              <div className="flex-1">{errorMessage}</div>
             </div>
           )}
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleLogin();
-            }}
-            className="space-y-4"
-          >
+          <form onSubmit={handleLogin} className="space-y-4">
             {/* Email Field */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
@@ -156,7 +142,7 @@ export default function AcademicLoginPage() {
                   disabled={loading}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter email (e.g. deepak@gmail.com)"
+                  placeholder="name@institution.edu or teacher@gmail.com"
                   className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-xs sm:text-sm font-medium text-white"
                 />
               </div>
@@ -171,7 +157,6 @@ export default function AcademicLoginPage() {
                 >
                   Password <span className="text-white">*</span>
                 </label>
-                <span className="text-[11px] text-[#757575]">Default: Teacher@2026 / Student@2026</span>
               </div>
 
               <div className="relative">
@@ -195,28 +180,24 @@ export default function AcademicLoginPage() {
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-4 h-4" />
+                    <EyeOff className="w-4 h-4 text-white" />
                   ) : (
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-4 h-4 text-white" />
                   )}
                 </button>
               </div>
             </div>
 
-            {/* Remember Me Checkbox */}
-            <div className="flex items-center">
-              <input
-                id="rememberMe"
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="w-4 h-4 accent-white rounded bg-[#181818] border border-white/10 cursor-pointer"
-              />
-              <label
-                htmlFor="rememberMe"
-                className="ml-2 text-xs font-medium text-[#9e9e9e] cursor-pointer select-none"
-              >
-                Remember Me
+            {/* Remember Me Option */}
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-white/20 bg-[#222222] text-white focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                />
+                <span className="text-xs text-[#9e9e9e]">Remember my session</span>
               </label>
             </div>
 
@@ -224,7 +205,7 @@ export default function AcademicLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 neu-btn-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+              className="w-full mt-2 py-3 px-4 neu-btn-primary font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase rounded-xl"
             >
               {loading ? (
                 <>
@@ -239,55 +220,6 @@ export default function AcademicLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Divider: ONE-CLICK DEMO LOGIN */}
-          <div className="relative pt-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/5" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="px-3 bg-[#2a2a2a] text-[#757575] font-extrabold uppercase tracking-wider text-[10px]">
-                ONE-CLICK DEMO LOGINS
-              </span>
-            </div>
-          </div>
-
-          {/* One-Click Demo Login Switches */}
-          <div className="grid grid-cols-2 gap-3 pt-1">
-            <button
-              type="button"
-              onClick={handleDemoTeacher}
-              className="p-3.5 neu-btn text-left flex flex-col justify-between cursor-pointer group rounded-xl"
-            >
-              <div className="flex items-center justify-between w-full">
-                <Users className="w-4 h-4 text-white" />
-                <ArrowRight className="w-3 h-3 text-[#757575] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="mt-2.5">
-                <span className="font-bold text-xs block text-white group-hover:text-white transition-colors">
-                  Demo Teacher
-                </span>
-                <span className="text-[10px] text-[#9e9e9e] font-mono truncate block">teacher.demo@thinkfirst.edu</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleDemoStudent}
-              className="p-3.5 neu-btn text-left flex flex-col justify-between cursor-pointer group rounded-xl"
-            >
-              <div className="flex items-center justify-between w-full">
-                <GraduationCap className="w-4 h-4 text-white" />
-                <ArrowRight className="w-3 h-3 text-[#757575] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-              </div>
-              <div className="mt-2.5">
-                <span className="font-bold text-xs block text-white group-hover:text-white transition-colors">
-                  Demo Student
-                </span>
-                <span className="text-[10px] text-[#9e9e9e] font-mono truncate block">student.demo@thinkfirst.edu</span>
-              </div>
-            </button>
-          </div>
 
           {/* Dedicated Link to Admin Portal Login */}
           <div className="pt-2 text-center border-t border-white/5">

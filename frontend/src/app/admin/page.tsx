@@ -8,12 +8,11 @@ export const metadata = {
 };
 
 export default async function AdminPage() {
-  // Immediate rendering of Admin Home Dashboard with zero database / network delay
   return (
     <DashboardView
-      adminName="Dr. Alexander Vance"
-      adminEmail="admin@institution.edu"
-      collegeName="Faculty of Engineering"
+      adminName="Administrator"
+      adminEmail=""
+      collegeName="Academic Campus"
     />
   );
 }
