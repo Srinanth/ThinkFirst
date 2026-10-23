@@ -109,6 +109,7 @@ Progress: [███████████████████░] 93%
 | **FE-08** | Teacher Roster & Enrollment Modals | `frontend` | `P1` | `[x] Completed` | Antony / Srinanth | Flexible student enrollment accepting name, email, roll ID, or UUID with live roster synchronization |
 | **FE-09** | Teacher Quiz Studio: Draft-to-Published Lifecycle & AI Question Inspector | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Full draft-to-published quiz lifecycle, AI generation modal with question count & syllabus topic picker, interactive question preview modal, publish/unpublish toggle, and student draft access gating |
 | **FE-10** | Monochromatic B&W Neumorphic Theme Harmonization | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Harmonized entire frontend with `dev/antony` (commit `90ac287`) pure monochrome Dark Neumorphic design system (`.neu-btn-white`, `.neu-badge-white`, white glowing telemetry indicators, monochrome line charts, and tactile cards) while keeping 100% of live backend APIs, authentication, and state bindings intact |
+| **FE-11** | Split-Screen Fitted Image Login UI (dev/antony sync) | `frontend` | `P0` | `[x] Completed` | Antony / Deepak / Srinanth | Pulled `origin/dev/antony` (commit `d6bd23c`) split-screen layout with full-height fitted image (`/images/knowledge-illuminated.jpg`), sleek dark form (`#0a0a0a`), `#18181b` inputs, while preserving live server-side bcrypt email/password authentication and Supabase session hydration |
 
 ---
 

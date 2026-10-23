@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Sparkles,
   Mail,
   Lock,
   Eye,
@@ -34,7 +33,7 @@ export default function AcademicLoginPage() {
     const targetPassword = password;
 
     if (!targetEmail) {
-      setErrorMessage('Please enter your email address.');
+      setErrorMessage('Please enter your institutional email address.');
       return;
     }
 
@@ -76,7 +75,7 @@ export default function AcademicLoginPage() {
         }
       }
 
-      // 3. Clear legacy demo cookies and set authenticated role cookie
+      // 3. Set authenticated role cookie
       document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
       document.cookie = `thinkfirst_user_role=${user.role}; path=/; max-age=86400; SameSite=Lax`;
 
@@ -90,51 +89,62 @@ export default function AcademicLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-[#1e1e1e] text-white px-4 py-8 sm:py-12 relative font-sans">
-      <div className="w-full max-w-[490px] mx-auto my-auto relative z-10">
-        {/* Branding & Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full neu-card-sm border border-white/10 shadow-md mb-4">
-            <div className="w-7 h-7 rounded-lg neu-inset text-white flex items-center justify-center font-black">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-extrabold text-sm tracking-tight text-white">
-              Edu<span className="text-white">Analytics</span>
-            </span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white mb-2">
-            Academic Portal Login
-          </h1>
-          <p className="text-[#9e9e9e] text-xs sm:text-sm leading-relaxed max-w-sm mx-auto">
-            Faculty &amp; Student Learning Intelligence Portal
-          </p>
+    <div className="min-h-screen flex flex-col lg:flex-row font-sans">
+      {/* ═══════════════════════════════════════════════════════════════
+          LEFT SIDE — Login Form (Dark Sleek Theme from dev/antony)
+          ═══════════════════════════════════════════════════════════════ */}
+      <div
+        className="w-full lg:w-1/2 min-h-screen flex flex-col justify-between items-center px-6 sm:px-10 lg:px-12 py-8 sm:py-10"
+        style={{ background: '#0a0a0a' }}
+      >
+        {/* Top: Brand Logo */}
+        <div className="w-full flex items-center justify-start">
+          <span className="font-extrabold text-3xl tracking-tight text-white">
+            Think<span className="text-[#a1a1aa]" style={{ color: '#3A86FF' }}>First</span>
+          </span>
         </div>
 
-        {/* Neumorphic Raised Login Form Card */}
-        <div className="neu-card-raised p-7 sm:p-8 space-y-5">
+        {/* Middle: Login Form */}
+        <div className="w-full max-w-[420px] mx-auto my-auto py-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-1.5">
+              Welcome back
+            </h1>
+            <p className="text-[#a1a1aa] text-sm">
+              Please enter your institutional credentials to sign in.
+            </p>
+          </div>
+
+          {/* Error Message */}
           {errorMessage && (
-            <div className="p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-start gap-2.5 animate-in fade-in leading-relaxed shadow-inner">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
+            <div
+              className="mb-5 p-3.5 rounded-xl text-xs flex items-start gap-2.5 leading-relaxed"
+              style={{
+                background: 'rgba(220, 38, 38, 0.1)',
+                border: '1px solid rgba(220, 38, 38, 0.25)',
+                color: '#fca5a5',
+              }}
+            >
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
               <div className="flex-1">{errorMessage}</div>
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-5">
             {/* Email Field */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <label
                   htmlFor="email"
-                  className="block text-xs font-bold uppercase tracking-wider text-[#9e9e9e]"
+                  className="block text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider"
                 >
-                  Email Address <span className="text-white">*</span>
+                  Institutional Email
                 </label>
               </div>
 
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
-                  <Mail className="w-4 h-4 text-white" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <Mail className="w-4 h-4 text-[#52525b]" />
                 </div>
                 <input
                   id="email"
@@ -143,26 +153,41 @@ export default function AcademicLoginPage() {
                   disabled={loading}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@institution.edu or teacher@gmail.com"
-                  className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-xs sm:text-sm font-medium text-white"
+                  placeholder="name@institution.edu"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl text-sm text-white placeholder:text-[#3f3f46] transition-all duration-200 outline-none"
+                  style={{
+                    background: '#18181b',
+                    border: '1px solid #27272a',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#52525b';
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.05)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#27272a';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <label
                   htmlFor="password"
-                  className="block text-xs font-bold uppercase tracking-wider text-[#9e9e9e]"
+                  className="block text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider"
                 >
-                  Password <span className="text-white">*</span>
+                  Password
                 </label>
+                <span className="text-xs font-medium text-[#52525b]">
+                  Protected by RBAC
+                </span>
               </div>
 
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
-                  <Lock className="w-4 h-4 text-white" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <Lock className="w-4 h-4 text-[#52525b]" />
                 </div>
                 <input
                   id="password"
@@ -172,18 +197,30 @@ export default function AcademicLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pl-10 pr-11 py-2.5 neu-input placeholder:text-[#666666] text-sm text-white"
+                  className="w-full pl-10 pr-11 py-3 rounded-xl text-sm text-white placeholder:text-[#3f3f46] transition-all duration-200 outline-none"
+                  style={{
+                    background: '#18181b',
+                    border: '1px solid #27272a',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#52525b';
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(255,255,255,0.05)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = '#27272a';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#757575] hover:text-white focus:outline-none cursor-pointer"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#52525b] hover:text-white focus:outline-none cursor-pointer transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-4 h-4 text-white" />
+                    <EyeOff className="w-4 h-4" />
                   ) : (
-                    <Eye className="w-4 h-4 text-white" />
+                    <Eye className="w-4 h-4" />
                   )}
                 </button>
               </div>
@@ -196,53 +233,75 @@ export default function AcademicLoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-white/20 bg-[#222222] text-white focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                  className="w-4 h-4 rounded border-[#27272a] bg-[#18181b] text-white focus:ring-0 focus:ring-offset-0 cursor-pointer"
                 />
-                <span className="text-xs text-[#9e9e9e]">Remember my session</span>
+                <span className="text-xs text-[#a1a1aa]">Remember my session</span>
               </label>
             </div>
 
-            {/* Primary Action Button */}
+            {/* Primary Sign In Button — High contrast tactile white */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 neu-btn-white text-black font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase rounded-xl"
+              className="w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all duration-200 active:scale-[0.98]"
+              style={{
+                background: '#ffffff',
+                color: '#0a0a0a',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e4e4e7';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#ffffff';
+              }}
             >
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-black" />
-                  Authenticating...
+                  <span>Authenticating...</span>
                 </>
               ) : (
                 <>
-                  Sign In to Academic Portal
+                  <span>Sign in</span>
                   <ArrowRight className="w-4 h-4 text-black" />
                 </>
               )}
             </button>
           </form>
 
-          {/* Dedicated Link to Admin Portal Login */}
-          <div className="pt-2 text-center border-t border-white/5">
+          {/* Admin link */}
+          <div className="mt-6 text-center">
             <Link
               href="/admin/login"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#9e9e9e] hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[#52525b] hover:text-white transition-colors"
             >
-              <ShieldAlert className="w-3.5 h-3.5 text-white" />
-              Institutional Administrator? Sign in to Admin Portal &rarr;
+              <ShieldAlert className="w-3.5 h-3.5" />
+              Administrator? Sign in to Admin Portal &rarr;
             </Link>
           </div>
         </div>
 
-        {/* Footer Security Note */}
-        <div className="text-center mt-6 space-y-1">
-          <p className="text-xs text-[#757575] font-medium">
+        {/* Bottom: Footer */}
+        <div className="w-full max-w-[420px] text-center space-y-1">
+          <p className="text-[11px] text-[#52525b]">
             Protected by Institutional Role-Based Access Control (RBAC).
           </p>
-          <p className="text-[11px] text-[#555555]">
-            ThinkFirst &copy; 2026 &bull; Real-time Agentic AI &amp; Deterministic Mastery
+          <p className="text-[11px] text-[#3f3f46]">
+            ThinkFirst &copy; 2026 &bull; AI-Powered Learning Intelligence
           </p>
         </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          RIGHT SIDE — Fitted Image from dev/antony
+          ═══════════════════════════════════════════════════════════════ */}
+      <div className="hidden lg:block w-1/2 min-h-screen relative overflow-hidden bg-black">
+        <img
+          src="/images/knowledge-illuminated.jpg"
+          alt="ThinkFirst — Knowledge Illuminated"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
       </div>
     </div>
   );
