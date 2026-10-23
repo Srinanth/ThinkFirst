@@ -10,7 +10,7 @@ This file provides immediate operational rules and reference links for the **Thi
 1. **COMMIT ONLY AFTER SUCCESSFUL FEATURE COMPLETION**:
    - Do NOT commit for every small micro-edit or unfinished work.
    - Only commit when a full feature from [`docs/FEATURE_TRACKER.md`](file:///c:/Users/Srinanth%20MV/Personal%20Projects/realm-hack/docs/FEATURE_TRACKER.md) is completed, passes `pnpm run lint` (zero TypeScript errors), and has updated documentation.
-   - Work on the active branch: **`dev/srinanth`**.
+   - Work on the active branch: **`dev/deepak`**.
 2. **ALWAYS UPDATE DOCS WHEN CODE CHANGES**:
    - Any time you add/modify an endpoint, database table, feature, or pattern, you **MUST immediately update the matching doc in `docs/`**.
 3. **DETERMINISTIC STATE LAW**:
@@ -26,8 +26,8 @@ This file provides immediate operational rules and reference links for the **Thi
 - **Remote**: `https://github.com/Srinanth/ThinkFirst.git`
 - `main`: Production-ready locked releases.
 - `development`: Primary integration branch.
-- `dev/srinanth`: **Current active working branch** (Backend & Database).
-- `dev/deepak`: Curriculum Agent & Notes Retrieval Agent.
+- `dev/srinanth`: Backend & Database.
+- `dev/deepak`: **Current active working branch** (Curriculum Agent & Notes Retrieval Agent).
 - `dev/rinz`: Next.js Frontend & UI.
 - `dev/antony`: Quiz Agent & Evaluator Agent.
 

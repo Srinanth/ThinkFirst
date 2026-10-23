@@ -6,7 +6,7 @@
 **Document Version**: 2.0.0  
 **Effective Date**: October 2026  
 **Git Remote**: `https://github.com/Srinanth/ThinkFirst.git`  
-**Active Work Branch**: `dev/srinanth`  
+**Active Work Branch**: `dev/deepak`  
 
 ---
 
@@ -25,18 +25,18 @@
    git add .
    git commit -m "feat(subjects): implement teacher subject CRUD endpoints and membership middleware (BE-07)"
    ```
-5. Push to the designated remote developer branch (`dev/srinanth`).
+5. Push to the designated remote developer branch (`dev/deepak`).
 
 ### Rule 2: TEAM BRANCHING WORKFLOW
 The repository uses a disciplined team branching model:
 - `main`: Locked production-ready code.
 - `development`: Primary integration branch.
 - Developer branches:
-  - `dev/srinanth` — **Current working branch** (Backend, Database, Core APIs).
-  - `dev/deepak` — Curriculum Agent & Notes Retrieval Agent.
+  - `dev/srinanth` — Backend, Database, Core APIs.
+  - `dev/deepak` — **Current working branch** (Curriculum Agent & Notes Retrieval Agent).
   - `dev/rinz` — Frontend Web App (Next.js 15, Tailwind v4, shadcn/ui).
   - `dev/antony` — Quiz Agent & Evaluator Agent.
-- All development by Srinanth must occur on **`dev/srinanth`**.
+- All development must occur on **`dev/deepak`**.
 
 ### Rule 3: ALWAYS KEEP DOCUMENTATION IN SYNC WITH CODE
 Whenever code changes, **immediately update the corresponding documentation**:
@@ -111,4 +111,4 @@ When an AI agent (Codex/Antigravity) finishes a feature:
 3. **Commit Code**:
    - Stage files: `git add .`
    - Commit: `git commit -m "feat(<module>): <description> (<FEATURE_ID>)"`
-   - Push: `git push origin dev/srinanth`
+   - Push: `git push origin dev/deepak`
