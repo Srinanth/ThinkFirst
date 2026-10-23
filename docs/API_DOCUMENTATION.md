@@ -175,10 +175,10 @@ Content-Type: application/json
 
 ---
 
-### Module 3: Curriculum Topics (`/subjects/:subjectId/topics`)
+### Module 3: Curriculum Topics (`/curriculum`)
 
 #### 3.1 Generate Curriculum from Syllabus (Curriculum Agent)
-- **Method & Path**: `POST /api/v1/subjects/:subjectId/topics/generate`
+- **Method & Path**: `POST /api/v1/curriculum/:subjectId/generate`
 - **Access**: Instructor of `:subjectId`
 - **Request Body**:
 ```json
@@ -188,8 +188,23 @@ Content-Type: application/json
 ```
 - **Response `201 Created`**: Hierarchical topic list created in `curriculum_topics`.
 
-#### 3.2 List Curriculum Topics for Subject
-- **Method & Path**: `GET /api/v1/subjects/:subjectId/topics`
+#### 3.2 Create Topic Node
+- **Method & Path**: `POST /api/v1/curriculum/:subjectId/topics`
+- **Access**: Instructor of `:subjectId`
+- **Request Body**:
+```json
+{
+  "name": "Limits and Continuity",
+  "nodeType": "topic",
+  "parentTopicId": "optional-uuid",
+  "position": 1,
+  "description": "Foundational understanding of limits"
+}
+```
+- **Response `201 Created`**: The created curriculum topic node.
+
+#### 3.3 Get Curriculum Tree for Subject
+- **Method & Path**: `GET /api/v1/curriculum/:subjectId/tree`
 - **Access**: Enrolled member or instructor of `:subjectId`
 - **Response `200 OK`**:
 ```json
@@ -203,18 +218,27 @@ Content-Type: application/json
       "name": "Module 1: Differential Calculus",
       "nodeType": "module",
       "description": "Foundations of limits and derivatives",
-      "position": 1
+      "position": 1,
+      "children": []
     }
   ]
 }
 ```
 
+#### 3.4 Update Topic Node
+- **Method & Path**: `PUT /api/v1/curriculum/topics/:topicId`
+- **Access**: Instructor or admin
+
+#### 3.5 Delete Topic Node
+- **Method & Path**: `DELETE /api/v1/curriculum/topics/:topicId`
+- **Access**: Instructor or admin
+
 ---
 
-### Module 4: Learning Materials & Vector Embeddings (`/subjects/:subjectId/materials`)
+### Module 4: Learning Materials & Vector Embeddings (`/materials`)
 
-#### 4.1 Ingest Learning Material & Generate Embeddings (Notes Agent)
-- **Method & Path**: `POST /api/v1/subjects/:subjectId/materials`
+#### 4.1 Register Learning Material Metadata
+- **Method & Path**: `POST /api/v1/materials/:subjectId`
 - **Access**: Instructor of `:subjectId`
 - **Request Body**:
 ```json
@@ -223,68 +247,24 @@ Content-Type: application/json
   "title": "Lecture 03 - Squeeze Theorem",
   "filePath": "materials/calc/lecture_03.pdf",
   "fileType": "PDF",
-  "materialType": "notes",
-  "content": "The Squeeze Theorem establishes limits through boundary functions..."
+  "materialType": "notes"
 }
 ```
-- **Response `201 Created`**:
-```json
-{
-  "success": true,
-  "data": {
-    "materialId": "mat_881",
-    "processingStatus": "ready",
-    "chunksGenerated": 5
-  }
-}
-```
+- **Response `201 Created`**: Created learning material record.
 
-#### 4.2 Semantic Vector Search over Subject Materials
-- **Method & Path**: `POST /api/v1/subjects/:subjectId/materials/search`
+#### 4.2 List Materials for Subject
+- **Method & Path**: `GET /api/v1/materials/:subjectId`
 - **Access**: Subject members
+- **Query Params**: `?topicId=uuid` (optional)
+- **Response `200 OK`**: Array of materials.
+
+#### 4.3 Ingest Material Content & Generate Vector Embeddings
+- **Method & Path**: `POST /api/v1/materials/detail/:materialId/ingest`
+- **Access**: Instructor of subject
 - **Request Body**:
 ```json
 {
-  "query": "How is the squeeze theorem used for sin(x)/x?",
-  "matchThreshold": 0.65,
-  "matchCount": 3
-}
-```
-- **Response `200 OK`**: Top matching chunks with similarity scores.
-
----
-
-### Module 5: Quizzes, Questions & Attempts (`/subjects/:subjectId/quizzes`, `/quizzes`)
-
-#### 5.1 Generate Targeted Diagnostic Quiz (Quiz Agent)
-- **Method & Path**: `POST /api/v1/subjects/:subjectId/quizzes/generate`
-- **Access**: Subject instructor or enrolled student
-- **Request Body**:
-```json
-{
-  "curriculumTopicId": "top_01",
-  "difficulty": "medium",
-  "questionCount": 3
-}
-```
-- **Response `201 Created`**: Generated quiz with `quiz_questions` stored.
-
-#### 5.2 Start Quiz Attempt
-- **Method & Path**: `POST /api/v1/quizzes/:quizId/attempts`
-- **Access**: Enrolled student
-- **Response `201 Created`**: New `quiz_attempts` session record.
-
-#### 5.3 Submit Answer to Question (Evaluator Agent + Mastery Engine)
-- **Method & Path**: `POST /api/v1/quiz-attempts/:attemptId/responses`
-- **Access**: Student owner of attempt
-- **Request Body**:
-```json
-{
-  "questionId": "qq_01",
-  "studentAnswer": {
-    "selectedOption": "cos(x)",
-    "reasoning": "Differentiating sin(x) with respect to x yields cos(x)."
-  }
+  "content": "The Squeeze Theorem establishes limits through boundary functions..."
 }
 ```
 - **Response `200 OK`**:
@@ -292,68 +272,181 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "responseId": "resp_9921",
-    "isCorrect": true,
-    "marksAwarded": 1.0,
-    "feedback": "Correct! Excellent reasoning on applying basic trigonometric derivative rules.",
-    "updatedTopicMastery": {
+    "materialId": "mat_881",
+    "chunksCount": 5
+  }
+}
+```
+
+#### 4.4 Semantic Vector Search over Subject Materials
+- **Method & Path**: `POST /api/v1/materials/:subjectId/search`
+- **Access**: Subject members
+- **Request Body**:
+```json
+{
+  "query": "How is the squeeze theorem used for sin(x)/x?",
+  "similarityThreshold": 0.65,
+  "matchCount": 5
+}
+```
+- **Response `200 OK`**: Top matching chunks with similarity scores.
+
+---
+
+### Module 5: Quizzes, Questions & Attempts (`/quizzes`)
+
+#### 5.1 Create Quiz Manually
+- **Method & Path**: `POST /api/v1/quizzes/:subjectId`
+- **Access**: Instructor of `:subjectId`
+- **Request Body**:
+```json
+{
+  "title": "Quiz 1: Limits & Squeeze Theorem",
+  "curriculumTopicId": "top_01",
+  "quizType": "diagnostic",
+  "difficulty": "medium",
+  "timeLimitMinutes": 20
+}
+```
+
+#### 5.2 List Quizzes for Subject
+- **Method & Path**: `GET /api/v1/quizzes/:subjectId`
+- **Access**: Subject members
+
+#### 5.3 Generate Targeted Diagnostic Quiz (Quiz Agent)
+- **Method & Path**: `POST /api/v1/quizzes/:subjectId/generate`
+- **Access**: Subject instructor
+- **Request Body**:
+```json
+{
+  "curriculumTopicId": "top_01",
+  "title": "Diagnostic Quiz - Squeeze Theorem",
+  "difficulty": "medium",
+  "questionCount": 3
+}
+```
+- **Response `201 Created`**: Generated quiz with `quiz_questions` stored.
+
+#### 5.4 Get Quiz Details & Questions
+- **Method & Path**: `GET /api/v1/quizzes/detail/:quizId`
+- **Access**: Authenticated
+
+#### 5.5 Start Quiz Attempt
+- **Method & Path**: `POST /api/v1/quizzes/detail/:quizId/attempts`
+- **Access**: Enrolled student
+- **Response `201 Created`**: New `quiz_attempts` session record.
+
+#### 5.6 Submit Attempt Session (Evaluator Agent + Deterministic Mastery Engine)
+- **Method & Path**: `POST /api/v1/quizzes/attempts/:attemptId/submit`
+- **Access**: Student owner of attempt
+- **Request Body**:
+```json
+{
+  "responses": [
+    {
+      "questionId": "qq_01",
+      "studentAnswer": {
+        "selectedOption": "cos(x)",
+        "explanation": "Derivative of sin(x) is cos(x)"
+      }
+    }
+  ]
+}
+```
+- **Response `200 OK`**:
+```json
+{
+  "success": true,
+  "data": {
+    "attemptId": "att_01",
+    "score": 100,
+    "evaluatedResponses": [
+      {
+        "questionId": "qq_01",
+        "isCorrect": true,
+        "marksAwarded": 1.0,
+        "feedback": "Correct reasoning on trigonometric derivatives."
+      }
+    ],
+    "masteryUpdate": {
       "curriculumTopicId": "top_01",
-      "masteryScore": 0.85,
-      "confidence": 0.90
+      "oldScore": 0.50,
+      "newScore": 0.65,
+      "confidence": 0.85
     }
   }
 }
 ```
 
+#### 5.7 Get Attempt Results
+- **Method & Path**: `GET /api/v1/quizzes/attempts/:attemptId/results`
+- **Access**: Student owner or instructor
+
 ---
 
 ### Module 6: Socratic Tutor & Conversations (`/tutor`)
 
-#### 6.1 Create or Resume Socratic Conversation
-- **Method & Path**: `POST /api/v1/subjects/:subjectId/tutor/conversations`
+#### 6.1 Create Socratic Conversation
+- **Method & Path**: `POST /api/v1/tutor/conversations`
 - **Access**: Enrolled student
 - **Request Body**:
 ```json
 {
-  "title": "Understanding Squeeze Theorem",
-  "learningSessionId": "optional_sess_id"
+  "teacherSubjectId": "e30e71ab-5e60-449e-b5c6-55bb24c8c114",
+  "curriculumTopicId": "top_01",
+  "title": "Understanding Squeeze Theorem"
 }
 ```
 - **Response `201 Created`**: Conversation record.
 
-#### 6.2 Send Message & Stream Socratic Guidance (Tutor Agent)
-- **Method & Path**: `POST /api/v1/tutor/conversations/:conversationId/messages`
+#### 6.2 List Student's Conversations for Subject
+- **Method & Path**: `GET /api/v1/tutor/conversations/:subjectId`
+- **Access**: Enrolled student
+
+#### 6.3 Get Conversation Message History
+- **Method & Path**: `GET /api/v1/tutor/conversations/:conversationId/messages`
+- **Access**: Conversation owner
+
+#### 6.4 Send Message & Stream Socratic Guidance (Tutor Agent)
+- **Method & Path**: `POST /api/v1/tutor/conversations/:conversationId/chat`
 - **Access**: Conversation owner
 - **Request Body**:
 ```json
 {
   "content": "Can you solve this limit for me: lim x->0 (sin x)/x?",
-  "curriculumTopicId": "top_01"
+  "stream": true
 }
 ```
-- **Response `200 OK` (or SSE token stream)**:
-```json
-{
-  "success": true,
-  "data": {
-    "messageId": "msg_412",
-    "role": "assistant",
-    "content": "I won't give you the solution directly, but let's explore it! If you evaluate directly at x = 0, what indeterminate form do you observe? What does your textbook say about the geometric bounds between sin(x), x, and tan(x) on the unit circle?"
-  }
-}
-```
+- **Response**: SSE token stream (`text/event-stream`) or JSON response envelope (`stream: false`).
 
 ---
 
-### Module 7: Topic Mastery & Analytics (`/subjects/:subjectId/mastery`, `/subjects/:subjectId/insights`)
+### Module 7: Topic Mastery & Analytics (`/mastery`)
 
 #### 7.1 Get Student's Topic Mastery Profile
-- **Method & Path**: `GET /api/v1/subjects/:subjectId/mastery/me`
+- **Method & Path**: `GET /api/v1/mastery/:subjectId/me`
 - **Access**: Enrolled student
 - **Response `200 OK`**: Array of topic mastery records with confidence scores.
 
-#### 7.2 Get Teacher Subject Insights (Teacher Dashboard)
-- **Method & Path**: `GET /api/v1/subjects/:subjectId/insights`
+#### 7.2 Get Specific Student's Mastery Profile (Teacher View)
+- **Method & Path**: `GET /api/v1/mastery/:subjectId/students/:studentId`
+- **Access**: Instructor of `:subjectId`
+
+#### 7.3 Get Mastery Progression History
+- **Method & Path**: `GET /api/v1/mastery/:subjectId/history?studentId=uuid&topicId=uuid`
+- **Access**: Enrolled student (self) or instructor
+
+#### 7.4 Get Class-Wide Mastery Overview Dashboard
+- **Method & Path**: `GET /api/v1/mastery/:subjectId/overview`
+- **Access**: Instructor of `:subjectId`
+- **Response `200 OK`**: Topic-by-topic class averages, struggle thresholds, and enrollment stats.
+
+---
+
+### Module 8: Teacher Diagnostic Insights (`/insights`)
+
+#### 8.1 List Teacher Subject Insights
+- **Method & Path**: `GET /api/v1/insights/:subjectId`
 - **Access**: Instructor of `:subjectId`
 - **Response `200 OK`**:
 ```json
@@ -371,3 +464,22 @@ Content-Type: application/json
   ]
 }
 ```
+
+#### 8.2 Synthesize Fresh Class Diagnostic Insights (Insight Agent)
+- **Method & Path**: `POST /api/v1/insights/:subjectId/generate`
+- **Access**: Instructor of `:subjectId`
+- **Response `200 OK`**: Newly synthesized actionable pedagogical recommendations.
+
+#### 8.3 Update Insight Status
+- **Method & Path**: `PATCH /api/v1/insights/detail/:insightId/status`
+- **Access**: Instructor of `:subjectId`
+- **Request Body**:
+```json
+{
+  "status": "resolved"
+}
+```
+
+#### 8.4 Delete Insight
+- **Method & Path**: `DELETE /api/v1/insights/detail/:insightId`
+- **Access**: Instructor of `:subjectId`

@@ -6,6 +6,16 @@ import { env } from './config/env.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 import { sendSuccess } from './utils/response.util.js';
 
+// Feature Route Modules
+import { authRoutes } from './modules/auth/auth.routes.js';
+import { subjectsRoutes } from './modules/subjects/subjects.routes.js';
+import { curriculumRoutes } from './modules/curriculum/curriculum.routes.js';
+import { materialsRoutes } from './modules/materials/materials.routes.js';
+import { quizzesRoutes } from './modules/quizzes/quizzes.routes.js';
+import { masteryRoutes } from './modules/mastery/mastery.routes.js';
+import { tutorRoutes } from './modules/tutor/tutor.routes.js';
+import { insightsRoutes } from './modules/insights/insights.routes.js';
+
 const app: Application = express();
 
 // Security & Parsing Middlewares
@@ -45,13 +55,32 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// API v1 placeholder base route
+// API v1 Service Discovery & Module Mapping
 app.get('/api/v1', (_req: Request, res: Response) => {
   return sendSuccess(res, {
     message: 'Welcome to the ThinkFirst API v1',
-    documentation: '/docs',
+    modules: [
+      '/api/v1/auth',
+      '/api/v1/subjects',
+      '/api/v1/curriculum',
+      '/api/v1/materials',
+      '/api/v1/quizzes',
+      '/api/v1/mastery',
+      '/api/v1/tutor',
+      '/api/v1/insights',
+    ],
   });
 });
+
+// Mount Feature Domain Routes
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/subjects', subjectsRoutes);
+app.use('/api/v1/curriculum', curriculumRoutes);
+app.use('/api/v1/materials', materialsRoutes);
+app.use('/api/v1/quizzes', quizzesRoutes);
+app.use('/api/v1/mastery', masteryRoutes);
+app.use('/api/v1/tutor', tutorRoutes);
+app.use('/api/v1/insights', insightsRoutes);
 
 // 404 Route Handler
 app.use('*', (req: Request, res: Response) => {
