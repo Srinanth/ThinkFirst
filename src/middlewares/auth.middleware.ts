@@ -6,7 +6,7 @@ export interface AuthenticatedUser {
   id: string;
   email: string;
   role: 'superadmin' | 'admin' | 'teacher' | 'student';
-  collegeId?: string | null;
+  college?: string | null;
   fullName?: string;
 }
 
@@ -42,7 +42,7 @@ export const requireAuth = async (
     // Fetch user profile from public.profiles
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
-      .select('id, college_id, full_name, role')
+      .select('id, full_name, role, college')
       .eq('id', user.id)
       .single();
 
@@ -54,7 +54,7 @@ export const requireAuth = async (
       id: profile.id,
       email: user.email || '',
       role: profile.role as 'superadmin' | 'admin' | 'teacher' | 'student',
-      collegeId: profile.college_id,
+      college: profile.college,
       fullName: profile.full_name,
     };
     req.token = token;

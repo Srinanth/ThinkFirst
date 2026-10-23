@@ -74,15 +74,16 @@ Institutions managed by platform Superadmins.
 ---
 
 ### 3.1 `profiles`
-User profiles extending Supabase `auth.users` with multi-tier roles.
+User profiles extending Supabase `auth.users`.
 
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY`, references `auth.users(id) ON DELETE CASCADE` | Supabase user ID |
-| `college_id` | `UUID` | `NULL`, references `colleges(id) ON DELETE SET NULL` | Linked institution (NULL for superadmins) |
 | `full_name` | `TEXT` | `NOT NULL` | Display name |
-| `role` | `TEXT` | `NOT NULL`, `CHECK (role IN ('superadmin', 'admin', 'teacher', 'student'))` | 4-tier application role |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Creation timestamp |
+| `college` | `TEXT` | `NULL` | College name / institution string |
+| `role` | `TEXT` | `NOT NULL`, `CHECK (role = ANY (ARRAY['admin'::text, 'teacher'::text, 'student'::text]))` | Application RBAC role |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Creation timestamp |
+| `password` | `VARCHAR` | `NULL DEFAULT 'NULL'::character varying` | Optional credential hash |
 
 ---
 
@@ -93,11 +94,10 @@ Specific subject offering or class cohort taught by an instructor.
 |---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Subject offering ID |
 | `teacher_id` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE RESTRICT` | Instructor ID |
-| `title` | `TEXT` | `NULL` | Optional friendly title (e.g. "Honors AP Calc") |
 | `subject` | `TEXT` | `NOT NULL` | Subject code or name (e.g. "Calculus") |
 | `academic_year` | `TEXT` | `NOT NULL` | Term / year (e.g. "2025-2026") |
 | `class_name` | `TEXT` | `NOT NULL` | Class or section (e.g. "Section B") |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Timestamp |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Timestamp |
 | **Constraint** | `UNIQUE(teacher_id, subject, academic_year, class_name)` | | Prevents duplicate offerings |
 
 ---
@@ -109,7 +109,7 @@ Enrollment relationship mapping students to teacher subject offerings.
 |---|---|---|---|
 | `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Enrolled subject |
 | `student_id` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE CASCADE` | Student ID |
-| `joined_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Enrollment date |
+| `joined_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Enrollment date |
 | **Primary Key** | `PRIMARY KEY (teacher_subject_id, student_id)` | | Composite PK |
 
 ---
@@ -120,13 +120,12 @@ Hierarchical topic tree for each subject offering.
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Topic identifier |
-| `teacher_subject_id` | `UUID` | `NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Scoped subject |
+| `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Scoped subject |
 | `parent_topic_id` | `UUID` | `NULL`, references `curriculum_topics(id) ON DELETE CASCADE` | Parent module/topic |
-| `name` | `TEXT` | `NOT NULL` | Topic title |
-| `node_type` | `TEXT` | `NOT NULL, CHECK (node_type IN ('module', 'topic', 'subtopic'))` | Hierarchy tier |
+| `title` | `TEXT` | `NOT NULL` | Topic title |
 | `description` | `TEXT` | `NULL` | Learning scope / summary |
-| `position` | `INTEGER` | `NOT NULL DEFAULT 0` | Display order index |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Creation timestamp |
+| `node_type` | `TEXT` | `NOT NULL DEFAULT 'topic'::text, CHECK (node_type = ANY (ARRAY['module'::text, 'topic'::text, 'subtopic'::text]))` | Hierarchy tier |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Creation timestamp |
 
 ---
 
@@ -173,10 +172,11 @@ Quizzes created for a subject offering.
 | `created_by` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE RESTRICT` | Teacher creator |
 | `title` | `TEXT` | `NOT NULL` | Quiz title |
 | `description` | `TEXT` | `NULL` | Instructions |
-| `difficulty` | `TEXT` | `NOT NULL, CHECK (difficulty IN ('easy', 'medium', 'hard'))` | Tier |
+| `difficulty` | `TEXT` | `NOT NULL, CHECK (difficulty = ANY (ARRAY['easy'::text, 'medium'::text, 'hard'::text]))` | Tier |
 | `question_count` | `INTEGER` | `NOT NULL DEFAULT 0` | Total questions |
-| `status` | `TEXT` | `NOT NULL DEFAULT 'draft', CHECK (status IN ('draft', 'published', 'archived'))` | State |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Creation timestamp |
+| `exam_duration` | `INTEGER` | `NOT NULL DEFAULT 30, CHECK (exam_duration > 0)` | Duration in minutes |
+| `status` | `TEXT` | `NOT NULL DEFAULT 'draft'::text, CHECK (status = ANY (ARRAY['draft'::text, 'published'::text, 'archived'::text]))` | State |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Creation timestamp |
 
 ---
 
@@ -189,14 +189,15 @@ Individual questions belonging to a quiz.
 | `quiz_id` | `UUID` | `NOT NULL`, references `quizzes(id) ON DELETE CASCADE` | Parent quiz |
 | `curriculum_topic_id` | `UUID` | `NULL`, references `curriculum_topics(id) ON DELETE SET NULL` | Tested topic |
 | `question_text` | `TEXT` | `NOT NULL` | Prompt text |
-| `question_type` | `TEXT` | `NOT NULL, CHECK IN ('single_choice', 'multiple_choice', 'true_false', 'short_answer', 'reasoning_step')` | Format |
+| `question_type` | `TEXT` | `NOT NULL, CHECK (question_type = ANY (ARRAY['multiple_choice'::text, 'short_answer'::text, 'long_answer'::text]))` | Format |
 | `options` | `JSONB` | `NULL` | Choices array for selection questions |
 | `correct_answer` | `JSONB` | `NOT NULL` | Canonical correct answer / rubric |
 | `explanation` | `TEXT` | `NULL` | Post-answer explanation |
-| `difficulty` | `TEXT` | `NOT NULL` | Difficulty |
-| `marks` | `NUMERIC` | `NOT NULL DEFAULT 1` | Maximum score |
+| `difficulty` | `TEXT` | `NOT NULL, CHECK (difficulty = ANY (ARRAY['easy'::text, 'medium'::text, 'hard'::text]))` | Difficulty |
+| `marks` | `NUMERIC` | `NOT NULL DEFAULT 1, CHECK (marks > 0)` | Maximum score |
 | `position` | `INTEGER` | `NOT NULL DEFAULT 0` | Sequence ordering |
-| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Creation timestamp |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Creation timestamp |
+| **Constraint** | `UNIQUE(quiz_id, "position")` | | Unique question position |
 
 ---
 
@@ -208,12 +209,14 @@ Records each student's attempt at a quiz.
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Attempt identifier |
 | `quiz_id` | `UUID` | `NOT NULL`, references `quizzes(id) ON DELETE CASCADE` | Quiz taken |
 | `student_id` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE CASCADE` | Student ID |
-| `score` | `NUMERIC` | `NULL` | Total marks earned |
-| `max_score` | `NUMERIC` | `NULL` | Total available marks |
-| `status` | `TEXT` | `NOT NULL DEFAULT 'in_progress', CHECK IN ('in_progress', 'submitted', 'graded')` | Attempt state |
-| `started_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Start time |
+| `score` | `NUMERIC` | `NULL, CHECK (score IS NULL OR score >= 0)` | Total marks earned |
+| `max_score` | `NUMERIC` | `NULL, CHECK (max_score IS NULL OR max_score >= 0)` | Total available marks |
+| `status` | `TEXT` | `NOT NULL DEFAULT 'in_progress'::text, CHECK (status = ANY (ARRAY['in_progress'::text, 'submitted'::text, 'graded'::text]))` | Attempt state |
+| `started_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Start time |
 | `submitted_at` | `TIMESTAMPTZ` | `NULL` | Submission time |
 | `graded_at` | `TIMESTAMPTZ` | `NULL` | Evaluation completion time |
+| **Constraint** | `CHECK (score IS NULL OR max_score IS NULL OR score <= max_score)` | | Score bounds validation |
+| **Constraint** | `UNIQUE(quiz_id, student_id)` | | Exactly one attempt record per student per quiz |
 
 ---
 
@@ -227,9 +230,10 @@ Stores granular student answers for each question (the historical evidence strea
 | `question_id` | `UUID` | `NOT NULL`, references `quiz_questions(id) ON DELETE CASCADE` | Question answered |
 | `student_answer` | `JSONB` | `NOT NULL` | Selected choices or free-form text |
 | `is_correct` | `BOOLEAN` | `NULL` | Correctness evaluation |
-| `marks_awarded` | `NUMERIC` | `NULL` | Points granted |
+| `marks_awarded` | `NUMERIC` | `NULL, CHECK (marks_awarded IS NULL OR marks_awarded >= 0)` | Points granted |
 | `feedback` | `TEXT` | `NULL` | Socratic evaluator feedback |
-| `answered_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Answer timestamp |
+| `answered_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Answer timestamp |
+| **Constraint** | `UNIQUE(quiz_attempt_id, question_id)` | | One response per question attempt |
 
 ---
 
@@ -244,12 +248,29 @@ Stores canonical student mastery scores per topic within each subject class.
 | `mastery_score` | `NUMERIC` | `NOT NULL, CHECK (mastery_score >= 0 AND mastery_score <= 1)` | Mastery estimate $[0.0, 1.0]$ |
 | `confidence` | `NUMERIC` | `NOT NULL, CHECK (confidence >= 0 AND confidence <= 1)` | Confidence $[0.0, 1.0]$ |
 | `last_assessed_at` | `TIMESTAMPTZ` | `NULL` | Timestamp of latest evaluation |
-| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Timestamp of last calculation |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Timestamp of last calculation |
 | **Primary Key** | `PRIMARY KEY (student_id, teacher_subject_id, curriculum_topic_id)` | | Unique topic per student per class |
 
 ---
 
-### 3.12 `learning_sessions`
+### 3.12 `student_mastery_history`
+Chronological audit log tracking mastery progression over time per student and topic.
+
+| Column | Type | Constraints | Description |
+|---|---|---|---|
+| `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | History event ID |
+| `student_id` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE CASCADE` | Student ID |
+| `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Subject class |
+| `curriculum_topic_id` | `UUID` | `NOT NULL`, references `curriculum_topics(id) ON DELETE CASCADE` | Assessed topic |
+| `mastery_score` | `NUMERIC` | `NOT NULL, CHECK (mastery_score >= 0 AND mastery_score <= 1)` | Calculated score |
+| `confidence` | `NUMERIC` | `NOT NULL, CHECK (confidence >= 0 AND confidence <= 1)` | Assessment confidence |
+| `assessment_source` | `TEXT` | `NOT NULL, CHECK (assessment_source = ANY (ARRAY['quiz'::text, 'ai_tutor'::text]))` | Evaluation channel |
+| `assessed_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Event timestamp |
+| `source_quiz_id` | `UUID` | `NULL`, references `quizzes(id) ON DELETE SET NULL` | Source quiz ID if applicable |
+
+---
+
+### 3.13 `learning_sessions`
 Records tutoring or independent learning study blocks.
 
 | Column | Type | Constraints | Description |
@@ -257,8 +278,10 @@ Records tutoring or independent learning study blocks.
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Session ID |
 | `student_id` | `UUID` | `NOT NULL`, references `profiles(id) ON DELETE CASCADE` | Student ID |
 | `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Subject class |
-| `started_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT NOW()` | Start timestamp |
+| `started_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Start timestamp |
 | `ended_at` | `TIMESTAMPTZ` | `NULL` | End timestamp |
+| `session_type` | `TEXT` | `NOT NULL, CHECK (session_type = ANY (ARRAY['ai_tutor'::text, 'revision'::text, 'practice'::text]))` | Study modality |
+| **Constraint** | `CHECK (ended_at IS NULL OR ended_at >= started_at)` | | Valid duration constraint |
 | `session_type` | `TEXT` | `NOT NULL, CHECK (session_type IN ('ai_tutor', 'revision', 'practice'))` | Study modality |
 
 ---

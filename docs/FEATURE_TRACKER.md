@@ -45,7 +45,7 @@ Progress: [████████████░░░░░░░░] 52%
 ### Phase 2: Database & Data Infrastructure (Rinz's Focus)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **DB-01** | Master Supabase SQL Init Script | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Created in `db/init.sql` (15 tables incl. `colleges`) |
+| **DB-01** | Master Supabase SQL Init Script | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Synchronized with live Supabase schema in `db/init.sql` (13 canonical tables incl. `student_mastery_history`) |
 | **DB-02** | Database Documentation & Run Guide | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Created in `db/README.md` |
 | **DB-03** | Enable `pgvector` & HNSW Indexing | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Vector(768) HNSW index scripted |
 | **DB-04** | RLS Policies Scripting for All 15 Tables | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Fully integrated into `db/init.sql` with 4-tier roles |
@@ -60,7 +60,7 @@ Progress: [████████████░░░░░░░░] 52%
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
 | **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | `pnpm` dependencies installed & `tsconfig.json` |
-| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/auth.middleware.ts` (with `college_id`) |
+| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/auth.middleware.ts` (aligned with live `profiles.college`) |
 | **BE-03** | Role-Based Access Control (`requireRole`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/role.middleware.ts` (4 roles) |
 | **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/membership.middleware.ts` |
 | **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/validation.middleware.ts` |
