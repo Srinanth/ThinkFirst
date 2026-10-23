@@ -246,7 +246,7 @@ export default function DashboardView({
               aria-label="Refresh Telemetry"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_6px_#00d2ff]" />
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white]" />
             </button>
 
             {/* Profile Avatar / Dropdown */}
@@ -301,7 +301,7 @@ export default function DashboardView({
               <span className="px-3 py-1 rounded-full neu-inset-sm text-xs font-bold text-white border border-white/10">
                 &bull; Live Postgres &amp; Auth Synchronized
               </span>
-              <span className="px-3 py-1 rounded-full neu-inset-sm text-xs font-bold text-[#00d2ff]">
+              <span className="px-3 py-1 rounded-full neu-inset-sm text-xs font-bold text-white border border-white/10">
                 {collegeName}
               </span>
             </div>
@@ -359,7 +359,7 @@ export default function DashboardView({
               </div>
 
               <div className="pt-3 border-t border-white/5 flex items-center gap-1.5 text-xs text-[#757575] font-semibold">
-                <span className="inline-block w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_6px_#00d2ff]" />
+                <span className="inline-block w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white]" />
                 &bull; Admissions Protocol Open
               </div>
             </button>
@@ -405,7 +405,7 @@ export default function DashboardView({
             <h3 className="text-xs font-black tracking-wider text-[#757575] uppercase">
               CAMPUS PULSE &bull; BACKEND TELEMETRY
             </h3>
-            <span className="text-xs font-semibold text-[#00d2ff] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-white uppercase tracking-wider">
               Live Database State
             </span>
           </div>
@@ -421,13 +421,13 @@ export default function DashboardView({
                   {loading ? '...' : stats.totalStudents}
                 </div>
                 <div className="inline-flex items-center gap-1 text-xs font-bold text-white pt-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-[#00d2ff]" />
+                  <TrendingUp className="w-3.5 h-3.5 text-white" />
                   Active in database
                 </div>
               </div>
 
               <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-[#00d2ff]" />
+                <GraduationCap className="w-6 h-6 text-white" />
               </div>
             </div>
 
@@ -441,13 +441,13 @@ export default function DashboardView({
                   {loading ? '...' : stats.totalTeachers}
                 </div>
                 <div className="inline-flex items-center gap-1 text-xs font-semibold text-[#9e9e9e] pt-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
+                  <span className="inline-block w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white]" />
                   Instructors
                 </div>
               </div>
 
               <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
-                <Users className="w-6 h-6 text-emerald-400" />
+                <Users className="w-6 h-6 text-white" />
               </div>
             </div>
 
@@ -466,7 +466,7 @@ export default function DashboardView({
               </div>
 
               <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-[#8b5cf6]" />
+                <BookOpen className="w-6 h-6 text-white" />
               </div>
             </div>
 
@@ -485,7 +485,7 @@ export default function DashboardView({
               </div>
 
               <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-[#00d2ff]" />
+                <CheckCircle className="w-6 h-6 text-white" />
               </div>
             </div>
           </div>
@@ -533,7 +533,7 @@ export default function DashboardView({
                       return (
                         <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
                           <td className="py-3.5 px-6 font-mono font-bold">
-                            <span className="px-2.5 py-1 rounded-lg neu-inset-sm text-xs text-[#00d2ff] border border-[#00d2ff]/20">
+                            <span className="px-2.5 py-1 rounded-lg neu-inset-sm text-xs text-white border border-white/10">
                               {displayId}
                             </span>
                           </td>
@@ -547,10 +547,10 @@ export default function DashboardView({
                             <span
                               className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
                                 p.role === 'admin'
-                                  ? 'bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30'
+                                  ? 'neu-badge-white'
                                   : p.role === 'teacher'
-                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                                  : 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
+                                  ? 'neu-inset-sm text-white border border-white/10'
+                                  : 'neu-inset-sm text-[#cccccc] border border-white/5'
                               }`}
                             >
                               {p.role}
@@ -698,12 +698,12 @@ export default function DashboardView({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 neu-btn-white text-black font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50 rounded-xl"
                 >
                   {submitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                    <Loader2 className="w-4 h-4 animate-spin text-black" />
                   ) : (
-                    <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
+                    <CheckCircle className="w-4 h-4 text-black" />
                   )}
                   ENROLL STUDENT
                 </button>
@@ -835,12 +835,12 @@ export default function DashboardView({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 neu-btn-white text-black font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50 rounded-xl"
                 >
                   {submitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                    <Loader2 className="w-4 h-4 animate-spin text-black" />
                   ) : (
-                    <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
+                    <CheckCircle className="w-4 h-4 text-black" />
                   )}
                   ADD TEACHER
                 </button>

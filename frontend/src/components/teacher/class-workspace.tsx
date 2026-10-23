@@ -633,7 +633,7 @@ export default function ClassWorkspace({
           {activeTab === 'students' && (
             <button
               onClick={() => setEnrollModalOpen(true)}
-              className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-bold transition-all cursor-pointer rounded-xl"
+              className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 neu-btn-white text-black text-xs font-bold transition-all cursor-pointer rounded-xl"
             >
               <Plus className="w-3.5 h-3.5" />
               Enroll Student
@@ -643,7 +643,7 @@ export default function ClassWorkspace({
           {activeTab === 'quizzes' && (
             <button
               onClick={() => setCreateQuizModalOpen(true)}
-              className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-bold transition-all cursor-pointer rounded-xl"
+              className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 neu-btn-white text-black text-xs font-bold transition-all cursor-pointer rounded-xl"
             >
               <Plus className="w-3.5 h-3.5" />
               Create Quiz
@@ -653,7 +653,7 @@ export default function ClassWorkspace({
           {activeTab === 'materials' && (
             <button
               onClick={() => setUploadModalOpen(true)}
-              className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-bold transition-all cursor-pointer rounded-xl"
+              className="mr-2 inline-flex items-center gap-1.5 px-3.5 py-2 neu-btn-white text-black text-xs font-bold transition-all cursor-pointer rounded-xl"
             >
               <UploadCloud className="w-3.5 h-3.5" />
               Upload Notes (OCR)
@@ -746,7 +746,7 @@ export default function ClassWorkspace({
                   </ResponsiveContainer>
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-2 p-6">
-                    <TrendingUp className="w-8 h-8 text-[#00d2ff]" />
+                    <TrendingUp className="w-8 h-8 text-white" />
                     <p className="text-sm font-bold text-white">No Progression Telemetry Yet</p>
                     <p className="text-xs text-[#9e9e9e] max-w-sm">
                       Student progress curves will plot automatically once learners complete diagnostic quizzes.
@@ -1059,7 +1059,7 @@ export default function ClassWorkspace({
             <button
               type="button"
               onClick={() => setCreateQuizModalOpen(true)}
-              className="neu-btn-accent px-4 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-[#0a0f1d] rounded-xl shadow-lg shrink-0 self-start sm:self-auto"
+              className="neu-btn-white px-4 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-black rounded-xl shadow-lg shrink-0 self-start sm:self-auto"
             >
               <Plus className="w-4 h-4" />
               <span>+ Create / AI Generate Quiz</span>
@@ -1096,12 +1096,12 @@ export default function ClassWorkspace({
           {/* Quiz Card Grid */}
           {isLoadingQuizzes ? (
             <div className="neu-card p-12 text-center rounded-3xl flex flex-col items-center justify-center space-y-3">
-              <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
+              <Loader2 className="w-6 h-6 animate-spin text-white" />
               <p className="text-xs text-[#9e9e9e]">Loading quizzes from database...</p>
             </div>
           ) : quizList.length === 0 ? (
             <div className="neu-card p-12 text-center rounded-3xl space-y-4 border border-white/5">
-              <div className="w-14 h-14 mx-auto rounded-2xl neu-inset flex items-center justify-center text-[#00d2ff]">
+              <div className="w-14 h-14 mx-auto rounded-2xl neu-inset flex items-center justify-center text-white">
                 <Sparkles className="w-7 h-7" />
               </div>
               <div className="space-y-1.5 max-w-md mx-auto">
@@ -1113,7 +1113,7 @@ export default function ClassWorkspace({
               <button
                 type="button"
                 onClick={() => setCreateQuizModalOpen(true)}
-                className="neu-btn-accent px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-[#0a0f1d] rounded-xl shadow-lg"
+                className="neu-btn-white px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-black rounded-xl shadow-lg"
               >
                 <Plus className="w-4 h-4" />
                 Create First Quiz
@@ -1166,7 +1166,7 @@ export default function ClassWorkspace({
                           {t}
                         </span>
                       ))}
-                      <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-cyan-400 text-[11px] font-bold">
+                      <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-white text-[11px] font-bold">
                         {quiz.totalQuestions} Questions
                       </span>
                       <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-[#9e9e9e] text-[11px] font-bold uppercase">
@@ -1180,9 +1180,9 @@ export default function ClassWorkspace({
                     <button
                       type="button"
                       onClick={() => handleInspectQuiz(quiz.id)}
-                      className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-white hover:border-cyan-500/50 flex items-center gap-1.5 cursor-pointer transition-all"
+                      className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-white hover:border-white/50 flex items-center gap-1.5 cursor-pointer transition-all"
                     >
-                      <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                      <Eye className="w-3.5 h-3.5 text-white" />
                       <span>Preview Questions</span>
                     </button>
 
@@ -1192,9 +1192,9 @@ export default function ClassWorkspace({
                           type="button"
                           disabled={isUpdatingStatus === quiz.id}
                           onClick={() => handleTogglePublishStatus(quiz.id, quiz.status)}
-                          className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all disabled:opacity-50"
+                          className="px-3.5 py-1.5 rounded-xl neu-btn-white text-black font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all disabled:opacity-50"
                         >
-                          <Send className="w-3.5 h-3.5" />
+                          <Send className="w-3.5 h-3.5 text-black" />
                           <span>{isUpdatingStatus === quiz.id ? 'Publishing...' : 'Publish to Class'}</span>
                         </button>
                       ) : (
@@ -1257,7 +1257,7 @@ export default function ClassWorkspace({
               <button
                 type="button"
                 onClick={() => setEnrollModalOpen(true)}
-                className="neu-btn-accent px-4 py-2 text-xs font-bold flex items-center gap-1.5 cursor-pointer text-[#0a0f1d] rounded-xl"
+                className="neu-btn-white px-4 py-2 text-xs font-bold flex items-center gap-1.5 cursor-pointer text-black rounded-xl"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Enroll Student
@@ -1284,7 +1284,7 @@ export default function ClassWorkspace({
                       <td colSpan={5} className="py-12 text-center text-[#757575]">
                         {roster.length === 0 ? (
                           <div className="space-y-3">
-                            <div className="w-12 h-12 mx-auto rounded-2xl neu-inset flex items-center justify-center text-[#00d2ff]">
+                            <div className="w-12 h-12 mx-auto rounded-2xl neu-inset flex items-center justify-center text-white">
                               <Users className="w-6 h-6" />
                             </div>
                             <p className="text-sm font-semibold text-white">No students enrolled in this section yet.</p>
@@ -1292,7 +1292,7 @@ export default function ClassWorkspace({
                             <button
                               type="button"
                               onClick={() => setEnrollModalOpen(true)}
-                              className="neu-btn-accent px-4 py-2 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer text-[#0a0f1d] rounded-xl"
+                              className="neu-btn-white px-4 py-2 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer text-black rounded-xl"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               Enroll First Student
@@ -1360,9 +1360,9 @@ export default function ClassWorkspace({
             </div>
             <button
               onClick={() => setUploadModalOpen(true)}
-              className="px-4 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-black rounded-xl cursor-pointer flex items-center gap-1.5 shadow-[0_4px_16px_rgba(0,210,255,0.35)]"
+              className="px-4 py-2 neu-btn-white text-black text-xs font-black rounded-xl cursor-pointer flex items-center gap-1.5"
             >
-              <UploadCloud className="w-4 h-4 text-[#0a0f1d]" />
+              <UploadCloud className="w-4 h-4 text-black" />
               <span>+ Ingest Notes (OCR &amp; Chunking)</span>
             </button>
           </div>
@@ -1370,7 +1370,7 @@ export default function ClassWorkspace({
           {/* Semantic Vector Search Box */}
           <div className="neu-card p-5 space-y-3">
             <h4 className="text-sm font-black text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <Sparkles className="w-4 h-4 text-white" />
               <span>Test Grounded Vector Search (pgvector Cosine Similarity)</span>
             </h4>
             <div className="flex items-center gap-2">
@@ -1393,12 +1393,12 @@ export default function ClassWorkspace({
 
             {materialSearchResults.length > 0 && (
               <div className="space-y-2 pt-2 border-t border-white/5 animate-in fade-in">
-                <span className="text-[10px] uppercase font-bold text-cyan-400">
+                <span className="text-[10px] uppercase font-bold text-white">
                   Semantic Matches (pgvector Scoped RAG):
                 </span>
                 {materialSearchResults.map((m, idx) => (
                   <div key={idx} className="p-3 rounded-xl neu-inset text-xs space-y-1">
-                    <div className="flex items-center justify-between text-[10px] text-cyan-300 font-bold">
+                    <div className="flex items-center justify-between text-[10px] text-white font-bold">
                       <span>Match #{idx + 1}</span>
                       <span>Cosine Similarity: {(m.similarity * 100).toFixed(1)}%</span>
                     </div>
@@ -1412,7 +1412,7 @@ export default function ClassWorkspace({
           {/* Uploaded Materials List Grid */}
           {materialsList.length === 0 ? (
             <div className="neu-card p-12 text-center rounded-3xl space-y-4 border border-white/5">
-              <div className="w-14 h-14 mx-auto rounded-2xl neu-inset flex items-center justify-center text-cyan-400">
+              <div className="w-14 h-14 mx-auto rounded-2xl neu-inset flex items-center justify-center text-white">
                 <UploadCloud className="w-7 h-7" />
               </div>
               <div className="space-y-1.5 max-w-md mx-auto">
@@ -1424,9 +1424,9 @@ export default function ClassWorkspace({
               <button
                 type="button"
                 onClick={() => setUploadModalOpen(true)}
-                className="neu-btn-accent px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-[#0a0f1d] rounded-xl shadow-lg"
+                className="neu-btn-white px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-black rounded-xl shadow-lg"
               >
-                <UploadCloud className="w-4 h-4 text-[#0a0f1d]" />
+                <UploadCloud className="w-4 h-4 text-black" />
                 Upload Course Notes
               </button>
             </div>
@@ -1605,8 +1605,8 @@ export default function ClassWorkspace({
               </div>
 
               {/* Informational Callout */}
-              <div className="p-3 rounded-2xl bg-cyan-950/30 border border-cyan-500/20 text-[11px] text-cyan-300/90 leading-relaxed flex items-start gap-2">
-                <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-2xl neu-inset text-[11px] text-[#cccccc] leading-relaxed flex items-start gap-2 border border-white/10">
+                <Sparkles className="w-4 h-4 text-white shrink-0 mt-0.5" />
                 <span>
                   <strong>Draft &amp; Publish Lifecycle:</strong> AI will generate questions based on course notes and syllabus. The quiz is created in <strong>Draft</strong> mode so you can preview, edit, or adjust before publishing to students.
                 </span>
@@ -1617,7 +1617,7 @@ export default function ClassWorkspace({
               <button
                 type="button"
                 onClick={() => setCreateQuizModalOpen(false)}
-                className="w-full sm:w-auto px-4 py-2 neu-btn text-xs font-bold text-[#9e9e9e] hover:text-white cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 neu-btn text-xs font-bold text-[#9e9e9e] hover:text-white cursor-pointer rounded-xl"
               >
                 Cancel
               </button>
@@ -1627,16 +1627,16 @@ export default function ClassWorkspace({
                   type="button"
                   disabled={isGeneratingQuiz || !newQuizTitle.trim()}
                   onClick={handleGenerateAiQuiz}
-                  className="flex-1 sm:flex-none px-4 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-black cursor-pointer flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(0,210,255,0.4)] disabled:opacity-50"
+                  className="flex-1 sm:flex-none px-4 py-2 neu-btn-white text-black text-xs font-black cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50 rounded-xl"
                 >
                   {isGeneratingQuiz ? (
                     <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-black" />
                       <span>Generating Questions with Gemini...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3.5 h-3.5 text-[#0a0f1d]" />
+                      <Sparkles className="w-3.5 h-3.5 text-black" />
                       <span>⚡ AI Generate Questions (Draft)</span>
                     </>
                   )}
@@ -1759,7 +1759,7 @@ export default function ClassWorkspace({
                         {/* Pedagogical Explanation */}
                         {explanation && (
                           <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-[11px] text-[#9e9e9e] leading-relaxed">
-                            <span className="font-bold text-cyan-400 block mb-0.5">Pedagogical Rubric &amp; Explanation:</span>
+                            <span className="font-bold text-white block mb-0.5">Pedagogical Rubric &amp; Explanation:</span>
                             {explanation}
                           </div>
                         )}
@@ -1794,9 +1794,9 @@ export default function ClassWorkspace({
                     type="button"
                     disabled={isUpdatingStatus === previewQuiz.id}
                     onClick={() => handleTogglePublishStatus(previewQuiz.id, 'draft')}
-                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg disabled:opacity-50"
+                    className="px-4 py-2 neu-btn-white text-black font-black text-xs rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg disabled:opacity-50"
                   >
-                    <Send className="w-3.5 h-3.5" />
+                    <Send className="w-3.5 h-3.5 text-black" />
                     <span>{isUpdatingStatus === previewQuiz.id ? 'Publishing...' : 'Publish Quiz to Students'}</span>
                   </button>
                 ) : (
@@ -1824,7 +1824,7 @@ export default function ClassWorkspace({
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl neu-card-sm flex items-center justify-center text-cyan-400">
+                <div className="w-9 h-9 rounded-xl neu-card-sm flex items-center justify-center text-white">
                   <UploadCloud className="w-5 h-5" />
                 </div>
                 <div>
@@ -1882,7 +1882,7 @@ export default function ClassWorkspace({
                     : 'text-[#9e9e9e] hover:text-white'
                 }`}
               >
-                <FileUp className="w-3.5 h-3.5 text-cyan-400" />
+                <FileUp className="w-3.5 h-3.5 text-white" />
                 <span>Upload Document (OCR)</span>
               </button>
               <button
@@ -1897,7 +1897,7 @@ export default function ClassWorkspace({
                     : 'text-[#9e9e9e] hover:text-white'
                 }`}
               >
-                <FileText className="w-3.5 h-3.5 text-cyan-400" />
+                <FileText className="w-3.5 h-3.5 text-white" />
                 <span>Paste Notes / Text</span>
               </button>
             </div>
@@ -1923,9 +1923,9 @@ export default function ClassWorkspace({
                   onClick={() => document.getElementById('course-file-input')?.click()}
                   className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all ${
                     isDragging
-                      ? 'border-cyan-400 bg-cyan-950/20 scale-[0.99]'
+                      ? 'border-white bg-white/10 scale-[0.99]'
                       : selectedFile
-                      ? 'border-emerald-500/40 bg-emerald-950/10'
+                      ? 'border-white/40 bg-white/5'
                       : 'border-white/10 hover:border-white/20 bg-[#1c1c1c]/50'
                   }`}
                 >
@@ -1942,7 +1942,7 @@ export default function ClassWorkspace({
 
                   {selectedFile ? (
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-cyan-400">
+                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-white">
                         {selectedFile.type.startsWith('image/') ? (
                           <FileImage className="w-6 h-6" />
                         ) : (
@@ -1956,7 +1956,7 @@ export default function ClassWorkspace({
                         </p>
                       </div>
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold neu-badge-white mt-1">
-                        <Sparkles className="w-3 h-3 text-cyan-400" />
+                        <Sparkles className="w-3 h-3 text-white" />
                         {selectedFile.type.includes('pdf') || selectedFile.type.startsWith('image/') || selectedFile.name.toLowerCase().endsWith('.pdf')
                           ? 'Gemini Multimodal OCR Active'
                           : 'Direct Structured Text Parser'}
@@ -1975,8 +1975,8 @@ export default function ClassWorkspace({
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-2.5">
-                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-[#9e9e9e]">
-                        <UploadCloud className="w-6 h-6 text-cyan-400" />
+                      <div className="w-12 h-12 rounded-2xl neu-inset flex items-center justify-center text-white">
+                        <UploadCloud className="w-6 h-6 text-white" />
                       </div>
                       <div>
                         <p className="text-xs font-bold text-white">
@@ -2066,16 +2066,16 @@ export default function ClassWorkspace({
                   (activeUploadTab === 'text' && !materialRawText.trim())
                 }
                 onClick={handleUploadNotes}
-                className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] text-xs font-black cursor-pointer flex items-center gap-1.5 disabled:opacity-50 transition-all shadow-md rounded-xl"
+                className="px-5 py-2.5 neu-btn-white text-black text-xs font-black cursor-pointer flex items-center gap-1.5 disabled:opacity-50 transition-all shadow-md rounded-xl"
               >
                 {isUploadingNotes ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                    <Loader2 className="w-4 h-4 animate-spin text-black" />
                     <span>Processing Chunks...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-[#0a0f1d]" />
+                    <Sparkles className="w-4 h-4 text-black" />
                     <span>Extract, Chunk &amp; Embed in pgvector</span>
                   </>
                 )}
@@ -2093,7 +2093,7 @@ export default function ClassWorkspace({
           <div className="w-full max-w-md rounded-3xl neu-card-raised p-6 space-y-4 animate-in zoom-in-95 text-white border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.8)]">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
               <div className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-[#00d2ff]" />
+                <Users className="w-5 h-5 text-white" />
                 <h3 className="text-base font-black text-white">
                   Enroll Student in {cls.code}
                 </h3>
@@ -2156,9 +2156,9 @@ export default function ClassWorkspace({
                 <button
                   type="submit"
                   disabled={isEnrolling || !enrollIdentifier.trim()}
-                  className="px-5 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-black cursor-pointer flex items-center gap-1.5 disabled:opacity-50 rounded-xl"
+                  className="px-5 py-2 neu-btn-white text-black text-xs font-black cursor-pointer flex items-center gap-1.5 disabled:opacity-50 rounded-xl"
                 >
-                  <Plus className="w-4 h-4 text-[#0a0f1d]" />
+                  <Plus className="w-4 h-4 text-black" />
                   <span>{isEnrolling ? 'Enrolling...' : 'Enroll in Class'}</span>
                 </button>
               </div>

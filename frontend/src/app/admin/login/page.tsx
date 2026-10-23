@@ -224,13 +224,13 @@ export default function AdminLoginPage() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-black" />
                   Authorizing Console...
                 </>
               ) : (
                 <>
                   Authenticate Admin Console
-                  <ArrowRight className="w-4 h-4 text-[#0a0f1d]" />
+                  <ArrowRight className="w-4 h-4 text-black" />
                 </>
               )}
             </button>

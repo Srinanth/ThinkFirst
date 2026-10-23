@@ -96,7 +96,7 @@ export default function StudentPage() {
               grade: 'Enrolled',
               percentage: 0,
               credits: 4,
-              color: idx % 2 === 0 ? '#00d2ff' : '#ffffff',
+              color: '#ffffff',
             };
           });
           setCourses(mappedCourses);
@@ -161,7 +161,7 @@ export default function StudentPage() {
       {/* Toast Feedback */}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl neu-card-raised border border-white/10 text-white shadow-[0_12px_32px_rgba(0,0,0,0.7)] animate-in slide-in-from-top-2 text-xs font-bold">
-          <CheckCircle className="w-4 h-4 text-[#00d2ff]" />
+          <CheckCircle className="w-4 h-4 text-white" />
           <span>{toastMessage}</span>
           <button
             onClick={() => setToastMessage(null)}
@@ -256,13 +256,13 @@ export default function StudentPage() {
                 </p>
                 <div className="flex items-center justify-between pt-2 border-t border-white/5 font-bold">
                   <span className="text-white">Assessed Score:</span>
-                  <span className="text-[#00d2ff]">
+                  <span className="text-white font-black">
                     {reviewedQuiz.score} / {reviewedQuiz.maxScore} ({reviewedQuiz.percentage}%)
                   </span>
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-500/20 text-[#00d2ff] leading-relaxed">
+              <div className="p-3.5 rounded-xl neu-inset border border-white/10 text-[#cccccc] leading-relaxed">
                 Deterministic telemetry logged to your Student Mastery Profile. Need guidance? Open the AI Socratic Tutor drawer.
               </div>
             </div>

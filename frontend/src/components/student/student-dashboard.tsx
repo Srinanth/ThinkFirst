@@ -71,7 +71,7 @@ export default function StudentDashboard({
       {/* Top Workspace Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-white/5 gap-2">
         <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_white]" />
           <h2 className="text-xs sm:text-sm font-black tracking-wider uppercase text-white">
             WORKSPACE 1: PERFORMANCE &amp; ACADEMIC OVERVIEW
           </h2>
@@ -94,7 +94,7 @@ export default function StudentDashboard({
       {/* Student Bio Header Card */}
       <div className="neu-card-raised p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#222222] to-[#2e2e2e] border border-white/10 text-[#00d2ff] flex items-center justify-center font-black text-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6)] shrink-0">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#222222] to-[#2e2e2e] border border-white/10 text-white flex items-center justify-center font-black text-xl shadow-[inset_2px_2px_5px_rgba(0,0,0,0.6)] shrink-0">
             {initials || 'ST'}
           </div>
           <div>
@@ -110,7 +110,7 @@ export default function StudentDashboard({
               {collegeName}
             </p>
             <div className="flex items-center gap-3 text-xs text-[#757575] font-medium mt-1 flex-wrap">
-              <span>Status: <strong className="text-[#00d2ff]">Enrolled &bull; Live Telemetry</strong></span>
+              <span>Status: <strong className="text-white">Enrolled &bull; Live Telemetry</strong></span>
               <span>&bull;</span>
               <span>Mastery Engine: <strong className="text-white">Active</strong></span>
             </div>
@@ -126,7 +126,7 @@ export default function StudentDashboard({
           </div>
           <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Active Courses</p>
-            <p className="text-sm font-black text-[#00d2ff]">{activeCourses.length} Cohorts</p>
+            <p className="text-sm font-black text-white">{activeCourses.length} Cohorts</p>
           </div>
         </div>
       </div>
@@ -239,7 +239,7 @@ export default function StudentDashboard({
                     className="flex items-center justify-between text-xs p-2 rounded-lg hover:bg-[#202020] transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#00d2ff] shadow-[0_0_6px_#00d2ff]" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_6px_white]" />
                       <span className="font-bold text-white">{course.code}:</span>
                       <span className="text-[#9e9e9e] truncate max-w-[170px]">
                         {course.title}
@@ -262,7 +262,7 @@ export default function StudentDashboard({
                   Mastery Progress Graph
                 </h3>
                 <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
-                  Performance trend telemetry
+                  Weekly quiz performance trend Weeks 1 to 9
                 </p>
               </div>
               <span className="text-[11px] font-bold text-white neu-inset-sm px-2.5 py-1">
@@ -311,13 +311,29 @@ export default function StudentDashboard({
                   <Line
                     type="monotone"
                     dataKey="score"
-                    stroke="#00d2ff"
+                    stroke="#ffffff"
                     strokeWidth={2.5}
-                    dot={{ fill: '#1e1e1e', r: 4, strokeWidth: 2, stroke: '#00d2ff' }}
-                    activeDot={{ r: 6, fill: '#ffffff', stroke: '#00d2ff', strokeWidth: 2 }}
+                    dot={{ fill: '#1e1e1e', r: 4, strokeWidth: 2, stroke: '#ffffff' }}
+                    activeDot={{ r: 6, fill: '#00d2ff', stroke: '#ffffff', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
+            </div>
+
+            {/* Bottom Performance Callouts */}
+            <div className="grid grid-cols-3 gap-2.5 pt-2 border-t border-white/5 text-center">
+              <div className="p-2.5 rounded-xl neu-inset">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Lowest</p>
+                <p className="text-xs font-black text-white/80">76% in W3</p>
+              </div>
+              <div className="p-2.5 rounded-xl neu-card-sm border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.05)]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white">Peak</p>
+                <p className="text-xs font-black text-white">95% in W8</p>
+              </div>
+              <div className="p-2.5 rounded-xl neu-inset">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Projected</p>
+                <p className="text-xs font-black text-white">87.5% (A)</p>
+              </div>
             </div>
           </div>
         </div>

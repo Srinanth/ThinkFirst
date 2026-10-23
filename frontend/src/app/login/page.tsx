@@ -206,17 +206,17 @@ export default function AcademicLoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-2 py-3 px-4 neu-btn-primary font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase rounded-xl"
+              className="w-full mt-2 py-3 px-4 neu-btn-white text-black font-black text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase rounded-xl"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-black" />
                   Authenticating...
                 </>
               ) : (
                 <>
                   Sign In to Academic Portal
-                  <ArrowRight className="w-4 h-4 text-[#0a0f1d]" />
+                  <ArrowRight className="w-4 h-4 text-black" />
                 </>
               )}
             </button>

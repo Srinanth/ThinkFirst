@@ -299,9 +299,9 @@ export default function AiTutorDrawer({
               onClick={() => setIsOpen(true)}
               className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl neu-card-sm border border-white/10 shadow-[0_8px_20px_rgba(0,0,0,0.5)] cursor-pointer hover:scale-102 transition-all duration-200 animate-bounce group relative text-white"
             >
-              <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d2ff] animate-ping shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_white] animate-ping shrink-0" />
               <div className="text-left">
-                <p className="text-[11px] font-bold text-white group-hover:text-cyan-300 transition-colors leading-tight">
+                <p className="text-[11px] font-bold text-white group-hover:text-white transition-colors leading-tight">
                   {activeMission ? `Fix Gap: ${activeMission.title}` : 'Socratic AI Tutor Ready'}
                 </p>
                 <p className="text-[10px] text-[#9e9e9e] font-semibold">
@@ -328,16 +328,16 @@ export default function AiTutorDrawer({
           <button
             onClick={() => setIsOpen(true)}
             aria-label="Open Socratic AI Tutor"
-            className="neu-btn-accent flex items-center gap-2.5 px-4.5 py-3 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform shadow-[0_8px_24px_rgba(0,210,255,0.35)]"
+            className="neu-btn-white flex items-center gap-2.5 px-4.5 py-3 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform shadow-[0_8px_24px_rgba(255,255,255,0.2)] text-black"
           >
             <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0a0f1d] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#0a0f1d]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-black opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-black"></span>
             </span>
-            <div className="w-6 h-6 rounded-lg bg-[#0a0f1d]/20 text-[#0a0f1d] flex items-center justify-center font-bold">
-              <Sparkles className="w-3.5 h-3.5 text-[#0a0f1d]" />
+            <div className="w-6 h-6 rounded-lg bg-black/10 text-black flex items-center justify-center font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-black" />
             </div>
-            <span className="text-xs font-black tracking-tight text-[#0a0f1d]">
+            <span className="text-xs font-black tracking-tight text-black">
               {activeMission ? 'Fix Gap (Tutor)' : 'AI Tutor'}
             </span>
           </button>
@@ -354,8 +354,8 @@ export default function AiTutorDrawer({
           {/* Drawer Header */}
           <div className="px-5 py-4 bg-[#262626] border-b border-white/5 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl neu-inset text-cyan-400 flex items-center justify-center">
-                <Bot className="w-5 h-5 text-cyan-400" />
+              <div className="w-9 h-9 rounded-xl neu-inset text-white flex items-center justify-center">
+                <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -395,17 +395,17 @@ export default function AiTutorDrawer({
 
           {/* Active Knowledge Gap Banner */}
           {activeMission && (
-            <div className="px-4 py-3 bg-[#181818] border-b border-cyan-500/20 text-xs shrink-0 space-y-1.5">
+            <div className="px-4 py-3 bg-[#181818] border-b border-white/10 text-xs shrink-0 space-y-1.5">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-cyan-300 font-black">
-                  <Zap className="w-3.5 h-3.5 text-cyan-400" />
+                <div className="flex items-center gap-1.5 text-white font-black">
+                  <Zap className="w-3.5 h-3.5 text-white" />
                   <span>Active Remediation Mission</span>
                 </div>
                 <span
                   className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
                     isResolved
-                      ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/40'
-                      : 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/40'
+                      ? 'neu-badge-white'
+                      : 'neu-badge-white'
                   }`}
                 >
                   {isResolved ? 'Resolved' : 'In Progress'}
@@ -421,7 +421,7 @@ export default function AiTutorDrawer({
               </div>
               <div className="w-full h-1.5 bg-[#262626] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-neutral-300 to-white transition-all duration-500"
                   style={{ width: `${masteryLevel}%` }}
                 />
               </div>
@@ -430,10 +430,10 @@ export default function AiTutorDrawer({
 
           {/* Celebratory Resolution Card */}
           {isResolved && (
-            <div className="m-3 p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 flex items-start gap-2.5 animate-in zoom-in-95">
-              <Award className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <div className="m-3 p-3.5 rounded-2xl neu-card border border-white/10 flex items-start gap-2.5 animate-in zoom-in-95">
+              <Award className="w-5 h-5 text-white shrink-0 mt-0.5" />
               <div className="text-xs space-y-0.5">
-                <p className="font-black text-emerald-300">Knowledge Gap Resolved!</p>
+                <p className="font-black text-white">Knowledge Gap Resolved!</p>
                 <p className="text-[11px] text-[#9e9e9e]">
                   Your mastery delta was deterministically recorded in the database, and your teacher&apos;s dashboard has been updated.
                 </p>
@@ -467,8 +467,8 @@ export default function AiTutorDrawer({
                     <p>{msg.text}</p>
 
                     {msg.contextTag && (
-                      <div className="pt-1.5 border-t border-white/5 flex items-center gap-1 text-[10px] font-semibold text-cyan-300">
-                        <BookOpen className="w-3 h-3 text-cyan-400" />
+                      <div className="pt-1.5 border-t border-white/5 flex items-center gap-1 text-[10px] font-semibold text-white">
+                        <BookOpen className="w-3 h-3 text-white" />
                         <span>Topic: {msg.contextTag}</span>
                       </div>
                     )}
@@ -476,8 +476,8 @@ export default function AiTutorDrawer({
                     {/* Method 2: Clickable Action Widgets (Pills) */}
                     {isTutor && msg.actionWidgets && msg.actionWidgets.length > 0 && (
                       <div className="pt-2 border-t border-white/10 space-y-1.5">
-                        <span className="text-[10px] uppercase font-bold tracking-wider text-cyan-400 flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-cyan-400" />
+                        <span className="text-[10px] uppercase font-bold tracking-wider text-white flex items-center gap-1">
+                          <Zap className="w-3 h-3 text-white" />
                           <span>Click to Respond (No Typing Needed):</span>
                         </span>
                         <div className="flex flex-wrap gap-1.5">
@@ -486,7 +486,7 @@ export default function AiTutorDrawer({
                               key={widx}
                               type="button"
                               onClick={() => handleSendMessage(widget.label)}
-                              className="px-3 py-1.5 rounded-xl bg-cyan-950/70 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-200 text-xs font-bold hover:scale-102 transition-all cursor-pointer shadow-sm text-left"
+                              className="px-3 py-1.5 rounded-xl neu-btn text-white text-xs font-bold hover:scale-102 transition-all cursor-pointer shadow-sm text-left border border-white/20 hover:border-white/50"
                             >
                               {widget.label}
                             </button>
@@ -500,8 +500,8 @@ export default function AiTutorDrawer({
             })}
 
             {isTyping && (
-              <div className="flex items-center gap-2 text-xs text-cyan-300 neu-card rounded-2xl px-4 py-2.5 w-fit border border-cyan-500/20">
-                <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-spin" />
+              <div className="flex items-center gap-2 text-xs text-white neu-card rounded-2xl px-4 py-2.5 w-fit border border-white/10">
+                <Sparkles className="w-3.5 h-3.5 text-white animate-spin" />
                 <span>AI Tutor is reasoning & formulating action options...</span>
               </div>
             )}
@@ -512,7 +512,7 @@ export default function AiTutorDrawer({
           {/* Suggested Context Prompts */}
           <div className="p-3 bg-[#262626] border-t border-white/5 shrink-0">
             <div className="flex items-center gap-1.5 text-[11px] font-bold text-white mb-2">
-              <HelpCircle className="w-3 h-3 text-cyan-400" />
+              <HelpCircle className="w-3 h-3 text-white" />
               <span>Socratic Review Starters</span>
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -548,16 +548,16 @@ export default function AiTutorDrawer({
               <button
                 type="submit"
                 disabled={!inputText.trim() || isTyping}
-                className="p-2.5 rounded-xl neu-btn-accent disabled:opacity-40 text-[#0a0f1d] cursor-pointer"
+                className="p-2.5 rounded-xl neu-btn-white disabled:opacity-40 text-black cursor-pointer"
                 aria-label="Send message"
               >
-                <Send className="w-4 h-4 text-[#0a0f1d]" />
+                <Send className="w-4 h-4 text-black" />
               </button>
             </form>
             <div className="flex items-center justify-between text-[10px] text-[#757575] mt-2 px-1">
               <span>Method 2 Action Pills &bull; Anti-Cheat</span>
-              <span className="flex items-center gap-1 text-cyan-300 font-semibold">
-                <CheckCircle2 className="w-3 h-3 text-cyan-400" /> Grounded in Syllabus
+              <span className="flex items-center gap-1 text-white font-semibold">
+                <CheckCircle2 className="w-3 h-3 text-white" /> Grounded in Syllabus
               </span>
             </div>
           </div>

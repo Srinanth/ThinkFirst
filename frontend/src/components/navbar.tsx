@@ -45,7 +45,7 @@ export default function Navbar({
           <div>
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-lg tracking-tight text-white group-hover:text-white/80 transition-colors">
-                Think<span className="text-cyan-400">First</span>
+                Think<span className="text-white">First</span>
               </span>
             </div>
             <p className="text-[10px] text-[#9e9e9e] font-medium hidden sm:block">

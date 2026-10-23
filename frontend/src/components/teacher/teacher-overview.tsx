@@ -51,7 +51,7 @@ export default function TeacherOverview({
       <div className="relative overflow-hidden neu-card-raised p-7 sm:p-9">
         <div className="relative z-10 max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full neu-inset-sm text-white text-xs font-bold tracking-wide border border-white/10">
-            <Sparkles className="w-3.5 h-3.5 text-[#00d2ff]" />
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             Live Supabase Postgres Telemetry Active
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
@@ -93,13 +93,13 @@ export default function TeacherOverview({
               Students Managed
             </p>
             <p className="text-3xl font-black text-white">{totalStudents}</p>
-            <p className="text-xs text-[#00d2ff] flex items-center gap-1 font-bold pt-1">
-              <TrendingUp className="w-3.5 h-3.5 text-[#00d2ff]" />
+            <p className="text-xs text-white flex items-center gap-1 font-bold pt-1">
+              <TrendingUp className="w-3.5 h-3.5 text-white" />
               Live enrolled learners
             </p>
           </div>
           <div className="w-14 h-14 rounded-2xl neu-inset text-white flex items-center justify-center">
-            <Users className="w-7 h-7 text-[#00d2ff]" />
+            <Users className="w-7 h-7 text-white" />
           </div>
         </div>
 
@@ -139,7 +139,7 @@ export default function TeacherOverview({
               <button
                 type="button"
                 onClick={onCreateClass}
-                className="neu-btn-accent px-4 py-2 text-xs font-bold flex items-center gap-1.5 cursor-pointer text-[#0a0f1d] rounded-xl"
+                className="neu-btn-white px-4 py-2 text-xs font-bold flex items-center gap-1.5 cursor-pointer text-black rounded-xl"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Subject Offering
@@ -153,7 +153,7 @@ export default function TeacherOverview({
 
         {activeClasses.length === 0 ? (
           <div className="neu-card p-12 text-center rounded-3xl space-y-4 border border-white/5">
-            <div className="w-16 h-16 mx-auto rounded-2xl neu-inset flex items-center justify-center text-[#00d2ff]">
+            <div className="w-16 h-16 mx-auto rounded-2xl neu-inset flex items-center justify-center text-white">
               <BookOpen className="w-8 h-8" />
             </div>
             <div className="space-y-1.5 max-w-md mx-auto">
@@ -166,7 +166,7 @@ export default function TeacherOverview({
               <button
                 type="button"
                 onClick={onCreateClass}
-                className="neu-btn-accent px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-[#0a0f1d] rounded-xl shadow-lg"
+                className="neu-btn-white px-5 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-black rounded-xl shadow-lg"
               >
                 <Plus className="w-4 h-4" />
                 Create First Subject
@@ -178,10 +178,10 @@ export default function TeacherOverview({
             {activeClasses.map((cls) => {
               const ringColor =
                 cls.overallMastery >= 80
-                  ? '#00d2ff'
-                  : cls.overallMastery >= 65
                   ? '#ffffff'
-                  : '#f59e0b';
+                  : cls.overallMastery >= 65
+                  ? 'rgba(255, 255, 255, 0.7)'
+                  : 'rgba(255, 255, 255, 0.35)';
 
               return (
                 <div

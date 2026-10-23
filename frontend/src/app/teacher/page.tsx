@@ -197,7 +197,7 @@ export default function TeacherPage() {
                 <X className="w-4 h-4" />
               </button>
               <h3 className="text-lg font-black tracking-tight text-white flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-[#00d2ff]" />
+                <BookOpen className="w-5 h-5 text-white" />
                 ADD SUBJECT OFFERING
               </h3>
               <p className="text-[#9e9e9e] text-xs mt-1 font-medium">
@@ -261,12 +261,12 @@ export default function TeacherPage() {
                 <button
                   type="submit"
                   disabled={creating}
-                  className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 neu-btn-white text-black font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50 rounded-xl"
                 >
                   {creating ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                    <Loader2 className="w-4 h-4 animate-spin text-black" />
                   ) : (
-                    <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
+                    <CheckCircle className="w-4 h-4 text-black" />
                   )}
                   CREATE OFFERING
                 </button>

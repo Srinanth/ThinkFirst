@@ -240,8 +240,8 @@ export default function QuizTaker({
       {/* Proctored Assessment Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl neu-card-raised border border-white/5">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl neu-inset text-[#00d2ff] flex items-center justify-center font-bold">
-            <ShieldAlert className="w-5 h-5 text-[#00d2ff]" />
+          <div className="w-10 h-10 rounded-2xl neu-inset text-white flex items-center justify-center font-bold">
+            <ShieldAlert className="w-5 h-5 text-white" />
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export default function QuizTaker({
 
         {/* Timer Display */}
         <div className="flex items-center gap-2 px-4 py-2 rounded-2xl neu-inset self-start sm:self-auto border border-white/5">
-          <Clock className="w-4 h-4 text-[#00d2ff]" />
+          <Clock className="w-4 h-4 text-white" />
           <span className="text-xs font-mono font-bold text-white tracking-wider">
             {formatTimer(timeLeft)}
           </span>
@@ -280,9 +280,9 @@ export default function QuizTaker({
                     key={i}
                     className={`w-2.5 h-2.5 rounded-full transition-all ${
                       i === currentIdx
-                        ? 'bg-[#00d2ff] shadow-[0_0_8px_#00d2ff]'
+                        ? 'bg-white shadow-[0_0_8px_white]'
                         : selectedAnswers[i] !== undefined
-                        ? 'bg-white'
+                        ? 'bg-[#9e9e9e]'
                         : 'bg-[#333333]'
                     }`}
                   />
@@ -307,7 +307,7 @@ export default function QuizTaker({
                     onClick={() => handleSelectOption(optIdx)}
                     className={`p-4 rounded-2xl cursor-pointer transition-all flex items-center justify-between text-xs sm:text-sm font-semibold select-none ${
                       isSelected
-                        ? 'neu-card-raised border border-[#00d2ff] text-[#00d2ff] shadow-[0_4px_16px_rgba(0,210,255,0.2)]'
+                        ? 'neu-card-raised border border-white/60 text-white shadow-[0_4px_16px_rgba(255,255,255,0.1)]'
                         : 'neu-inset text-[#9e9e9e] hover:text-white hover:border-white/10'
                     }`}
                   >
@@ -315,7 +315,7 @@ export default function QuizTaker({
                       <span
                         className={`w-6 h-6 rounded-lg text-xs flex items-center justify-center font-bold ${
                           isSelected
-                            ? 'bg-[#00d2ff] text-[#0a0f1d]'
+                            ? 'bg-white text-black'
                             : 'neu-card-sm text-[#757575]'
                         }`}
                       >
@@ -325,7 +325,7 @@ export default function QuizTaker({
                     </div>
 
                     {isSelected && (
-                      <CheckCircle className="w-5 h-5 text-[#00d2ff] shrink-0" />
+                      <CheckCircle className="w-5 h-5 text-white shrink-0" />
                     )}
                   </div>
                 );
@@ -366,12 +366,12 @@ export default function QuizTaker({
                     type="button"
                     disabled={isSubmitting}
                     onClick={handleSubmit}
-                    className="px-6 py-2.5 neu-btn-accent text-xs font-black cursor-pointer flex items-center gap-2 text-[#0a0f1d] disabled:opacity-50"
+                    className="px-6 py-2.5 neu-btn-white text-xs font-black cursor-pointer flex items-center gap-2 text-black disabled:opacity-50 rounded-xl"
                   >
                     {isSubmitting ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                      <Loader2 className="w-4 h-4 animate-spin text-black" />
                     ) : (
-                      <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
+                      <CheckCircle className="w-4 h-4 text-black" />
                     )}
                     <span>Submit to Evaluator Agent</span>
                   </button>
@@ -383,8 +383,8 @@ export default function QuizTaker({
           /* Submission Results & Gap Diagnosis View */
           <div className="p-8 space-y-6">
             <div className="text-center space-y-3">
-              <div className="w-16 h-16 rounded-3xl neu-inset text-[#00d2ff] flex items-center justify-center mx-auto shadow-[0_8px_20px_rgba(0,210,255,0.2)]">
-                <CheckCircle className="w-8 h-8 text-[#00d2ff]" />
+              <div className="w-16 h-16 rounded-3xl neu-inset text-white flex items-center justify-center mx-auto">
+                <CheckCircle className="w-8 h-8 text-white" />
               </div>
 
               <div className="space-y-1">
@@ -416,14 +416,14 @@ export default function QuizTaker({
 
             {/* Evaluator Agent Remediation Mission Dossier */}
             {remediationMission && (
-              <div className="p-5 rounded-2xl bg-[#1c1c1c] border border-cyan-500/30 space-y-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.6)] animate-in fade-in">
+              <div className="p-5 rounded-2xl bg-[#1c1c1c] border border-white/10 space-y-3.5 shadow-[0_8px_24px_rgba(0,0,0,0.6)] animate-in fade-in">
                 <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg neu-inset text-[#00d2ff] flex items-center justify-center">
-                      <Zap className="w-4 h-4 text-[#00d2ff]" />
+                    <div className="w-7 h-7 rounded-lg neu-inset text-white flex items-center justify-center">
+                      <Zap className="w-4 h-4 text-white" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-black uppercase tracking-wider text-[#00d2ff] block">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-white block">
                         Quiz Evaluator Agent Diagnosis
                       </span>
                       <h4 className="text-sm font-black text-white">
@@ -431,7 +431,7 @@ export default function QuizTaker({
                       </h4>
                     </div>
                   </div>
-                  <span className="text-[10px] font-black bg-cyan-950/80 text-cyan-300 border border-cyan-500/40 px-2.5 py-0.5 rounded-full">
+                  <span className="text-[10px] font-black neu-badge-white px-2.5 py-0.5 rounded-full">
                     Active Gap Dossier Created
                   </span>
                 </div>
@@ -457,7 +457,7 @@ export default function QuizTaker({
                       {remediationMission.actionWidgets.map((w, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-lg neu-inset-sm text-cyan-300 text-[11px] font-medium"
+                          className="px-2.5 py-1 rounded-lg neu-inset-sm text-white text-[11px] font-medium border border-white/10"
                         >
                           {w.label}
                         </span>
@@ -477,9 +477,9 @@ export default function QuizTaker({
                         onFinishQuiz(calculatedScore);
                       }
                     }}
-                    className="w-full py-3 neu-btn-accent text-[#0a0f1d] font-black text-xs rounded-xl cursor-pointer flex items-center justify-center gap-2 shadow-[0_6px_20px_rgba(0,210,255,0.4)] hover:scale-101 transition-all"
+                    className="w-full py-3 neu-btn-white text-black font-black text-xs rounded-xl cursor-pointer flex items-center justify-center gap-2 shadow-lg hover:scale-101 transition-all"
                   >
-                    <Sparkles className="w-4 h-4 text-[#0a0f1d]" />
+                    <Sparkles className="w-4 h-4 text-black" />
                     <span>Launch Socratic AI Tutor to Fix Gaps (Method 2) &rarr;</span>
                   </button>
                 </div>

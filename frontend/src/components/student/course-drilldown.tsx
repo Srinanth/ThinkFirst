@@ -125,7 +125,7 @@ export default function CourseDrilldown({
           <ChevronRight className="w-3.5 h-3.5" />
           <span>Courses</span>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[#00d2ff]">{course.code}</span>
+          <span className="font-bold text-white">{course.code}</span>
         </div>
       </div>
 
@@ -134,7 +134,7 @@ export default function CourseDrilldown({
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="px-3 py-0.5 rounded-full text-xs font-bold neu-inset-sm text-[#00d2ff] font-mono">
+              <span className="px-3 py-0.5 rounded-full text-xs font-bold neu-inset-sm text-white font-mono">
                 {course.code}
               </span>
               <span className="px-3 py-0.5 rounded-full text-xs font-bold neu-badge-white">
@@ -157,7 +157,7 @@ export default function CourseDrilldown({
           <div className="flex items-center gap-3">
             <div className="p-4 rounded-2xl neu-inset text-center min-w-[110px]">
               <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Overall Mastery</p>
-              <p className="text-2xl font-black text-[#00d2ff]">
+              <p className="text-2xl font-black text-white">
                 {masteryData?.overallMastery ?? course.percentage}%
               </p>
               <p className="text-[10px] font-bold text-white">Grade {course.grade}</p>
@@ -245,8 +245,8 @@ export default function CourseDrilldown({
             <span className="text-[#757575] font-medium">
               Showing recent completed quizzes in {course.code}
             </span>
-            <span className="text-[#00d2ff] font-semibold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-[#00d2ff]" />
+            <span className="text-white font-semibold flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-white" />
               Deterministic Mastery Engine Active
             </span>
           </div>
@@ -258,7 +258,7 @@ export default function CourseDrilldown({
           <div className="neu-card p-5 sm:p-6 space-y-4 text-white">
             <div className="flex items-center justify-between pb-3 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <Bell className="w-4 h-4 text-[#00d2ff]" />
+                <Bell className="w-4 h-4 text-white" />
                 <h3 className="text-base font-black text-white tracking-tight">
                   Quizzes to Attempt
                 </h3>
@@ -278,7 +278,7 @@ export default function CourseDrilldown({
                 openQuizzes.map((quiz) => (
                   <div
                     key={quiz.id}
-                    className="p-4 sm:p-5 rounded-2xl neu-card-sm border border-white/10 space-y-3 hover:border-cyan-500/30 transition-all"
+                    className="p-4 sm:p-5 rounded-2xl neu-card-sm border border-white/10 space-y-3 hover:border-white/30 transition-all"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
@@ -320,7 +320,7 @@ export default function CourseDrilldown({
 
                       <button
                         onClick={() => onStartQuiz(quiz)}
-                        className="neu-btn-accent px-4 py-2 text-xs font-black tracking-wide text-[#0a0f1d] flex items-center gap-1.5 cursor-pointer shadow-md"
+                        className="neu-btn-white px-4 py-2 text-xs font-black tracking-wide text-black flex items-center gap-1.5 cursor-pointer shadow-md rounded-xl"
                       >
                         <span>Start Assessment</span>
                         <ChevronRight className="w-3.5 h-3.5" />
