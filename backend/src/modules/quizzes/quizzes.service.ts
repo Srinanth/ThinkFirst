@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../../config/supabase.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
-import { generateQuizQuestionsWithAgent } from '../../agents/quiz.agent.js';
+import { generateQuizQuestions } from './quiz-generator.util.js';
 import { evaluateStudentAnswer, diagnoseQuizGaps } from '../../agents/evaluator.agent.js';
 import { masteryService } from '../mastery/mastery.service.js';
 import { materialsService } from '../materials/materials.service.js';
@@ -177,7 +177,7 @@ export class QuizzesService {
   }
 
   /**
-   * Agentic AI Quiz Generator: generates diagnostic questions from topic and notes
+   * Diagnostic Quiz Generator: generates diagnostic questions from topic and notes via LLM
    */
   async generateQuizWithAgent(subjectId: string, teacherId: string, input: GenerateQuizInput) {
     // 1. Fetch curriculum topic details
@@ -204,8 +204,8 @@ export class QuizzesService {
       // Fallback: continue without notes if none uploaded yet
     }
 
-    // 3. Invoke Quiz Agent
-    const generatedQuestions = await generateQuizQuestionsWithAgent({
+    // 3. Generate diagnostic questions via traditional LLM call
+    const generatedQuestions = await generateQuizQuestions({
       topicTitle: topic.title,
       contextNotes,
       difficulty: input.difficulty,
@@ -213,7 +213,7 @@ export class QuizzesService {
     });
 
     if (generatedQuestions.length === 0) {
-      throw new BadRequestError('Quiz Agent failed to generate questions');
+      throw new BadRequestError('Failed to generate quiz questions');
     }
 
     // 4. Create the Quiz container in database

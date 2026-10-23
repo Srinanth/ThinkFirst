@@ -79,10 +79,10 @@ Progress: [████████████████░░░░] 76%
 | **AI-01** | Gemini Client Configuration & Embeddings Client | `agents` | `P0` | `[x] Completed` | Srinanth | `@google/genai` (Gemini 3.5 Flash/Lite, 768-dim embeddings verified) |
 | **AI-02** | OCR Document & Notes Extraction Pipeline | `utils/ocr` | `P0` | `[x] Completed` | Srinanth | Multimodal OCR (PDF/Images) & direct text ingestion (Replaced Curriculum Agent per Review) |
 | **AI-03** | Notes & Retrieval: Semantic Chunking & Embeddings | `materials` | `P0` | `[x] Completed` | Srinanth | 500-token chunks with 768-dim embeddings |
-| **AI-04** | Quiz Generation Service | `agents` | `P0` | `[x] Completed` | Srinanth | Traditional fast LLM generation from course notes & syllabus |
-| **AI-05** | Quiz Evaluator Agent: Answer Evaluation & Gap Diagnosis | `agents` | `P0` | `[x] Completed` | Srinanth | Evaluates answers, calculates mastery delta, and autonomously creates `teacher_insights` gap dossiers |
-| **AI-06** | AI Tutor Agent: Interactive Chat with Action Widgets (Method 2) | `agents` | `P0` | `[x] Completed` | Srinanth | Low-friction Socratic dialogue with action pills/options, increments mastery & marks gaps resolved |
-| **AI-07** | Teacher Insights Bridge: Student Learning Curves | `insights` | `P1` | `[x] Completed` | Srinanth | Real-time active vs resolved gap tracking, progress traces, and teacher advice |
+| **AI-04** | Quiz Generation Utility (Traditional LLM) | `modules/quizzes` | `P0` | `[x] Completed` | Srinanth | Traditional fast LLM generation (`quiz-generator.util.ts`), cut from agent role |
+| **AI-05** | Quiz Evaluator Agent: Answer Evaluation & Gap Diagnosis | `agents` | `P0` | `[x] Completed` | Srinanth | Autonomous Agent #1: Evaluates answers, calculates mastery delta, and autonomously creates `teacher_insights` gap dossiers |
+| **AI-06** | AI Tutor Agent: Interactive Chat with Action Widgets (Method 2) | `agents` | `P0` | `[x] Completed` | Srinanth | Autonomous Agent #2: Personal student companion & teacher's bridge with action pills/options, increments mastery & resolves insights |
+| **AI-07** | Teacher Insights Bridge & Lifecycle Tracking | `insights` | `P1` | `[x] Completed` | Srinanth | Real-time active vs resolved gap tracking driven directly by Evaluator & Tutor agents |
 
 ---
 

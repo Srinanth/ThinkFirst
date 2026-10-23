@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '../../config/supabase.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
-import { synthesizeTeacherInsightsWithAgent } from '../../agents/insight.agent.js';
+import { synthesizeClassInsights } from './insights-synthesizer.util.js';
 import { masteryService } from '../mastery/mastery.service.js';
 
 export class InsightsService {
@@ -59,8 +59,8 @@ export class InsightsService {
     // 2. Fetch classroom mastery overview
     const overview = await masteryService.getClassMasteryOverview(subjectId);
 
-    // 3. Synthesize insights via Insight Agent
-    const synthesized = await synthesizeTeacherInsightsWithAgent({
+    // 3. Synthesize class-level insights via LLM summarizer
+    const synthesized = await synthesizeClassInsights({
       subjectName: subject.subject,
       classOverview: overview.map((o) => ({
         topicId: o.topicId,

@@ -1,4 +1,4 @@
-import { generateJSON } from './gemini.client.js';
+import { generateJSON } from '../../agents/gemini.client.js';
 
 export interface GeneratedQuestion {
   questionText: string;
@@ -18,7 +18,7 @@ export interface QuizGenerationParams {
 }
 
 const SYSTEM_INSTRUCTION = `
-You are the ThinkFirst Diagnostic Quiz Agent.
+You are the ThinkFirst Diagnostic Quiz Generator.
 Generate pedagogically rigorous diagnostic questions that assess genuine conceptual understanding, NOT rote memorization.
 Guidelines:
 1. For multiple-choice questions, provide 4 plausible options, where distractors reflect common student misconceptions.
@@ -27,7 +27,10 @@ Guidelines:
 4. Return ONLY valid JSON matching the requested structure.
 `;
 
-export async function generateQuizQuestionsWithAgent(
+/**
+ * Traditional LLM calling method to generate diagnostic quiz questions directly from topic context
+ */
+export async function generateQuizQuestions(
   params: QuizGenerationParams
 ): Promise<GeneratedQuestion[]> {
   const prompt = `

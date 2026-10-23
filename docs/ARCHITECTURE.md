@@ -36,21 +36,29 @@ ThinkFirst is built upon a hybrid **Agentic Intelligence & Deterministic State A
 └───────────────────────────────────────────┼────────────────────────────────────────────┘
                                             │
 ┌───────────────────────────────────────────┼────────────────────────────────────────────┐
-│ 03 AGENTIC INTELLIGENCE — MASTRA ORCHESTRATION (Gemini 3.8 Flash)                      │
+│ 03 STREAMLINED 2-AGENT INTELLIGENCE LAYER (Gemini 3.5 Flash)                           │
 │                                           │                                            │
-│   ┌─────────────────────┐   ┌─────────────┴───────┐   ┌───────────────────────┐        │
-│   │  Curriculum Agent   │   │ Notes & Retrieval   │   │      Quiz Agent       │        │
-│   │ (Syllabus Structure)│   │  (pgvector Embed)   │   │  (Targeted Problems)  │        │
-│   └──────────┬──────────┘   └─────────────┬───────┘   └───────────┬───────────┘        │
-│              │                            │                       │                    │
-│   ┌──────────┴──────────┐   ┌─────────────┴───────┐   ┌───────────┴───────────┐        │
-│   │   Evaluator Agent   │   │     Tutor Agent     │   │     Insight Agent     │        │
-│   │ (Evidence Extractor)│   │ (Socratic Dialogue) │   │ (Classroom Analytics) │        │
-│   └──────────┬──────────┘   └─────────────┬───────┘   └───────────┬───────────┘        │
-└──────────────┼────────────────────────────┼───────────────────────┼────────────────────┘
-               │ Structured Evidence Tokens │ Tutor Response        │ Aggregated Signals
-┌──────────────┼────────────────────────────┴───────────────────────┼────────────────────┐
-│              ▼                                                    ▼                    │
+│    Traditional LLM Utilities              │     Two Core Autonomous Agents             │
+│    ┌───────────────────────────────┐      │     ┌──────────────────────────────────┐   │
+│    │ Quiz Question Generator       │      │     │ 1. Quiz Evaluator Agent          │   │
+│    │ (Direct Prompt -> Questions)  │      │     │ - Evaluates student answers      │   │
+│    └───────────────────────────────┘      │     │ - Diagnoses missing concept gaps │   │
+│    ┌───────────────────────────────┐      │     │ - Autonomously creates active    │   │
+│    │ Multimodal OCR & Extractor    │      │     │   student insight dossier        │   │
+│    │ (PDF/Images -> Plaintext)     │      │     └────────────────┬─────────────────┘   │
+│    └───────────────────────────────┘      │                      │                     │
+│                                           │                      ▼ Gap Dossier Created │
+│                                           │     ┌──────────────────────────────────┐   │
+│                                           │     │ 2. AI Tutor Agent                │   │
+│                                           │     │ - Method 2 Interactive Chat      │   │
+│                                           │     │ - Clickable Action Widgets       │   │
+│                                           │     │ - Bridges student and teacher    │   │
+│                                           │     │ - Resolves insight dossier       │   │
+│                                           │     └────────────────┬─────────────────┘   │
+└───────────────────────────────────────────┼──────────────────────┼─────────────────────┘
+               │ Traditional LLM Outputs    │ Structured Evidence  │ Insight Life-Cycle Updates
+┌──────────────┼────────────────────────────┴──────────────────────┴─────────────────────┐
+│              ▼                                                                         │
 │ 04 LEARNING STATE — DETERMINISTIC SERVICES                                             │
 │   ┌─────────────────────────────────────────────────────────────────────────────────┐  │
 │   │                          Deterministic Mastery Engine                           │  │
@@ -101,17 +109,24 @@ ThinkFirst is built upon a hybrid **Agentic Intelligence & Deterministic State A
     ──▶ [Global Error Handler Middleware]
   ```
 
-### 2.3 Layer 3: Agentic Intelligence Layer (Collaborative Agent Architecture)
-Orchestrated using the **Google Gemini SDK** (Gemini 3.5 Flash / Flash Lite) with cost-efficient structured dual-action outputs:
+### 2.3 Layer 3: Streamlined 2-Agent Architecture (Evaluator Agent + AI Tutor Agent)
 
-| Component / Agent | Role & Type | Primary Action / Responsibility | Output & State Impact |
+Rather than inflating the codebase with superficial pseudo-agents for simple completions, ThinkFirst cuts down the agent footprint to **two core autonomous agents** that genuinely perform closed-loop decision making over dynamic student learning state, while offloading one-shot tasks to traditional LLM calling methods:
+
+#### The Two Core Autonomous Agents
+
+| Agent | Architecture Role | Closed-Loop Autonomous Agency | State Mutation & DB Impact |
 |---|---|---|---|
-| **1. Quiz Generator** | Traditional LLM Service | Generates targeted diagnostic questions from course notes & syllabus | Multi-format diagnostic quiz (MCQs & open conceptual prompts) |
-| **2. Quiz Evaluator Agent** | Autonomous Evaluator Agent | Evaluates student answers, calculates mastery delta, and **autonomously diagnoses knowledge gaps** | Emits grading feedback AND **automatically inserts/updates `teacher_insights`** (`status: 'active'`, gap diagnosis, student reasoning trace) |
-| **3. AI Tutor Agent** | Personal Agent & Teacher's Bridge | Delivers **Interactive Chat with Action Widgets (Method 2)** targeting missing knowledge | Socratic message + clickable action pills/options; **updates `student_topic_mastery` and transitions `teacher_insights` to `'resolved'`** |
-| **4. Teacher Insights** | Real-time Pedagogical Dossier | Aggregates classroom & individual student gap resolution traces | Live Teacher Dashboard: Active vs. Resolved gaps, student progress traces, and actionable lecture talking points |
+| **1. Quiz Evaluator Agent** (`evaluator.agent.ts`) | Autonomous Pedagogical Evaluator | Evaluates student quiz answers, analyzes cognitive reasoning errors, and **autonomously diagnoses root knowledge gaps** (what the student lacks) | Evaluates `quiz_responses`, outputs mastery evidence for `student_topic_mastery`, and **autonomously creates active student gap dossiers in `teacher_insights`** (`status: 'active'`) |
+| **2. AI Tutor Agent** (`tutor.agent.ts`) | Student's Personal Agent & Teacher's Bridge | Delivers **Interactive Chat with Action Widgets (Method 2)**. Takes the diagnosed gap from `teacher_insights`, provides scaffolded guidance with clickable action pills (low cognitive burden), and assesses understanding turn-by-turn | Generates interactive dialogue, triggers deterministic updates in `student_topic_mastery`, appends student cognitive traces, and **transitions `teacher_insights` to `'resolved'`** |
 
-*Note: Document and notes extraction is handled via the deterministic **Multimodal OCR & Document Extraction Pipeline** (`utils/ocr.util.ts`), and curriculum structuring is handled via deterministic bulk hierarchical import (`POST /bulk`), eliminating non-deterministic LLM variance for syllabus ingestion.*
+#### Traditional LLM Utility Layer (Non-Agent Calling Methods)
+
+| Utility Function | Module / Location | Purpose | Implementation Pattern |
+|---|---|---|---|
+| **Quiz Question Generator** | `modules/quizzes/quiz-generator.util.ts` | Generates diagnostic questions from curriculum notes | Single prompt -> structured JSON generation (`generateQuizQuestions`), traditional fast LLM call |
+| **Multimodal OCR & Text Extraction** | `utils/ocr.util.ts` | Ingests PDF and image lecture notes | Direct Gemini Vision OCR pipeline |
+| **Class Summary Synthesizer** | `modules/insights/insights-synthesizer.util.ts` | Aggregates class-level mastery metrics for teacher reports | One-shot LLM summarizer (`synthesizeClassInsights`) |
 
 ### 2.4 Layer 4: Deterministic Services Layer
 - **Mastery Engine**:
@@ -275,9 +290,10 @@ backend/
 │   │   │   ├── quizzes.controller.ts
 │   │   │   ├── quizzes.service.ts
 │   │   │   ├── quizzes.routes.ts
-│   │   │   └── quizzes.schemas.ts
+│   │   │   ├── quizzes.schemas.ts
+│   │   │   └── quiz-generator.util.ts # Traditional LLM quiz generation utility
 │   │   │
-│   │   ├── tutor/           # Socratic chat sessions & streaming responses
+│   │   ├── tutor/           # Socratic chat sessions & interactive action widgets
 │   │   │   ├── tutor.controller.ts
 │   │   │   ├── tutor.service.ts
 │   │   │   ├── tutor.routes.ts
@@ -290,18 +306,17 @@ backend/
 │   │   │   ├── mastery.routes.ts
 │   │   │   └── mastery.schemas.ts
 │   │   │
-│   │   └── analytics/       # Aggregated teacher insights & gap detection
-│   │       ├── analytics.controller.ts
-│   │       ├── analytics.service.ts
-│   │       ├── analytics.routes.ts
-│   │       └── analytics.schemas.ts
+│   │   └── insights/        # Student learning gap dossiers & class analytics
+│   │       ├── insights.controller.ts
+│   │       ├── insights.service.ts
+│   │       ├── insights.routes.ts
+│   │       ├── insights.schemas.ts
+│   │       └── insights-synthesizer.util.ts # Traditional LLM class summary utility
 │   │
-│   ├── agents/              # 4 Core AI Agents & Gemini Client
+│   ├── agents/              # 2 Core Autonomous AI Agents & Gemini Client
 │   │   ├── gemini.client.ts     # Resilient Gemini API client with fallback & retry logic
-│   │   ├── quiz.agent.ts        # Dynamic diagnostic quiz generator
-│   │   ├── evaluator.agent.ts   # Free response & reasoning evaluator
-│   │   ├── tutor.agent.ts       # Grounded Socratic tutoring dialogue & streaming
-│   │   └── insight.agent.ts     # Class diagnostic insight synthesizer
+│   │   ├── evaluator.agent.ts   # 1. Quiz Evaluator Agent (Grading, Gap Diagnosis, Student Insight Dossiers)
+│   │   └── tutor.agent.ts       # 2. AI Tutor Agent (Method 2 Interactive Socratic Dialogue, Action Widgets, Insight Resolution)
 │   │
 │   ├── utils/ocr.util.ts    # Multimodal OCR (PDF/images) & document text extractor
 │   │

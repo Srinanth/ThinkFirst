@@ -113,13 +113,16 @@ We established the fundamental architectural invariant:
 
 ---
 
-## ADR-002: Mastra Framework & Gemini 3.8 Flash for Agentic Orchestration
+## ADR-002: Streamlined 2-Agent Core & Gemini 3.5 Flash for Pedagogical Agency
 
 ### Context
-ThinkFirst requires orchestrating 6 distinct agent personas (Curriculum, Notes & Retrieval, Quiz, Evaluator, Tutor, Insight) with complex multi-step workflows (e.g., syllabus ingestion $\rightarrow$ chunking $\rightarrow$ verification). We needed an agent framework that integrates cleanly into a TypeScript Node.js backend without introducing Python microservice overhead.
+Initial prototypes considered creating separate agent abstractions for every LLM operation (e.g. syllabus parsing, note retrieval, quiz generation, answer evaluation, tutoring, and classroom insight summaries). However, this created unnecessary token overhead, unpredictable multi-agent latency loops, and artificial "pseudo-agents" that were simply one-shot completions. We needed an intentional architecture that reserves true autonomous agency for where it actually matters: closed-loop student diagnosis and remediation.
 
 ### Decision
-We chose **Mastra** as the agent orchestration framework and **Gemini 3.8 Flash** as the foundational model.
+We streamlined the architecture into **two core autonomous agents** powered by **Gemini 3.5 Flash / Flash Lite**, supported by traditional LLM calling methods for one-shot tasks:
+1. **Quiz Evaluator Agent**: Evaluates student responses, parses misconceptions, calculates deterministic mastery deltas, and **autonomously diagnoses root knowledge gaps** to generate active student dossiers in `teacher_insights`.
+2. **AI Tutor Agent**: Acts as the student's personal companion and the teacher's bridge, delivering **Method 2 Interactive Socratic dialogue with Clickable Action Widgets**, progressing the student through the diagnosed gap, updating mastery deterministically, and resolving the insight dossier.
+3. **Traditional LLM Services**: One-shot utilities (Quiz Question Generator, Multimodal OCR, Class Summary) run as direct LLM function calls without agent overhead.
 
 ### Why Mastra?
 - **TypeScript Native**: Runs in the same process and runtime as Express.js, eliminating inter-process communication latency and Python deployment infrastructure.

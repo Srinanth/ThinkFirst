@@ -1,4 +1,4 @@
-import { generateJSON } from './gemini.client.js';
+import { generateJSON } from '../../agents/gemini.client.js';
 
 export interface GeneratedInsight {
   insightType: 'weak_areas' | 'strong_areas' | 'summary';
@@ -21,16 +21,19 @@ export interface InsightSynthesisInput {
 }
 
 const SYSTEM_INSTRUCTION = `
-You are the ThinkFirst Teacher Insight Synthesis Agent.
-Your role is to analyze aggregated class mastery metrics, identify systemic conceptual hurdles, and provide actionable pedagogical recommendations for educators.
+You are the ThinkFirst Class Mastery Summary Synthesizer.
+Analyze aggregated class mastery metrics, identify systemic conceptual hurdles, and provide actionable pedagogical recommendations for educators.
 Rules:
 1. Identify high-priority weak areas (topics where average mastery < 0.50 or high struggle count).
 2. Highlight strong areas where the class has demonstrated solid conceptual grasp.
-3. Provide a concise executive summary with concrete teaching interventions (e.g. recommended review exercises, conceptual analogies).
+3. Provide a concise executive summary with concrete teaching interventions.
 4. Return ONLY a valid JSON object matching the requested schema.
 `;
 
-export async function synthesizeTeacherInsightsWithAgent(
+/**
+ * Traditional LLM calling method to synthesize class-level mastery overview summaries
+ */
+export async function synthesizeClassInsights(
   input: InsightSynthesisInput
 ): Promise<GeneratedInsight[]> {
   const prompt = `

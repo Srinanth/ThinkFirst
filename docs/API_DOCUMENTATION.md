@@ -365,7 +365,7 @@ Content-Type: application/json
 - **Method & Path**: `GET /api/v1/quizzes/:subjectId`
 - **Access**: Subject members
 
-#### 5.3 Generate Targeted Diagnostic Quiz (Quiz Agent)
+#### 5.3 Generate Targeted Diagnostic Quiz (Traditional LLM Service)
 - **Method & Path**: `POST /api/v1/quizzes/:subjectId/generate`
 - **Access**: Subject instructor
 - **Request Body**:
@@ -388,7 +388,7 @@ Content-Type: application/json
 - **Access**: Enrolled student
 - **Response `201 Created`**: New `quiz_attempts` session record.
 
-#### 5.6 Submit Attempt Session (Evaluator Agent + Deterministic Mastery Engine)
+#### 5.6 Submit Attempt Session (Quiz Evaluator Agent + Student Insight Dossier + Deterministic Mastery Engine)
 - **Method & Path**: `POST /api/v1/quizzes/attempts/:attemptId/submit`
 - **Access**: Student owner of attempt
 - **Request Body**:
@@ -471,7 +471,7 @@ Content-Type: application/json
 - **Method & Path**: `GET /api/v1/tutor/conversations/:conversationId/messages`
 - **Access**: Conversation owner
 
-#### 6.4 Send Message & Interactive Guidance (Tutor Agent - Method 2)
+#### 6.4 Send Message & Interactive Guidance (AI Tutor Agent - Method 2 Interactive Action Widgets)
 - **Method & Path**: `POST /api/v1/tutor/conversations/:conversationId/chat`
 - **Access**: Conversation owner
 - **Request Body**:
@@ -565,7 +565,7 @@ Content-Type: application/json
 }
 ```
 
-#### 8.2 Synthesize Fresh Class Diagnostic Insights (Insight Agent)
+#### 8.2 Synthesize Class Diagnostic Summary (Traditional LLM Service)
 - **Method & Path**: `POST /api/v1/insights/:subjectId/generate`
 - **Access**: Instructor of `:subjectId`
 - **Response `200 OK`**: Newly synthesized actionable pedagogical recommendations.
