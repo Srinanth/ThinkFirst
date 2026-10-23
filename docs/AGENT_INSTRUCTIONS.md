@@ -32,10 +32,10 @@ The repository uses a disciplined team branching model:
 - `main`: Locked production-ready code.
 - `development`: Primary integration branch.
 - Developer branches:
-  - `dev/srinanth` — **Current working branch** (Backend, Database, Core APIs).
-  - `dev/deepak` — Curriculum Agent & Notes Retrieval Agent.
-  - `dev/rinz` — Frontend Web App (Next.js 15, Tailwind v4, shadcn/ui).
-  - `dev/antony` — Quiz Agent & Evaluator Agent.
+  - `dev/srinanth` — **Current working branch** (Backend Core APIs, Mastra Agent Workflows, Deterministic Mastery Engine).
+  - `dev/rinz` — Database Architecture (Supabase schema, migrations, RLS policies, pgvector, storage buckets).
+  - `dev/deepak` — Frontend Web App & UI (Student Hub, Socratic Tutor Chat interface, Mastery Meter, UI components).
+  - `dev/antony` — Frontend Web App & UI (Teacher Studio, Ingestion UI, Analytics Dashboard, Quiz Runner).
 - All development by Srinanth must occur on **`dev/srinanth`**.
 
 ### Rule 3: ALWAYS KEEP DOCUMENTATION IN SYNC WITH CODE
