@@ -17,6 +17,67 @@
 - [ADR-005: Feature-Based Modular Monolith in Express & TypeScript](#adr-005-feature-based-modular-monolith-in-express--typescript)
 - [ADR-006: Materialized JSONB Snapshots with Immutable Evidence Event Sourcing](#adr-006-materialized-jsonb-snapshots-with-immutable-evidence-event-sourcing)
 - [ADR-007: Socratic Guardrails & Direct-Answer Suppression](#adr-007-socratic-guardrails--direct-answer-suppression)
+- [ADR-008: Render Workflows for Durable Asynchronous AI Ingestion & Analytics](#adr-008-render-workflows-for-durable-asynchronous-ai-ingestion--analytics)
+
+---
+
+## ADR-008: Render Workflows for Durable Asynchronous AI Ingestion & Analytics
+
+### Context
+ThinkFirst requires executing several computationally intensive, multi-step AI tasks:
+1. **Teacher Notes Ingestion**: Ingesting a 50-page PDF, parsing plaintext, chunking into ~500 token segments, computing vector embeddings for 50–100 chunks via Gemini Embedding 2, and persisting vectors into Supabase `note_embeddings`.
+2. **Syllabus Parsing & Tree Validation**: Multi-step recursive LLM extraction of modules, topics, and subtopics from a full semester syllabus.
+3. **Classroom Insights Synthesis**: Aggregating hundreds of student responses and topic mastery records across an entire classroom to extract common misconceptions and generate teacher recommendations.
+
+Executing these pipelines synchronously inside a standard Express HTTP request (`POST /materials` or `POST /topics/generate`) causes severe problems:
+- **HTTP Timeouts**: Cloud load balancers and reverse proxies (including Render Web Services) enforce 60–100s request timeouts.
+- **Node.js Event Loop Contention**: Heavy string manipulation and batch promises block the single-threaded event loop, degrading real-time Socratic chat latency.
+- **Lack of Step Resumption**: If step 3 (embedding chunk 45 of 50) fails due to an external API rate limit, an in-process script fails entirely, wasting previous compute and API tokens.
+
+### Decision
+We adopt **Render Workflows** as our distributed, durable execution engine for all heavy asynchronous AI tasks, while keeping the Express backend as a lightweight, low-latency API gateway.
+
+```
+┌────────────────────────────────────────────────────────┐
+│              Express Backend (Web Service)             │
+│  - Handles Auth & Fast CRUD (< 50ms)                   │
+│  - Streams Socratic Tutor Dialogue via SSE (< 1.2s)    │
+│  - Dispatches Heavy Jobs to Render Workflows           │
+└───────────────────────────┬────────────────────────────┘
+                            │ Dispatches Async Task
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                    Render Workflows                    │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Step 1: Extract Document Text from Storage       │  │
+│  └────────────────────────┬─────────────────────────┘  │
+│                           │ (State Persisted)          │
+│                           ▼                            │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Step 2: Semantic Chunker (500 tokens, 100 ovlp)  │  │
+│  └────────────────────────┬─────────────────────────┘  │
+│                           │ (Auto-retry if rate-limit) │
+│                           ▼                            │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Step 3: Batch Gemini Embedding 2 Calls           │  │
+│  └────────────────────────┬─────────────────────────┘  │
+│                           │                            │
+│                           ▼                            │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ Step 4: Bulk Insert to Supabase note_embeddings  │  │
+│  └──────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────┘
+```
+
+### Why Render Workflows?
+1. **Durable Step Execution & Retries**: Render Workflows track state per step. If step 3 encounters a Gemini API rate-limit error, it retries step 3 with exponential backoff without re-extracting the PDF or repeating step 1 and 2.
+2. **Scale-to-Zero Compute**: Background compute costs are billed only for active seconds, optimizing usage of hackathon credits.
+3. **Isolated Compute**: Heavy document processing runs in dedicated, isolated worker containers, ensuring the student-facing Express web server remains fast and responsive.
+4. **Hackathon Alignment**: Fully leverages hackathon sponsor credits and satisfies criteria for platform-level deployment tracks.
+
+### Boundary Rules:
+- **What uses Render Workflows**: PDF/material parsing, batch embedding generation, classroom-wide insights synthesis, and curriculum tree extraction.
+- **What stays on Express / Next.js**: Real-time Socratic tutor dialogue streaming (SSE), quiz taking, user auth, and dashboard data reads.
 
 ---
 

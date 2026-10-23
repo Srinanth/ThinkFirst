@@ -45,7 +45,7 @@ Progress: [████████████░░░░░░░░] 52%
 ### Phase 2: Database & Data Infrastructure (Rinz's Focus)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **DB-01** | Master Supabase SQL Init Script | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Created in `db/init.sql` (15 tables incl. `colleges`) |
+| **DB-01** | Master Supabase SQL Init Script | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Synchronized with live Supabase schema in `db/init.sql` (all 15 canonical tables incl. `tutor_conversations`, `tutor_messages`, `teacher_insights`) |
 | **DB-02** | Database Documentation & Run Guide | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Created in `db/README.md` |
 | **DB-03** | Enable `pgvector` & HNSW Indexing | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Vector(768) HNSW index scripted |
 | **DB-04** | RLS Policies Scripting for All 15 Tables | `db` | `P0` | `[x] Completed` | Srinanth / Rinz | Fully integrated into `db/init.sql` with 4-tier roles |
@@ -59,11 +59,11 @@ Progress: [████████████░░░░░░░░] 52%
 ### Phase 3: Backend Core Services & Middlewares (Srinanth's Primary Focus)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | `pnpm` dependencies installed & `tsconfig.json` |
-| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/auth.middleware.ts` (with `college_id`) |
-| **BE-03** | Role-Based Access Control (`requireRole`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/role.middleware.ts` (4 roles) |
-| **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/membership.middleware.ts` |
-| **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/validation.middleware.ts` |
+| **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | Scaffolding organized in `backend/` (Next.js removed, isolated backend) |
+| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/auth.middleware.ts` (aligned with live `profiles.college`) |
+| **BE-03** | Role-Based Access Control (`requireRole`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/role.middleware.ts` (4 roles) |
+| **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/membership.middleware.ts` |
+| **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/validation.middleware.ts` |
 | **BE-06** | Global Error Handler & Response Utils | `utils` | `P0` | `[x] Completed` | Srinanth | `sendSuccess`, `sendError`, `AppError` |
 | **BE-07** | Subject Offering Module & Roster Routes | `modules/subjects` | `P0` | `[/] In Progress` | Srinanth | `teacher_subjects` & `memberships` |
 | **BE-08** | Learning Materials & Vector Search Endpoint | `modules/materials` | `P0` | `[/] In Progress` | Srinanth | Ingest & similarity search |
@@ -107,3 +107,13 @@ Progress: [████████████░░░░░░░░] 52%
 | **FE-06** | Student Study Room: Socratic Tutor Chat | `frontend` | `P0` | `[ ] Planned` | Deepak | SSE stream reader with Markdown render |
 | **FE-07** | Student Quiz Runner | `frontend` | `P0` | `[ ] Planned` | Deepak | Assessment component & answer input |
 | **FE-08** | Subject Enrollment Modal (Join Subject) | `frontend` | `P1` | `[ ] Planned` | Deepak | Student enrollment dialog |
+
+---
+
+### Phase 7: Cloud Infrastructure & Render Platform (Render Workflows)
+| ID | Feature Description | Module | Priority | Status | Owner | Notes |
+|---|---|---|---|---|---|---|
+| **INFRA-01** | Render Web Service: Express API Gateway | `infra` | `P0` | `[/] In Progress` | Srinanth | Deploy backend web service on Render |
+| **INFRA-02** | Render Workflows: Notes Ingestion Pipeline | `infra` | `P0` | `[/] In Progress` | Srinanth | Durable multi-step PDF chunk & embed job |
+| **INFRA-03** | Render Workflows: Teacher Insights Synthesis | `infra` | `P1` | `[ ] Planned` | Srinanth | Scheduled & on-demand class analytics job |
+| **INFRA-04** | Render MCP Integration | `infra` | `P1` | `[/] In Progress` | Srinanth | Connect Render MCP for automated agent ops |
