@@ -49,6 +49,13 @@ router.delete(
 
 // Student Roster & Enrollment
 router.post(
+  '/:subjectId/join',
+  requireAuth,
+  requireRole(['student']),
+  subjectsController.join
+);
+
+router.post(
   '/:subjectId/enroll',
   requireAuth,
   requireRole(['teacher', 'admin']),
@@ -58,7 +65,7 @@ router.post(
 );
 
 router.get(
-  '/:subjectId/roster',
+  ['/:subjectId/roster', '/:subjectId/members'],
   requireAuth,
   requireSubjectMembership('any'),
   subjectsController.getRoster

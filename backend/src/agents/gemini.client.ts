@@ -72,13 +72,16 @@ export async function generateJSON<T>(options: GenerateJSONOptions<T>): Promise<
 }
 
 /**
- * Generate 768-dimensional vector embedding for text using text-embedding-004
+ * Generate 768-dimensional vector embedding for text using gemini-embedding-001
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
   try {
     const response = await ai.models.embedContent({
       model: env.GEMINI_EMBEDDING_MODEL,
       contents: text,
+      config: {
+        outputDimensionality: 768,
+      },
     });
 
     const values = response.embeddings?.[0]?.values;
