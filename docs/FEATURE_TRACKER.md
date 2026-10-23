@@ -107,3 +107,13 @@ Progress: [████████████░░░░░░░░] 52%
 | **FE-06** | Student Study Room: Socratic Tutor Chat | `frontend` | `P0` | `[ ] Planned` | Deepak | SSE stream reader with Markdown render |
 | **FE-07** | Student Quiz Runner | `frontend` | `P0` | `[ ] Planned` | Deepak | Assessment component & answer input |
 | **FE-08** | Subject Enrollment Modal (Join Subject) | `frontend` | `P1` | `[ ] Planned` | Deepak | Student enrollment dialog |
+
+---
+
+### Phase 7: Cloud Infrastructure & Render Platform (Render Workflows)
+| ID | Feature Description | Module | Priority | Status | Owner | Notes |
+|---|---|---|---|---|---|---|
+| **INFRA-01** | Render Web Service: Express API Gateway | `infra` | `P0` | `[/] In Progress` | Srinanth | Deploy backend web service on Render |
+| **INFRA-02** | Render Workflows: Notes Ingestion Pipeline | `infra` | `P0` | `[/] In Progress` | Srinanth | Durable multi-step PDF chunk & embed job |
+| **INFRA-03** | Render Workflows: Teacher Insights Synthesis | `infra` | `P1` | `[ ] Planned` | Srinanth | Scheduled & on-demand class analytics job |
+| **INFRA-04** | Render MCP Integration | `infra` | `P1` | `[/] In Progress` | Srinanth | Connect Render MCP for automated agent ops |

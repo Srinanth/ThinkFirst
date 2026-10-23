@@ -82,21 +82,21 @@ ThinkFirst is built upon a hybrid **Agentic Intelligence & Deterministic State A
   - *Student Study Hub*: Interactive topic tree with real-time mastery dials, Socratic chat interface with streaming responses, and personalized quiz runner.
   - *Admin Portal*: User roster, role assignment, and classroom provisioning.
 
-### 2.2 Layer 2: Backend API & Application Layer
+### 2.2 Layer 2: Backend API & Durable Workflows (Render Platform)
 - **Runtime**: Node.js 20+ with strict TypeScript.
-- **Web Framework**: Express.js configured with a modular, domain-driven structure.
-- **Design Philosophy**: High cohesion, low coupling. Each feature module contains its own controllers, services, validation schemas, and route definitions.
+- **Web Service Gateway (Render Web Service)**: Express.js configured with a modular, domain-driven structure handling fast requests, authentication, and real-time Server-Sent Events (SSE) streaming for the Socratic Tutor.
+- **Asynchronous Execution (Render Workflows)**: Multi-step, durable background tasks for heavy AI operations (PDF text extraction, semantic chunking, batch Gemini vector embeddings, and classroom insight synthesis). Render Workflows provide automated step retries, state persistence, and scale-to-zero compute.
 - **Middleware Pipeline**:
   ```
   Request 
     ──▶ [CORS & Security Headers] (Helmet, CORS)
     ──▶ [Rate Limiter] (Express-Rate-Limit)
     ──▶ [Auth Middleware] (Supabase JWT Verification)
-    ──▶ [RBAC Middleware] (Role verification: Admin/Teacher/Student)
-    ──▶ [Classroom Scope Middleware] (Tenant validation & enrollment check)
+    ──▶ [RBAC Middleware] (Role verification: Superadmin/Admin/Teacher/Student)
+    ──▶ [Subject Scope Middleware] (Tenant validation & enrollment check)
     ──▶ [Request Validation Middleware] (Zod schema parser)
     ──▶ [Controller Layer]
-    ──▶ [Service / Mastra Agent Layer]
+    ──▶ [Service / Render Workflow Dispatcher]
     ──▶ [Response Formatter Utils]
     ──▶ [Global Error Handler Middleware]
   ```
@@ -134,33 +134,33 @@ Orchestrated using the **Mastra Agent Framework** running on **Gemini 3.8 Flash*
 
 ## 3. End-to-End Workflow Sequence Diagrams
 
-### 3.1 Flow A: Teacher Syllabus & Notes Ingestion
+### 3.1 Flow A: Teacher Syllabus & Notes Ingestion (Render Workflows)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Teacher
-    participant API as Express API
-    participant Mastra as Mastra Orchestrator
-    participant Gemini as Gemini 3.8 Flash / Embeddings
+    participant API as Express API (Render Web Service)
+    participant RW as Render Workflows (Durable Pipeline)
+    participant Gemini as Gemini 3.8 Flash / Embedding 2
     participant DB as Supabase (PostgreSQL + pgvector)
 
-    Teacher->>API: POST /api/v1/classrooms/:id/curriculum/generate (Syllabus PDF)
-    API->>Mastra: Trigger Curriculum Agent Workflow
-    Mastra->>Gemini: Parse & extract curriculum hierarchy (Structured JSON)
-    Gemini-->>Mastra: Validated Curriculum Tree
-    Mastra->>DB: Bulk insert into curriculum_nodes (Classroom-scoped)
-    DB-->>API: Persisted nodes
-    API-->>Teacher: Return structured curriculum for review
+    Teacher->>API: POST /api/v1/subjects/:id/materials (Upload Notes PDF)
+    API->>DB: Insert learning_materials (status: 'processing')
+    API->>RW: Dispatch material_ingestion_workflow(materialId, teacherSubjectId)
+    API-->>Teacher: Return 202 Accepted (Workflow queued)
 
-    Teacher->>API: POST /api/v1/classrooms/:id/notes (Teacher Notes file)
-    API->>Mastra: Trigger Notes & Retrieval Agent Workflow
-    Mastra->>Mastra: Semantic Chunker (500 tokens, 100 overlap)
-    Mastra->>Gemini: Generate embeddings (Gemini Embedding 2)
-    Gemini-->>Mastra: Vector arrays (768-dim)
-    Mastra->>DB: Insert into note_embeddings with classroom_id
-    DB-->>API: Confirm vector index updated
-    API-->>Teacher: Notes processed & ready for grounded RAG
+    Note over RW: Step 1: Extract Text & Structure
+    RW->>DB: Fetch file from Supabase Storage & extract plaintext
+    Note over RW: Step 2: Semantic Chunking (500 tokens, 100 overlap)
+    RW->>RW: Split content into indexed chunks
+    Note over RW: Step 3: Batch Vector Embeddings
+    RW->>Gemini: Compute embeddings (Gemini Embedding 2, 768-dim)
+    Gemini-->>RW: Vector embeddings array
+    Note over RW: Step 4: Persist Vectors & Update Status
+    RW->>DB: Bulk insert into note_embeddings
+    RW->>DB: Update learning_materials (status: 'ready')
+    RW-->>Teacher: Material ready for Grounded Socratic RAG
 ```
 
 ### 3.2 Flow B: Student Socratic Tutor Dialogue ("Talk to Teacher")
