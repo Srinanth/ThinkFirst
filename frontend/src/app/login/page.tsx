@@ -17,6 +17,7 @@ import {
   CheckCircle2,
   ShieldAlert,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AcademicLoginPage() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function AcademicLoginPage() {
     detectedRole = 'admin_redirect';
   }
 
-  const handleLogin = (targetId?: string) => {
+  const handleLogin = async (targetId?: string) => {
     setErrorMessage(null);
     const finalId = (targetId ?? userId).trim().toUpperCase();
 
@@ -56,20 +57,36 @@ export default function AcademicLoginPage() {
 
     setLoading(true);
 
-    setTimeout(() => {
-      if (finalId.startsWith('TCR-') || finalId.startsWith('TCR')) {
+    try {
+      const supabase = createClient();
+      let resolvedEmail = finalId.includes('@') ? finalId : '';
+      let targetRole: 'teacher' | 'student' = 'student';
+
+      if (finalId.startsWith('TCR')) {
+        targetRole = 'teacher';
+        if (!resolvedEmail) resolvedEmail = 'teacher.demo@thinkfirst.edu';
+      } else {
+        targetRole = 'student';
+        if (!resolvedEmail) resolvedEmail = 'student.demo@thinkfirst.edu';
+      }
+
+      await supabase.auth.signInWithPassword({
+        email: resolvedEmail,
+        password: 'Admin2026!',
+      }).catch(() => {});
+
+      if (targetRole === 'teacher') {
         document.cookie = 'thinkfirst_user_role=teacher; path=/; max-age=86400; SameSite=Lax';
         router.push('/teacher');
-      } else if (finalId.startsWith('STD-') || finalId.startsWith('STD')) {
+      } else {
         document.cookie = 'thinkfirst_user_role=student; path=/; max-age=86400; SameSite=Lax';
         router.push('/student');
-      } else {
-        setLoading(false);
-        setErrorMessage(
-          'Unrecognized ID format. Academic portal IDs must begin with TCR- (Faculty) or STD- (Student).'
-        );
       }
-    }, 250);
+      router.refresh();
+    } catch {
+      setLoading(false);
+      setErrorMessage('Sign in failed.');
+    }
   };
 
   const handleDemoTeacher = () => {

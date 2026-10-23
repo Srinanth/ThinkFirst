@@ -16,6 +16,7 @@ import {
   KeyRound,
   GraduationCap,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -30,9 +31,9 @@ export default function AdminLoginPage() {
   const trimmedUpper = adminId.trim().toUpperCase();
   const isAdminFormat = trimmedUpper.startsWith('ADM-') || trimmedUpper.startsWith('ADM');
 
-  const handleAdminLogin = (targetId?: string, targetPassword?: string) => {
+  const handleAdminLogin = async (targetId?: string, targetPassword?: string) => {
     setErrorMessage(null);
-    const finalId = (targetId ?? adminId).trim().toUpperCase();
+    const finalId = (targetId ?? adminId).trim();
     const finalPassword = targetPassword ?? password;
 
     if (!finalId) {
@@ -45,24 +46,45 @@ export default function AdminLoginPage() {
       return;
     }
 
-    if (finalId.startsWith('TCR-') || finalId.startsWith('STD-')) {
+    if (finalId.toUpperCase().startsWith('TCR-') || finalId.toUpperCase().startsWith('STD-')) {
       setErrorMessage(
         'Faculty and Student IDs must use the Academic Portal login at /login. This console is restricted to administrators.'
       );
       return;
     }
 
-    if (!finalId.startsWith('ADM')) {
+    if (!finalId.toUpperCase().startsWith('ADM') && !finalId.includes('@')) {
       setErrorMessage('Invalid Administrator ID. Administrator IDs must begin with ADM- (e.g., ADM-89421).');
       return;
     }
 
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const supabase = createClient();
+      const resolvedEmail = finalId.includes('@')
+        ? finalId
+        : 'admin@institution.edu';
+
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email: resolvedEmail,
+          password: finalPassword,
+        });
+
+      if (authError || !authData?.session) {
+        setLoading(false);
+        setErrorMessage(authError?.message || 'Invalid administrator credentials.');
+        return;
+      }
+
       document.cookie = 'thinkfirst_demo_admin=true; path=/; max-age=86400; SameSite=Lax';
       router.push('/admin');
-    }, 250);
+      router.refresh();
+    } catch (err: unknown) {
+      setLoading(false);
+      setErrorMessage(err instanceof Error ? err.message : 'Authentication failed.');
+    }
   };
 
   const handleDemoAdmin = () => {
