@@ -2,7 +2,8 @@
 -- ThinkFirst — Supabase Complete Database Initialization Script
 -- Project: ThinkFirst | Team Odysseus | RealmHack 2026
 -- Description: Run this script directly in the Supabase SQL Editor to provision
---              all extensions, tables, foreign keys, indexes, and RLS policies.
+--              all extensions, 15 tables (including colleges and 4-tier roles),
+--              foreign keys, indexes, functions, and RLS policies.
 -- ============================================================================
 
 -- 1. EXTENSIONS
@@ -14,11 +15,22 @@ CREATE EXTENSION IF NOT EXISTS "vector";
 -- 2. TABLE CREATION
 -- ============================================================================
 
--- Table 1: profiles
+-- Table 0: colleges (Institutions managed by platform Superadmins)
+CREATE TABLE IF NOT EXISTS public.colleges (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  code TEXT NOT NULL UNIQUE,
+  domain TEXT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Table 1: profiles (Users belonging to a college with 4-tier RBAC hierarchy)
+-- Hierarchy: superadmin -> college admin -> teacher -> student
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  college_id UUID REFERENCES public.colleges(id) ON DELETE SET NULL,
   full_name TEXT NOT NULL,
-  role TEXT NOT NULL CHECK (role IN ('admin', 'teacher', 'student')),
+  role TEXT NOT NULL CHECK (role IN ('superadmin', 'admin', 'teacher', 'student')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -201,6 +213,7 @@ USING hnsw (embedding vector_cosine_ops)
 WITH (m = 16, ef_construction = 64);
 
 -- Foreign Key & Filter Indexes
+CREATE INDEX IF NOT EXISTS idx_profiles_college ON public.profiles(college_id);
 CREATE INDEX IF NOT EXISTS idx_memberships_student ON public.memberships(student_id);
 CREATE INDEX IF NOT EXISTS idx_curriculum_topics_subject ON public.curriculum_topics(teacher_subject_id, parent_topic_id);
 CREATE INDEX IF NOT EXISTS idx_learning_materials_subject ON public.learning_materials(teacher_subject_id);
@@ -217,24 +230,53 @@ CREATE INDEX IF NOT EXISTS idx_teacher_insights_subject ON public.teacher_insigh
 -- 4. ROW-LEVEL SECURITY HELPER FUNCTIONS
 -- ============================================================================
 
+-- Current user's role
 CREATE OR REPLACE FUNCTION public.get_current_role()
 RETURNS TEXT LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT role FROM public.profiles WHERE id = auth.uid();
 $$;
 
-CREATE OR REPLACE FUNCTION public.is_admin()
-RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
-  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin');
+-- Current user's college
+CREATE OR REPLACE FUNCTION public.get_user_college_id()
+RETURNS UUID LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT college_id FROM public.profiles WHERE id = auth.uid();
 $$;
 
+-- Check if current user is Superadmin (us)
+CREATE OR REPLACE FUNCTION public.is_superadmin()
+RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'superadmin');
+$$;
+
+-- Check if current user is College Admin for specific college (or Superadmin)
+CREATE OR REPLACE FUNCTION public.is_college_admin(col_id UUID)
+RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin' AND college_id = col_id
+  ) OR public.is_superadmin();
+$$;
+
+-- Backward compatible is_admin() checking admin or superadmin
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin'));
+$$;
+
+-- Check if user is the assigned instructor of a subject offering (or college admin of that college, or superadmin)
 CREATE OR REPLACE FUNCTION public.is_subject_teacher(sub_id UUID)
 RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT EXISTS (
-    SELECT 1 FROM public.teacher_subjects 
-    WHERE id = sub_id AND teacher_id = auth.uid()
-  ) OR public.is_admin();
+    SELECT 1 FROM public.teacher_subjects ts
+    JOIN public.profiles p ON p.id = ts.teacher_id
+    WHERE ts.id = sub_id AND (
+      ts.teacher_id = auth.uid()
+      OR (public.get_current_role() = 'admin' AND p.college_id = public.get_user_college_id())
+    )
+  ) OR public.is_superadmin();
 $$;
 
+-- Check if user is an enrolled member (student or teacher) of a subject offering
 CREATE OR REPLACE FUNCTION public.is_subject_member(sub_id UUID)
 RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT EXISTS (
@@ -276,6 +318,7 @@ $$;
 -- 5. ENABLE ROW-LEVEL SECURITY (RLS) & POLICIES
 -- ============================================================================
 
+ALTER TABLE public.colleges ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teacher_subjects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.memberships ENABLE ROW LEVEL SECURITY;
@@ -292,23 +335,51 @@ ALTER TABLE public.tutor_conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tutor_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.teacher_insights ENABLE ROW LEVEL SECURITY;
 
+-- 5.0 colleges policies
+CREATE POLICY "Superadmins can manage all colleges"
+ON public.colleges FOR ALL TO authenticated
+USING (public.is_superadmin())
+WITH CHECK (public.is_superadmin());
+
+CREATE POLICY "Users can view their own college"
+ON public.colleges FOR SELECT TO authenticated
+USING (id = public.get_user_college_id() OR public.is_superadmin());
+
 -- 5.1 profiles policies
-CREATE POLICY "Profiles readable by authenticated users"
-ON public.profiles FOR SELECT TO authenticated USING (true);
+CREATE POLICY "Superadmins manage all profiles"
+ON public.profiles FOR ALL TO authenticated
+USING (public.is_superadmin())
+WITH CHECK (public.is_superadmin());
+
+CREATE POLICY "College admins manage profiles in their college"
+ON public.profiles FOR ALL TO authenticated
+USING (college_id = public.get_user_college_id() AND public.get_current_role() = 'admin')
+WITH CHECK (college_id = public.get_user_college_id() AND public.get_current_role() = 'admin');
+
+CREATE POLICY "Profiles readable by college peers"
+ON public.profiles FOR SELECT TO authenticated
+USING (college_id = public.get_user_college_id() OR public.is_superadmin());
 
 CREATE POLICY "Users can update own profile"
 ON public.profiles FOR UPDATE TO authenticated
 USING (auth.uid() = id)
-WITH CHECK (auth.uid() = id AND role = (SELECT role FROM public.profiles WHERE id = auth.uid()));
+WITH CHECK (
+  auth.uid() = id 
+  AND role = (SELECT role FROM public.profiles WHERE id = auth.uid())
+  AND college_id = (SELECT college_id FROM public.profiles WHERE id = auth.uid())
+);
 
 -- 5.2 teacher_subjects policies
 CREATE POLICY "Teacher subjects viewable by assigned teacher, members, or admin"
 ON public.teacher_subjects FOR SELECT TO authenticated
 USING (teacher_id = auth.uid() OR public.is_subject_member(id) OR public.is_admin());
 
-CREATE POLICY "Teachers can create subjects"
+CREATE POLICY "Teachers can create subjects in their college"
 ON public.teacher_subjects FOR INSERT TO authenticated
-WITH CHECK (teacher_id = auth.uid() AND public.get_current_role() IN ('teacher', 'admin'));
+WITH CHECK (
+  teacher_id = auth.uid() 
+  AND public.get_current_role() IN ('teacher', 'admin', 'superadmin')
+);
 
 CREATE POLICY "Teachers can update their own subjects"
 ON public.teacher_subjects FOR UPDATE TO authenticated
@@ -320,9 +391,12 @@ CREATE POLICY "Memberships viewable by subject members"
 ON public.memberships FOR SELECT TO authenticated
 USING (public.is_subject_member(teacher_subject_id));
 
-CREATE POLICY "Students can self-enroll into subjects"
+CREATE POLICY "Students can self-enroll or teachers can add students"
 ON public.memberships FOR INSERT TO authenticated
-WITH CHECK (student_id = auth.uid());
+WITH CHECK (
+  student_id = auth.uid() 
+  OR public.is_subject_teacher(teacher_subject_id)
+);
 
 CREATE POLICY "Teachers can remove students from their subjects"
 ON public.memberships FOR DELETE TO authenticated
@@ -433,7 +507,8 @@ ON public.quiz_responses FOR SELECT TO authenticated
 USING (
   EXISTS (
     SELECT 1 FROM public.quiz_attempts qa
-    WHERE qa.id = quiz_responses.quiz_attempt_id AND (qa.student_id = auth.uid() OR public.is_subject_teacher((SELECT q.teacher_subject_id FROM public.quizzes q WHERE q.id = qa.quiz_id)))
+    WHERE qa.id = quiz_responses.quiz_attempt_id 
+      AND (qa.student_id = auth.uid() OR public.is_subject_teacher((SELECT q.teacher_subject_id FROM public.quizzes q WHERE q.id = qa.quiz_id)))
   )
 );
 
@@ -480,15 +555,6 @@ USING (
   )
 );
 
-CREATE POLICY "Users can post to their conversations"
-ON public.tutor_messages FOR INSERT TO authenticated
-WITH CHECK (
-  EXISTS (
-    SELECT 1 FROM public.tutor_conversations tc
-    WHERE tc.id = tutor_messages.conversation_id AND tc.student_id = auth.uid()
-  )
-);
-
 -- 5.13 teacher_insights policies
 CREATE POLICY "Insights visible to subject teacher"
 ON public.teacher_insights FOR SELECT TO authenticated
@@ -505,13 +571,16 @@ WITH CHECK (public.is_subject_teacher(teacher_subject_id));
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, role)
+  INSERT INTO public.profiles (id, college_id, full_name, role)
   VALUES (
     NEW.id,
+    (NEW.raw_user_meta_data->>'college_id')::UUID,
     COALESCE(NEW.raw_user_meta_data->>'full_name', 'ThinkFirst User'),
     COALESCE(NEW.raw_user_meta_data->>'role', 'student')
   )
-  ON CONFLICT (id) DO NOTHING;
+  ON CONFLICT (id) DO UPDATE SET
+    college_id = EXCLUDED.college_id,
+    full_name = EXCLUDED.full_name;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

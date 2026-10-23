@@ -54,11 +54,53 @@ Content-Type: application/json
 
 ---
 
+### Module 0: Colleges & Institutional Administration (`/colleges`)
+
+#### 0.1 Create College (Superadmin only)
+- **Method & Path**: `POST /api/v1/colleges`
+- **Access**: `superadmin`
+- **Request Body**:
+```json
+{
+  "name": "Rajiv Gandhi Institute of Technology",
+  "code": "RIT-KTM",
+  "domain": "rit.ac.in"
+}
+```
+- **Response `201 Created`**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "col_7721",
+    "name": "Rajiv Gandhi Institute of Technology",
+    "code": "RIT-KTM",
+    "domain": "rit.ac.in",
+    "createdAt": "2026-10-23T16:00:00Z"
+  }
+}
+```
+
+#### 0.2 Add Teacher or Student to College (College Admin)
+- **Method & Path**: `POST /api/v1/colleges/:collegeId/users`
+- **Access**: `admin` (of `:collegeId`) or `superadmin`
+- **Request Body**:
+```json
+{
+  "email": "dr.smith@rit.ac.in",
+  "fullName": "Dr. Alan Smith",
+  "role": "teacher"
+}
+```
+- **Response `201 Created`**: Added user profile linked to `collegeId`.
+
+---
+
 ### Module 1: Authentication & User Profiles (`/auth`, `/profiles`)
 
 #### 1.1 Get Current User Profile
 - **Method & Path**: `GET /api/v1/auth/me`
-- **Access**: Authenticated (`student`, `teacher`, `admin`)
+- **Access**: Authenticated (`student`, `teacher`, `admin`, `superadmin`)
 - **Response `200 OK`**:
 ```json
 {
@@ -68,6 +110,7 @@ Content-Type: application/json
     "email": "teacher@school.edu",
     "fullName": "Prof. Alistair Vance",
     "role": "teacher",
+    "collegeId": "col_7721",
     "createdAt": "2026-10-23T08:00:00Z"
   }
 }

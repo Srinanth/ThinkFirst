@@ -14,14 +14,53 @@ This directory contains the database definition and initialization scripts for T
 
 ---
 
+## 👑 4-Tier Role Hierarchy & Multi-Tenancy
+
+ThinkFirst implements an institutional multi-tenant hierarchy:
+```
+           ┌─────────────────────────────┐
+           │      Superadmin (Us)        │
+           │ Creates Colleges & Admins   │
+           └──────────────┬──────────────┘
+                          │
+                          ▼
+           ┌─────────────────────────────┐
+           │        College Admin        │
+           │ Adds Teachers & Students to │
+           │ their College               │
+           └──────────────┬──────────────┘
+                          │
+                          ▼
+           ┌─────────────────────────────┐
+           │           Teacher           │
+           │ Creates Classes/Subjects,   │
+           │ Enrolls College Students    │
+           └──────────────┬──────────────┘
+                          │
+                          ▼
+           ┌─────────────────────────────┐
+           │           Student           │
+           │ Learns with Socratic Tutor, │
+           │ Takes Diagnostic Quizzes    │
+           └─────────────────────────────┘
+```
+
+1. **Superadmin (`superadmin`)**: Platform owners who provision institutions (`colleges`) and assign College Admins.
+2. **College Admin (`admin`)**: Institutional administrators who add and manage teachers and students within their college.
+3. **Teacher (`teacher`)**: Educators who create subjects (`teacher_subjects`) and enroll students from their college into classes (`memberships`).
+4. **Student (`student`)**: Learners who access assigned subjects, engage with the grounded Socratic AI Tutor, and track mastery.
+
+---
+
 ## 📋 What `init.sql` Provisions
 
 1. **Extensions**:
    - `pgvector` (Vector similarity search using `vector(768)`)
    - `uuid-ossp` and `pgcrypto` (Cryptographic UUID functions)
 
-2. **14 Relational & Vector Tables**:
-   - `profiles`: User profiles linked to `auth.users` with RBAC roles (`admin`, `teacher`, `student`).
+2. **15 Relational & Vector Tables**:
+   - `colleges`: Colleges/Universities created by Superadmins.
+   - `profiles`: User profiles linked to `auth.users`, associated with `college_id`, with 4-tier roles (`superadmin`, `admin`, `teacher`, `student`).
    - `teacher_subjects`: Subject cohorts created by teachers (e.g. "Physics 101 - 2026").
    - `memberships`: Student enrollment in teacher subjects.
    - `curriculum_topics`: Hierarchical syllabus tree (`module`, `topic`, `subtopic`).
@@ -39,12 +78,12 @@ This directory contains the database definition and initialization scripts for T
 
 3. **Performance & Vector Indexes**:
    - HNSW index on `note_embeddings.embedding` using `vector_cosine_ops` ($m=16$, $ef\_construction=64$).
-   - Foreign key and query filter indexes on all frequently accessed relational paths.
+   - Multi-tenant foreign key indexes on `profiles(college_id)` and all relational child tables.
 
 4. **Security & Row-Level Security (RLS)**:
-   - RLS enabled across all 14 tables.
-   - Helper functions: `is_subject_teacher()`, `is_subject_member()`, `get_current_role()`, `is_admin()`.
-   - Classroom/Subject-scoped vector similarity search procedure: `match_note_embeddings()`.
+   - RLS enabled across all 15 tables.
+   - Helper functions: `is_superadmin()`, `is_college_admin()`, `is_subject_teacher()`, `is_subject_member()`, `get_current_role()`, `get_user_college_id()`.
+   - Subject-scoped vector similarity search procedure: `match_note_embeddings()`.
 
 5. **Auth Trigger**:
-   - `on_auth_user_created`: Automatically creates a `public.profiles` row whenever a user signs up via Supabase Auth.
+   - `on_auth_user_created`: Automatically creates a `public.profiles` row with `college_id` whenever a user signs up.
