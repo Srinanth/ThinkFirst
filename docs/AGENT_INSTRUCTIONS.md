@@ -53,11 +53,11 @@ Whenever code changes, **immediately update the corresponding documentation**:
 
 ## 2. Codebase Architecture & Modularity
 
-The backend follows a strict **Feature-Based Modular Monolith** inside the `express/` directory, while Next.js frontend resides at the project root:
+The backend follows a strict **Feature-Based Modular Monolith** inside the `backend/` directory, while Next.js frontend resides at the project root:
 
 ```
 ThinkFirst/
-├── express/                           # Srinanth's domain (Express REST API, Mastra AI, Deterministic Engine)
+├── backend/                           # Srinanth's domain (Express REST API, Mastra AI, Deterministic Engine)
 │   ├── src/
 │   │   ├── config/                    # Environment variables, database & AI clients
 │   │   │   ├── env.ts                 # Zod-validated environment config
@@ -96,7 +96,7 @@ ThinkFirst/
 │   └── README.md                      # Database setup instructions
 │
 ├── docs/                              # Shared documentation
-├── render.yaml                        # Render Blueprint (configured with rootDir: express)
+├── render.yaml                        # Render Blueprint (configured with rootDir: backend)
 ├── .gitignore                         # Project-wide ignore rules
 └── AGENTS.md                          # Team guidelines
 ```

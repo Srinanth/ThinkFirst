@@ -59,11 +59,11 @@ Progress: [████████████░░░░░░░░] 52%
 ### Phase 3: Backend Core Services & Middlewares (Srinanth's Primary Focus)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | Scaffolding organized in `express/` (Next.js removed, isolated backend) |
-| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `express/src/middlewares/auth.middleware.ts` (aligned with live `profiles.college`) |
-| **BE-03** | Role-Based Access Control (`requireRole`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/role.middleware.ts` (4 roles) |
-| **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/membership.middleware.ts` |
-| **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/validation.middleware.ts` |
+| **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | Scaffolding organized in `backend/` (Next.js removed, isolated backend) |
+| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/auth.middleware.ts` (aligned with live `profiles.college`) |
+| **BE-03** | Role-Based Access Control (`requireRole`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/role.middleware.ts` (4 roles) |
+| **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/membership.middleware.ts` |
+| **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `backend/src/middlewares/validation.middleware.ts` |
 | **BE-06** | Global Error Handler & Response Utils | `utils` | `P0` | `[x] Completed` | Srinanth | `sendSuccess`, `sendError`, `AppError` |
 | **BE-07** | Subject Offering Module & Roster Routes | `modules/subjects` | `P0` | `[/] In Progress` | Srinanth | `teacher_subjects` & `memberships` |
 | **BE-08** | Learning Materials & Vector Search Endpoint | `modules/materials` | `P0` | `[/] In Progress` | Srinanth | Ingest & similarity search |

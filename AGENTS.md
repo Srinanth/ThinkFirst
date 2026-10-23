@@ -17,7 +17,7 @@ This file provides immediate operational rules and reference links for the **Thi
    - *"Agents reason over evidence; deterministic services maintain canonical learning state."*
    - AI Agents extract structured evidence tokens; the Deterministic Mastery Engine calculates student mastery scores in `student_topic_mastery`. Never let an LLM directly set or modify student grades.
 4. **MODULAR MONOLITH STANDARD**:
-   - Follow `express/src/modules/<feature-name>/` with dedicated routes, controller, service, schemas, and types. Use middlewares and utils for repeated logic.
+   - Follow `backend/src/modules/<feature-name>/` with dedicated routes, controller, service, schemas, and types. Use middlewares and utils for repeated logic.
 
 ---
 

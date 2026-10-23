@@ -2,9 +2,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { z } from 'zod';
 
-// Load .env whether running from project root, express/ directory, or a monorepo workspace
+// Load .env whether running from project root, backend/ directory, or a monorepo workspace
 dotenv.config({ path: path.resolve(process.cwd(), '.env') });
-dotenv.config({ path: path.resolve(process.cwd(), 'express', '.env') });
+dotenv.config({ path: path.resolve(process.cwd(), 'backend', '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '..', '.env') });
 
 const envSchema = z.object({
