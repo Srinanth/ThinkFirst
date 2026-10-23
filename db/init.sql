@@ -53,7 +53,6 @@ CREATE TABLE IF NOT EXISTS public.curriculum_topics (
   name TEXT NOT NULL,
   node_type TEXT NOT NULL CHECK (node_type IN ('module', 'topic', 'subtopic')),
   description TEXT NULL,
-  position INTEGER NOT NULL DEFAULT 0,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -82,18 +81,40 @@ CREATE TABLE IF NOT EXISTS public.note_embeddings (
 );
 
 -- Table 7: quizzes
+
 CREATE TABLE IF NOT EXISTS public.quizzes (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  teacher_subject_id UUID NOT NULL REFERENCES public.teacher_subjects(id) ON DELETE CASCADE,
-  curriculum_topic_id UUID REFERENCES public.curriculum_topics(id) ON DELETE SET NULL,
-  created_by UUID NOT NULL REFERENCES public.profiles(id) ON DELETE RESTRICT,
-  title TEXT NOT NULL,
-  description TEXT NULL,
-  difficulty TEXT NOT NULL CHECK (difficulty IN ('easy', 'medium', 'hard')),
-  question_count INTEGER NOT NULL DEFAULT 0,
-  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    teacher_subject_id UUID NOT NULL
+        REFERENCES public.teacher_subjects(id)
+        ON DELETE CASCADE,
+
+    curriculum_topic_id UUID
+        REFERENCES public.curriculum_topics(id)
+        ON DELETE SET NULL,
+
+    created_by UUID NOT NULL
+        REFERENCES public.profiles(id)
+        ON DELETE RESTRICT,
+
+    title TEXT NOT NULL,
+
+    description TEXT,
+
+    difficulty TEXT NOT NULL
+        CHECK (difficulty IN ('easy', 'medium', 'hard')),
+
+    question_count INTEGER NOT NULL DEFAULT 0,
+
+    exam_duration INTEGER NOT NULL DEFAULT 30
+        CHECK (exam_duration > 0),
+
+    status TEXT NOT NULL DEFAULT 'draft'
+        CHECK (status IN ('draft', 'published', 'archived')),
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
 
 -- Table 8: quiz_questions
 CREATE TABLE IF NOT EXISTS public.quiz_questions (
