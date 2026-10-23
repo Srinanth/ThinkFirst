@@ -59,8 +59,8 @@ Progress: [████████████░░░░░░░░] 52%
 ### Phase 3: Backend Core Services & Middlewares (Srinanth's Primary Focus)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | `pnpm` dependencies installed & `tsconfig.json` |
-| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/auth.middleware.ts` (aligned with live `profiles.college`) |
+| **BE-01** | Node.js TypeScript Modular Scaffolding | `core` | `P0` | `[x] Completed` | Srinanth | Scaffolding organized in `express/` (Next.js removed, isolated backend) |
+| **BE-02** | Authentication Middleware (`requireAuth`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `express/src/middlewares/auth.middleware.ts` (aligned with live `profiles.college`) |
 | **BE-03** | Role-Based Access Control (`requireRole`) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/role.middleware.ts` (4 roles) |
 | **BE-04** | Subject Multi-Tenancy Middleware | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/membership.middleware.ts` |
 | **BE-05** | Request Validation Middleware (Zod) | `middlewares` | `P0` | `[x] Completed` | Srinanth | `src/middlewares/validation.middleware.ts` |

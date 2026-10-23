@@ -223,7 +223,7 @@ sequenceDiagram
 The backend implements a **Modular Monolith** pattern organized strictly by business domain, preventing spaghetti dependencies:
 
 ```
-backend/
+express/
 ├── src/
 │   ├── config/              # Environment variables, database configs, Supabase client
 │   │   ├── env.ts
