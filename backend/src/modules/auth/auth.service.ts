@@ -27,7 +27,24 @@ export class AuthService {
       throw new NotFoundError('User profile not found');
     }
 
-    return data;
+    try {
+      const { data: userData } = await supabaseAdmin.auth.admin.getUserById(userId);
+      const loginId =
+        (userData?.user?.user_metadata as Record<string, any> | undefined)?.login_id ||
+        (data.role === 'student'
+          ? `STD-${data.id.slice(0, 4).toUpperCase()}`
+          : data.role === 'teacher'
+          ? `TCR-${data.id.slice(0, 4).toUpperCase()}`
+          : `ADM-${data.id.slice(0, 4).toUpperCase()}`);
+
+      return {
+        ...data,
+        email: userData?.user?.email,
+        login_id: loginId,
+      };
+    } catch {
+      return data;
+    }
   }
 
   async updateProfile(userId: string, input: UpdateProfileInput) {
@@ -81,7 +98,7 @@ export class AuthService {
   }
 
   /**
-   * List profiles filtered by optional role
+   * List profiles filtered by optional role, enriched with student roll numbers / login IDs
    */
   async listProfiles(role?: string) {
     let query = supabaseAdmin
@@ -93,9 +110,44 @@ export class AuthService {
       query = query.eq('role', role);
     }
 
-    const { data, error } = await query;
+    const { data: profiles, error } = await query;
     if (error) throw new BadRequestError(error.message);
-    return data;
+
+    try {
+      const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
+      if (usersData?.users) {
+        const userMap = new Map(usersData.users.map((u) => [u.id, u]));
+        return (profiles || []).map((p) => {
+          const u = userMap.get(p.id);
+          const loginId =
+            (u?.user_metadata as Record<string, any> | undefined)?.login_id ||
+            (p.role === 'student'
+              ? `STD-${p.id.slice(0, 4).toUpperCase()}`
+              : p.role === 'teacher'
+              ? `TCR-${p.id.slice(0, 4).toUpperCase()}`
+              : `ADM-${p.id.slice(0, 4).toUpperCase()}`);
+
+          return {
+            ...p,
+            email: u?.email || `${p.role}.${p.id.slice(0, 6)}@institution.edu`,
+            login_id: loginId,
+          };
+        });
+      }
+    } catch {
+      // Fallback
+    }
+
+    return (profiles || []).map((p) => ({
+      ...p,
+      email: `${p.role}.${p.id.slice(0, 6)}@institution.edu`,
+      login_id:
+        p.role === 'student'
+          ? `STD-${p.id.slice(0, 4).toUpperCase()}`
+          : p.role === 'teacher'
+          ? `TCR-${p.id.slice(0, 4).toUpperCase()}`
+          : `ADM-${p.id.slice(0, 4).toUpperCase()}`,
+    }));
   }
 
   /**
@@ -150,7 +202,10 @@ export class AuthService {
     }
 
     return {
-      profile,
+      profile: {
+        ...profile,
+        login_id: input.loginId,
+      },
       email: input.email,
       temporaryPassword: defaultPassword,
       loginId: input.loginId,

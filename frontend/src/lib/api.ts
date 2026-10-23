@@ -358,6 +358,7 @@ export interface UserProfile {
   role: 'admin' | 'teacher' | 'student';
   created_at: string;
   email?: string;
+  login_id?: string;
 }
 
 export interface AdminStats {

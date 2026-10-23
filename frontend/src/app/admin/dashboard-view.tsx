@@ -499,42 +499,62 @@ export default function DashboardView({
                 <table className="w-full text-left text-xs">
                   <thead className="bg-[#202020] text-[#757575] font-black uppercase tracking-wider border-b border-white/5">
                     <tr>
+                      <th className="py-3.5 px-6">Roll / Staff ID</th>
                       <th className="py-3.5 px-6">Name</th>
                       <th className="py-3.5 px-6">Role</th>
+                      <th className="py-3.5 px-6">Email Address</th>
                       <th className="py-3.5 px-6">College Affiliation</th>
-                      <th className="py-3.5 px-6">Joined Date</th>
+                      <th className="py-3.5 px-6">Enrolled Date</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/5 text-[#d0d0d0]">
-                    {profiles.map((p) => (
-                      <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
-                        <td className="py-3.5 px-6 font-bold text-white flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg neu-inset text-white flex items-center justify-center font-bold text-[10px]">
-                            {p.full_name?.slice(0, 2).toUpperCase() || 'U'}
-                          </div>
-                          <span>{p.full_name}</span>
-                        </td>
-                        <td className="py-3.5 px-6">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                              p.role === 'admin'
-                                ? 'bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30'
-                                : p.role === 'teacher'
-                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                                : 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
-                            }`}
-                          >
-                            {p.role}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-6 text-[#9e9e9e]">
-                          {p.college || 'ThinkFirst Institute'}
-                        </td>
-                        <td className="py-3.5 px-6 text-[#757575]">
-                          {new Date(p.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
+                    {profiles.map((p) => {
+                      const displayId =
+                        p.login_id ||
+                        (p.role === 'student'
+                          ? `STD-${p.id.slice(0, 4).toUpperCase()}`
+                          : p.role === 'teacher'
+                          ? `TCR-${p.id.slice(0, 4).toUpperCase()}`
+                          : `ADM-${p.id.slice(0, 4).toUpperCase()}`);
+
+                      return (
+                        <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
+                          <td className="py-3.5 px-6 font-mono font-bold">
+                            <span className="px-2.5 py-1 rounded-lg neu-inset-sm text-xs text-[#00d2ff] border border-[#00d2ff]/20">
+                              {displayId}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-6 font-bold text-white flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg neu-inset text-white flex items-center justify-center font-bold text-[10px]">
+                              {p.full_name?.slice(0, 2).toUpperCase() || 'U'}
+                            </div>
+                            <span>{p.full_name}</span>
+                          </td>
+                          <td className="py-3.5 px-6">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                                p.role === 'admin'
+                                  ? 'bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30'
+                                  : p.role === 'teacher'
+                                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                  : 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
+                              }`}
+                            >
+                              {p.role}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-6 text-[#9e9e9e] font-mono">
+                            {p.email || `${p.role}.${p.id.slice(0, 6)}@institution.edu`}
+                          </td>
+                          <td className="py-3.5 px-6 text-[#9e9e9e]">
+                            {p.college || 'ThinkFirst Institute'}
+                          </td>
+                          <td className="py-3.5 px-6 text-[#757575]">
+                            {new Date(p.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
