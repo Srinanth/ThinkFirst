@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../config/supabase.js';
-import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
+import { BadRequestError, NotFoundError, ForbiddenError } from '../../utils/errors.util.js';
 import { generateQuizQuestions } from './quiz-generator.util.js';
 import { evaluateStudentAnswer, diagnoseQuizGaps } from '../../agents/evaluator.agent.js';
 import { masteryService } from '../mastery/mastery.service.js';
@@ -9,24 +9,94 @@ import {
   CreateQuizInput,
   GenerateQuizInput,
   SubmitAttemptInput,
+  UpdateQuizInput,
 } from './quizzes.schemas.js';
 
 export class QuizzesService {
   /**
+   * Resolve or create a curriculum topic safely
+   */
+  private async resolveOrCreateTopic(subjectId: string, topicIdentifier?: string): Promise<{ id: string; title: string }> {
+    const isUuid = topicIdentifier && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(topicIdentifier);
+
+    if (isUuid) {
+      const { data: existingById } = await supabaseAdmin
+        .from('curriculum_topics')
+        .select('id, title')
+        .eq('id', topicIdentifier)
+        .maybeSingle();
+
+      if (existingById) return existingById;
+    }
+
+    const cleanTitle = topicIdentifier?.trim() && !isUuid ? topicIdentifier.trim() : null;
+
+    if (cleanTitle) {
+      const { data: existingByTitle } = await supabaseAdmin
+        .from('curriculum_topics')
+        .select('id, title')
+        .eq('teacher_subject_id', subjectId)
+        .ilike('title', cleanTitle)
+        .maybeSingle();
+
+      if (existingByTitle) return existingByTitle;
+
+      const { data: createdTopic, error: createError } = await supabaseAdmin
+        .from('curriculum_topics')
+        .insert({
+          teacher_subject_id: subjectId,
+          title: cleanTitle,
+          node_type: 'topic',
+        })
+        .select('id, title')
+        .single();
+
+      if (!createError && createdTopic) return createdTopic;
+    }
+
+    const { data: fallbackTopic } = await supabaseAdmin
+      .from('curriculum_topics')
+      .select('id, title')
+      .eq('teacher_subject_id', subjectId)
+      .limit(1)
+      .maybeSingle();
+
+    if (fallbackTopic) return fallbackTopic;
+
+    const { data: defaultTopic } = await supabaseAdmin
+      .from('curriculum_topics')
+      .insert({
+        teacher_subject_id: subjectId,
+        title: 'Diagnostic Foundations',
+        node_type: 'topic',
+      })
+      .select('id, title')
+      .single();
+
+    return defaultTopic || { id: '00000000-0000-0000-0000-000000000000', title: 'Diagnostic Foundations' };
+  }
+
+  /**
    * Create a quiz manually
    */
   async createQuiz(subjectId: string, teacherId: string, input: CreateQuizInput) {
+    let topicId = input.curriculumTopicId || null;
+    if (!topicId && input.topicTitle?.trim()) {
+      const topic = await this.resolveOrCreateTopic(subjectId, input.topicTitle.trim());
+      topicId = topic?.id || null;
+    }
+
     const { data, error } = await supabaseAdmin
       .from('quizzes')
       .insert({
         teacher_subject_id: subjectId,
-        curriculum_topic_id: input.curriculumTopicId || null,
+        curriculum_topic_id: topicId,
         created_by: teacherId,
         title: input.title,
         description: input.description || null,
-        difficulty: input.difficulty,
-        exam_duration: input.examDuration,
-        status: input.status,
+        difficulty: input.difficulty || 'medium',
+        exam_duration: input.examDuration || 30,
+        status: input.status || 'draft',
       })
       .select('*')
       .single();
@@ -38,8 +108,8 @@ export class QuizzesService {
   /**
    * List quizzes for a subject offering
    */
-  async listQuizzes(subjectId: string, studentId?: string) {
-    const { data: quizzes, error } = await supabaseAdmin
+  async listQuizzes(subjectId: string, studentId?: string, isStudent = false) {
+    let query = supabaseAdmin
       .from('quizzes')
       .select(`
         id,
@@ -52,8 +122,14 @@ export class QuizzesService {
         created_at,
         curriculum_topics:curriculum_topic_id (id, title)
       `)
-      .eq('teacher_subject_id', subjectId)
-      .order('created_at', { ascending: false });
+      .eq('teacher_subject_id', subjectId);
+
+    // If student, ONLY return published quizzes
+    if (studentId || isStudent) {
+      query = query.eq('status', 'published');
+    }
+
+    const { data: quizzes, error } = await query.order('created_at', { ascending: false });
 
     if (error) throw new BadRequestError(error.message);
 
@@ -66,19 +142,19 @@ export class QuizzesService {
 
       const attemptMap = new Map((attempts || []).map((a) => [a.quiz_id, a]));
 
-      return quizzes.map((q) => ({
+      return (quizzes || []).map((q) => ({
         ...q,
         userAttempt: attemptMap.get(q.id) || null,
       }));
     }
 
-    return quizzes;
+    return quizzes || [];
   }
 
   /**
    * Get single quiz with its questions
    */
-  async getQuiz(quizId: string, includeAnswers = false) {
+  async getQuiz(quizId: string, includeAnswers = false, isStudent = false) {
     const { data: quiz, error: quizError } = await supabaseAdmin
       .from('quizzes')
       .select(`
@@ -101,6 +177,10 @@ export class QuizzesService {
       throw new NotFoundError('Quiz not found');
     }
 
+    if (isStudent && quiz.status !== 'published') {
+      throw new ForbiddenError('This quiz is currently a draft and has not been published by your instructor.');
+    }
+
     // Fetch questions ordered by position
     const { data: questions, error: qError } = await supabaseAdmin
       .from('quiz_questions')
@@ -110,21 +190,26 @@ export class QuizzesService {
 
     if (qError) throw new BadRequestError(qError.message);
 
+    const mappedQuestions = (questions || []).map((q) => ({
+      id: q.id,
+      position: q.position,
+      questionText: q.question_text,
+      question_text: q.question_text,
+      questionType: q.question_type,
+      question_type: q.question_type,
+      options: q.options,
+      difficulty: q.difficulty,
+      marks: Number(q.marks),
+      curriculumTopicId: q.curriculum_topic_id,
+      // Hide correct answer and explanation if requested (e.g. for student taking test)
+      correctAnswer: includeAnswers ? q.correct_answer : undefined,
+      explanation: includeAnswers ? q.explanation : undefined,
+    }));
+
     return {
       ...quiz,
-      questions: (questions || []).map((q) => ({
-        id: q.id,
-        position: q.position,
-        questionText: q.question_text,
-        questionType: q.question_type,
-        options: q.options,
-        difficulty: q.difficulty,
-        marks: Number(q.marks),
-        curriculumTopicId: q.curriculum_topic_id,
-        // Hide correct answer and explanation if requested (e.g. for student taking test)
-        correctAnswer: includeAnswers ? q.correct_answer : undefined,
-        explanation: includeAnswers ? q.explanation : undefined,
-      })),
+      questions: mappedQuestions,
+      quiz_questions: mappedQuestions,
     };
   }
 
@@ -178,18 +263,12 @@ export class QuizzesService {
 
   /**
    * Diagnostic Quiz Generator: generates diagnostic questions from topic and notes via LLM
+   * Automatically saved as 'draft' so teachers can review before publishing.
    */
   async generateQuizWithAgent(subjectId: string, teacherId: string, input: GenerateQuizInput) {
-    // 1. Fetch curriculum topic details
-    const { data: topic, error: topicError } = await supabaseAdmin
-      .from('curriculum_topics')
-      .select('id, title, description')
-      .eq('id', input.curriculumTopicId)
-      .single();
-
-    if (topicError || !topic) {
-      throw new NotFoundError('Curriculum topic not found');
-    }
+    // 1. Resolve curriculum topic
+    const topicTarget = input.curriculumTopicId || input.topicTitle || 'Diagnostic Assessment';
+    const topic = await this.resolveOrCreateTopic(subjectId, topicTarget);
 
     // 2. Fetch context notes via vector search
     let contextNotes = '';
@@ -216,19 +295,19 @@ export class QuizzesService {
       throw new BadRequestError('Failed to generate quiz questions');
     }
 
-    // 4. Create the Quiz container in database
+    // 4. Create the Quiz container in database with 'draft' status
     const { data: quiz, error: quizError } = await supabaseAdmin
       .from('quizzes')
       .insert({
         teacher_subject_id: subjectId,
-        curriculum_topic_id: input.curriculumTopicId,
+        curriculum_topic_id: topic.id,
         created_by: teacherId,
         title: input.title,
         description: `AI-generated diagnostic quiz covering ${topic.title}`,
         difficulty: input.difficulty,
         question_count: generatedQuestions.length,
         exam_duration: input.examDuration,
-        status: 'published',
+        status: 'draft',
       })
       .select('*')
       .single();
@@ -244,7 +323,7 @@ export class QuizzesService {
         .from('quiz_questions')
         .insert({
           quiz_id: quiz.id,
-          curriculum_topic_id: input.curriculumTopicId,
+          curriculum_topic_id: topic.id,
           question_text: q.questionText,
           question_type: q.questionType,
           options: q.options || null,
@@ -260,9 +339,70 @@ export class QuizzesService {
   }
 
   /**
+   * Update quiz fields (including draft -> published status)
+   */
+  async updateQuiz(quizId: string, input: UpdateQuizInput) {
+    const updateData: Record<string, any> = {};
+    if (input.title !== undefined) updateData.title = input.title;
+    if (input.description !== undefined) updateData.description = input.description;
+    if (input.difficulty !== undefined) updateData.difficulty = input.difficulty;
+    if (input.examDuration !== undefined) updateData.exam_duration = input.examDuration;
+    if (input.status !== undefined) updateData.status = input.status;
+    if (input.curriculumTopicId !== undefined) updateData.curriculum_topic_id = input.curriculumTopicId;
+
+    if (Object.keys(updateData).length === 0) {
+      throw new BadRequestError('No update fields provided');
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('quizzes')
+      .update(updateData)
+      .eq('id', quizId)
+      .select('*')
+      .single();
+
+    if (error) throw new BadRequestError(`Failed to update quiz: ${error.message}`);
+    return data;
+  }
+
+  /**
+   * Delete quiz and associated questions
+   */
+  async deleteQuiz(quizId: string) {
+    const { data: attempts } = await supabaseAdmin
+      .from('quiz_attempts')
+      .select('id')
+      .eq('quiz_id', quizId);
+
+    if (attempts && attempts.length > 0) {
+      const attemptIds = attempts.map((a) => a.id);
+      await supabaseAdmin.from('quiz_responses').delete().in('quiz_attempt_id', attemptIds);
+      await supabaseAdmin.from('quiz_attempts').delete().eq('quiz_id', quizId);
+    }
+
+    await supabaseAdmin.from('quiz_questions').delete().eq('quiz_id', quizId);
+
+    const { error } = await supabaseAdmin.from('quizzes').delete().eq('id', quizId);
+    if (error) throw new BadRequestError(`Failed to delete quiz: ${error.message}`);
+    return { success: true, message: 'Quiz deleted successfully' };
+  }
+
+  /**
    * Start a quiz attempt by a student
    */
   async startAttempt(quizId: string, studentId: string) {
+    // Check quiz status
+    const { data: quiz, error: quizError } = await supabaseAdmin
+      .from('quizzes')
+      .select('id, status')
+      .eq('id', quizId)
+      .single();
+
+    if (quizError || !quiz) throw new NotFoundError('Quiz not found');
+    if (quiz.status !== 'published') {
+      throw new BadRequestError('This quiz is currently a draft and has not been published by your instructor.');
+    }
+
     // Check if attempt already exists
     const { data: existing } = await supabaseAdmin
       .from('quiz_attempts')

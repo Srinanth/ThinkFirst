@@ -68,7 +68,7 @@ Progress: [███████████████████░] 93%
 | **BE-07** | Subject Offering Module & Roster Routes | `modules/subjects` | `P0` | `[x] Completed` | Srinanth | `teacher_subjects` & `memberships` (teacher-only enrollment, verified via 27 E2E tests) |
 | **BE-08** | Learning Materials & Vector Search Endpoint | `modules/materials` | `P0` | `[x] Completed` | Srinanth | Ingest & similarity search (verified via 27 E2E tests) |
 | **BE-09** | Socratic Chat Controller & SSE Stream Route | `modules/tutor` | `P0` | `[x] Completed` | Srinanth | SSE & JSON Socratic tutor (verified via 27 E2E tests) |
-| **BE-10** | Quizzes & Attempts Submissions Pipeline | `modules/quizzes` | `P0` | `[x] Completed` | Srinanth | `quizzes`, `quiz_questions`, `quiz_attempts` (verified via 27 E2E tests) |
+| **BE-10** | Quizzes & Attempts Submissions Pipeline | `modules/quizzes` | `P0` | `[x] Completed` | Srinanth | `quizzes`, `quiz_questions`, `quiz_attempts` with draft-to-published status lifecycle, status patching, deletion, and student gating (verified via 30 E2E tests) |
 | **BE-11** | Colleges & Multi-Tenant Onboarding Module | `modules/colleges` | `P0` | `[/] In Progress` | Srinanth | Superadmin & College Admin flows |
 
 ---
@@ -107,6 +107,7 @@ Progress: [███████████████████░] 93%
 | **FE-06** | Student Study Room: Socratic Tutor Chat (Method 2) | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Method 2 with clickable action widgets, live mastery gauge, resolution triggers |
 | **FE-07** | Student Quiz Runner & Evaluator Agent Diagnosis Handoff | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Assessment runner with live questions, proctored timer, Evaluator Agent gap mission handoff |
 | **FE-08** | Teacher Roster & Enrollment Modals | `frontend` | `P1` | `[x] Completed` | Antony / Srinanth | Flexible student enrollment accepting name, email, roll ID, or UUID with live roster synchronization |
+| **FE-09** | Teacher Quiz Studio: Draft-to-Published Lifecycle & AI Question Inspector | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Full draft-to-published quiz lifecycle, AI generation modal with question count & syllabus topic picker, interactive question preview modal, publish/unpublish toggle, and student draft access gating |
 
 ---
 

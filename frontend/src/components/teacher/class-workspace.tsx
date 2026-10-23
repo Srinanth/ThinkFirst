@@ -6,6 +6,8 @@ import {
   insightsApi,
   TeacherInsightItem,
   quizzesApi,
+  QuizDetailResponse,
+  curriculumApi,
   materialsApi,
   subjectsApi,
   StudentRosterMember,
@@ -34,6 +36,9 @@ import {
   CheckCircle2,
   Loader2,
   Trash2,
+  Eye,
+  Send,
+  Check,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -77,6 +82,17 @@ export default function ClassWorkspace({
   const [enrollSuccess, setEnrollSuccess] = useState<string | null>(null);
 
   // Live Quizzes State
+  const [newQuizQuestionCount, setNewQuizQuestionCount] = useState(5);
+  const [newQuizDuration, setNewQuizDuration] = useState(25);
+  const [selectedTopicId, setSelectedTopicId] = useState<string>('');
+  const [classTopics, setClassTopics] = useState<Array<{ id: string; title: string }>>([]);
+
+  const [previewQuiz, setPreviewQuiz] = useState<QuizDetailResponse | null>(null);
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState<string | null>(null);
+  const [isDeletingQuiz, setIsDeletingQuiz] = useState<string | null>(null);
+  const [quizActionMessage, setQuizActionMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   const [quizList, setQuizList] = useState<
     Array<{
       id: string;
@@ -86,7 +102,10 @@ export default function ClassWorkspace({
       completionRate: number;
       avgScore: number;
       totalQuestions: number;
-      status: 'Graded' | 'In Progress' | 'Upcoming';
+      status: 'draft' | 'published' | 'archived';
+      difficulty: string;
+      examDuration: number;
+      description?: string;
     }>
   >([]);
   const [isLoadingQuizzes, setIsLoadingQuizzes] = useState(false);
@@ -147,7 +166,10 @@ export default function ClassWorkspace({
             completionRate: 0,
             avgScore: 0,
             totalQuestions: q.question_count || 5,
-            status: q.status === 'published' ? 'Upcoming' : 'Graded',
+            status: q.status || 'draft',
+            difficulty: q.difficulty || 'medium',
+            examDuration: q.exam_duration || 30,
+            description: q.description || '',
           }))
         );
       } else {
@@ -158,6 +180,27 @@ export default function ClassWorkspace({
       setQuizList([]);
     } finally {
       setIsLoadingQuizzes(false);
+    }
+  };
+
+  const fetchTopics = async () => {
+    try {
+      const tree = await curriculumApi.getTree(cls.id);
+      if (tree && Array.isArray(tree)) {
+        const flattened: Array<{ id: string; title: string }> = [];
+        const traverse = (nodes: any[]) => {
+          for (const node of nodes) {
+            flattened.push({ id: node.id, title: node.title });
+            if (node.children && node.children.length > 0) {
+              traverse(node.children);
+            }
+          }
+        };
+        traverse(tree);
+        setClassTopics(flattened);
+      }
+    } catch {
+      setClassTopics([]);
     }
   };
 
@@ -194,6 +237,7 @@ export default function ClassWorkspace({
   useEffect(() => {
     fetchRoster();
     fetchQuizzes();
+    fetchTopics();
     fetchMaterials();
     fetchInsights();
     fetchMasteryOverview();
@@ -326,52 +370,153 @@ export default function ClassWorkspace({
     }
   };
 
+  const handleInspectQuiz = async (quizId: string) => {
+    setIsLoadingPreview(true);
+    try {
+      const detail = await quizzesApi.getQuizDetail(quizId);
+      setPreviewQuiz(detail);
+    } catch (err: any) {
+      console.error('Failed to load quiz details:', err);
+      setQuizActionMessage({
+        type: 'error',
+        text: 'Failed to load quiz questions and details.',
+      });
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  };
+
   const handleGenerateAiQuiz = async () => {
     if (!newQuizTitle.trim()) return;
     setIsGeneratingQuiz(true);
+    setQuizActionMessage(null);
 
     try {
-      // Try backend traditional LLM generation
       const res = await quizzesApi.generateQuiz(cls.id, {
-        curriculumTopicId: 'default-topic',
-        title: newQuizTitle,
+        curriculumTopicId: selectedTopicId || undefined,
+        topicTitle: newQuizTopic.trim() || undefined,
+        title: newQuizTitle.trim(),
         difficulty: newQuizDifficulty,
-        questionCount: 3,
+        questionCount: newQuizQuestionCount,
+        examDuration: newQuizDuration,
       });
 
-      const newQ = {
-        id: res.id || `quiz-gen-${Date.now()}`,
-        title: newQuizTitle,
-        date: 'Today',
-        topics: [newQuizTopic || 'Diagnostic Concepts'],
-        completionRate: 0,
-        avgScore: 0,
-        totalQuestions: res.question_count || 3,
-        status: 'Upcoming' as const,
-      };
+      await fetchQuizzes();
+      setCreateQuizModalOpen(false);
+      setNewQuizTitle('');
+      setNewQuizTopic('');
+      setSelectedTopicId('');
 
-      setQuizList((prev) => [newQ, ...prev]);
-      setCreateQuizModalOpen(false);
-      setNewQuizTitle('');
-      setNewQuizTopic('');
-    } catch {
-      // Client-side fallback if backend not reached
-      const newQ = {
-        id: `quiz-gen-${Date.now()}`,
-        title: newQuizTitle,
-        date: 'Today',
-        topics: [newQuizTopic || 'AI Evaluator Generated'],
-        completionRate: 0,
-        avgScore: 0,
-        totalQuestions: 3,
-        status: 'Upcoming' as const,
-      };
-      setQuizList((prev) => [newQ, ...prev]);
-      setCreateQuizModalOpen(false);
-      setNewQuizTitle('');
-      setNewQuizTopic('');
+      if (res && res.id) {
+        handleInspectQuiz(res.id);
+      }
+
+      setQuizActionMessage({
+        type: 'success',
+        text: `Diagnostic quiz "${res.title}" successfully generated with ${res.question_count || (res.questions?.length ?? 3)} AI questions! Saved in Draft mode — review and publish when ready.`,
+      });
+    } catch (err: any) {
+      console.error('Failed to generate quiz:', err);
+      setQuizActionMessage({
+        type: 'error',
+        text: err?.message || 'Failed to generate quiz with AI. Please verify your inputs and try again.',
+      });
     } finally {
       setIsGeneratingQuiz(false);
+    }
+  };
+
+  const handleCreateBlankQuiz = async () => {
+    if (!newQuizTitle.trim()) return;
+    setIsGeneratingQuiz(true);
+    setQuizActionMessage(null);
+
+    try {
+      const res = await quizzesApi.createQuiz(cls.id, {
+        title: newQuizTitle.trim(),
+        curriculumTopicId: selectedTopicId || undefined,
+        topicTitle: newQuizTopic.trim() || undefined,
+        difficulty: newQuizDifficulty,
+        examDuration: newQuizDuration,
+        status: 'draft',
+      });
+
+      await fetchQuizzes();
+      setCreateQuizModalOpen(false);
+      setNewQuizTitle('');
+      setNewQuizTopic('');
+      setSelectedTopicId('');
+
+      setQuizActionMessage({
+        type: 'success',
+        text: `Draft quiz "${res.title}" created. You can now add questions or publish whenever you're ready.`,
+      });
+    } catch (err: any) {
+      console.error('Failed to create quiz:', err);
+      setQuizActionMessage({
+        type: 'error',
+        text: err?.message || 'Failed to create quiz.',
+      });
+    } finally {
+      setIsGeneratingQuiz(false);
+    }
+  };
+
+  const handleTogglePublishStatus = async (quizId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === 'published' ? 'draft' : 'published';
+    setIsUpdatingStatus(quizId);
+    setQuizActionMessage(null);
+
+    try {
+      await quizzesApi.updateQuizStatus(quizId, nextStatus);
+      await fetchQuizzes();
+
+      if (previewQuiz && previewQuiz.id === quizId) {
+        setPreviewQuiz({ ...previewQuiz, status: nextStatus });
+      }
+
+      setQuizActionMessage({
+        type: 'success',
+        text:
+          nextStatus === 'published'
+            ? 'Quiz published! Students enrolled in this class can now view and attempt this assessment.'
+            : 'Quiz moved to Draft. It is now hidden from enrolled students.',
+      });
+    } catch (err: any) {
+      console.error('Failed to update quiz status:', err);
+      setQuizActionMessage({
+        type: 'error',
+        text: err?.message || 'Failed to update quiz status.',
+      });
+    } finally {
+      setIsUpdatingStatus(null);
+    }
+  };
+
+  const handleDeleteQuiz = async (quizId: string, quizTitle: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete quiz "${quizTitle}"?`)) {
+      return;
+    }
+    setIsDeletingQuiz(quizId);
+    setQuizActionMessage(null);
+    try {
+      await quizzesApi.deleteQuiz(quizId);
+      if (previewQuiz?.id === quizId) {
+        setPreviewQuiz(null);
+      }
+      await fetchQuizzes();
+      setQuizActionMessage({
+        type: 'success',
+        text: `Quiz "${quizTitle}" has been removed.`,
+      });
+    } catch (err: any) {
+      console.error('Failed to delete quiz:', err);
+      setQuizActionMessage({
+        type: 'error',
+        text: err?.message || 'Failed to delete quiz.',
+      });
+    } finally {
+      setIsDeletingQuiz(null);
     }
   };
 
@@ -902,19 +1047,59 @@ export default function ClassWorkspace({
       {/* ============================================================== */}
       {activeTab === 'quizzes' && (
         <div className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-black text-white">
                 Class Quizzes &amp; Assessments
               </h3>
               <p className="text-xs text-[#9e9e9e]">
-                Manage upcoming and graded assessments for {cls.name}.
+                Manage diagnostic assessments, question drafts, and published tests for {cls.name}.
               </p>
             </div>
+            <button
+              type="button"
+              onClick={() => setCreateQuizModalOpen(true)}
+              className="neu-btn-accent px-4 py-2.5 text-xs font-bold inline-flex items-center gap-2 cursor-pointer text-[#0a0f1d] rounded-xl shadow-lg shrink-0 self-start sm:self-auto"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Create / AI Generate Quiz</span>
+            </button>
           </div>
 
+          {/* Action Notification Banner */}
+          {quizActionMessage && (
+            <div
+              className={`p-4 rounded-2xl flex items-center justify-between text-xs font-bold border animate-in fade-in duration-200 ${
+                quizActionMessage.type === 'success'
+                  ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-300'
+                  : 'bg-rose-950/60 border-rose-500/40 text-rose-300'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                {quizActionMessage.type === 'success' ? (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                ) : (
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                )}
+                <span>{quizActionMessage.text}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setQuizActionMessage(null)}
+                className="p-1 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+
           {/* Quiz Card Grid */}
-          {quizList.length === 0 ? (
+          {isLoadingQuizzes ? (
+            <div className="neu-card p-12 text-center rounded-3xl flex flex-col items-center justify-center space-y-3">
+              <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
+              <p className="text-xs text-[#9e9e9e]">Loading quizzes from database...</p>
+            </div>
+          ) : quizList.length === 0 ? (
             <div className="neu-card p-12 text-center rounded-3xl space-y-4 border border-white/5">
               <div className="w-14 h-14 mx-auto rounded-2xl neu-inset flex items-center justify-center text-[#00d2ff]">
                 <Sparkles className="w-7 h-7" />
@@ -941,62 +1126,97 @@ export default function ClassWorkspace({
                   key={quiz.id}
                   className="neu-card p-6 flex flex-col justify-between space-y-4 text-white hover:border-white/20 transition-all"
                 >
-                  <div>
-                    <div className="flex items-start justify-between">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          quiz.status === 'Graded'
-                            ? 'neu-badge-white'
-                            : 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
-                        }`}
-                      >
-                        {quiz.status}
-                      </span>
-                      <span className="text-xs text-[#757575] font-medium">
-                        {quiz.date}
+                  <div className="space-y-2.5">
+                    {/* Status badge & Duration/Date */}
+                    <div className="flex items-center justify-between gap-2">
+                      {quiz.status === 'draft' ? (
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                          <Clock className="w-3 h-3" />
+                          <span>Draft (Unpublished)</span>
+                        </span>
+                      ) : quiz.status === 'published' ? (
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Published (Live to Students)</span>
+                        </span>
+                      ) : (
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/10 text-white/60 border border-white/20">
+                          Archived
+                        </span>
+                      )}
+
+                      <span className="text-xs text-[#757575] font-medium flex items-center gap-1.5">
+                        <span>{quiz.examDuration}m</span>
+                        <span>•</span>
+                        <span>{quiz.date}</span>
                       </span>
                     </div>
 
-                    <h4 className="text-lg font-black text-white mt-2">
+                    <h4 className="text-base font-black text-white mt-1 line-clamp-1">
                       {quiz.title}
                     </h4>
 
-                    {/* Topics Covered */}
-                    <div className="flex flex-wrap gap-1.5 mt-2.5">
+                    {/* Topics Covered & Question stats */}
+                    <div className="flex flex-wrap items-center gap-1.5">
                       {quiz.topics.map((t, i) => (
                         <span
                           key={i}
-                          className="px-2 py-0.5 rounded-lg neu-inset-sm text-[#9e9e9e] text-[11px] font-semibold"
+                          className="px-2 py-0.5 rounded-lg neu-inset-sm text-[#cccccc] text-[11px] font-semibold"
                         >
                           {t}
                         </span>
                       ))}
+                      <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-cyan-400 text-[11px] font-bold">
+                        {quiz.totalQuestions} Questions
+                      </span>
+                      <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-[#9e9e9e] text-[11px] font-bold uppercase">
+                        {quiz.difficulty}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
-                    <div>
-                      <span className="text-[#757575] block text-[10px] uppercase font-bold">
-                        Completion
-                      </span>
-                      <span className="text-white font-black">{quiz.completionRate}%</span>
-                    </div>
+                  {/* Actions Bar */}
+                  <div className="pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleInspectQuiz(quiz.id)}
+                      className="px-3 py-1.5 rounded-xl neu-btn text-xs font-bold text-white hover:border-cyan-500/50 flex items-center gap-1.5 cursor-pointer transition-all"
+                    >
+                      <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Preview Questions</span>
+                    </button>
 
-                    <div className="text-right">
-                      <span className="text-[#757575] block text-[10px] uppercase font-bold">
-                        Class Average
-                      </span>
-                      <span
-                        className={`text-sm font-black ${
-                          quiz.avgScore >= 80
-                            ? 'text-white'
-                            : quiz.avgScore >= 60
-                            ? 'text-[#9e9e9e]'
-                            : 'text-[#757575]'
-                        }`}
+                    <div className="flex items-center gap-1.5">
+                      {quiz.status === 'draft' ? (
+                        <button
+                          type="button"
+                          disabled={isUpdatingStatus === quiz.id}
+                          onClick={() => handleTogglePublishStatus(quiz.id, quiz.status)}
+                          className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all disabled:opacity-50"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                          <span>{isUpdatingStatus === quiz.id ? 'Publishing...' : 'Publish to Class'}</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={isUpdatingStatus === quiz.id}
+                          onClick={() => handleTogglePublishStatus(quiz.id, quiz.status)}
+                          className="px-3 py-1.5 rounded-xl neu-btn text-[#9e9e9e] hover:text-amber-300 font-bold text-xs flex items-center gap-1.5 cursor-pointer disabled:opacity-50 transition-colors"
+                        >
+                          <span>{isUpdatingStatus === quiz.id ? 'Updating...' : 'Unpublish (Draft)'}</span>
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        disabled={isDeletingQuiz === quiz.id}
+                        onClick={() => handleDeleteQuiz(quiz.id, quiz.title)}
+                        className="p-1.5 rounded-xl text-[#757575] hover:text-rose-400 hover:bg-rose-500/10 cursor-pointer disabled:opacity-50 transition-colors"
+                        title="Delete Quiz"
                       >
-                        {quiz.avgScore > 0 ? `${quiz.avgScore}%` : 'Pending'}
-                      </span>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1256,60 +1476,140 @@ export default function ClassWorkspace({
       {/* CREATE NEW QUIZ MODAL                                          */}
       {/* ============================================================== */}
       {createQuizModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-md rounded-3xl neu-card-raised p-6 space-y-4 animate-in zoom-in-95 text-white border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.8)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-lg rounded-3xl neu-card-raised p-6 space-y-4 animate-in zoom-in-95 text-white border border-white/10 shadow-[0_24px_50px_rgba(0,0,0,0.85)] max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <h3 className="text-lg font-black text-white">
-                + Create New Quiz
-              </h3>
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl neu-inset flex items-center justify-center text-cyan-400">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">Create New Assessment</h3>
+                  <p className="text-[11px] text-[#9e9e9e]">Saved as Draft — review and publish when ready</p>
+                </div>
+              </div>
               <button
                 onClick={() => setCreateQuizModalOpen(false)}
-                className="p-1 rounded-lg text-[#9e9e9e] hover:text-white cursor-pointer"
+                className="p-1.5 rounded-lg text-[#9e9e9e] hover:text-white cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               <div>
                 <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
-                  Quiz Title
+                  Quiz Title <span className="text-cyan-400">*</span>
                 </label>
                 <input
                   type="text"
                   value={newQuizTitle}
                   onChange={(e) => setNewQuizTitle(e.target.value)}
-                  placeholder="e.g. Quiz #08 - Dynamic Programming Advanced"
+                  placeholder="e.g. Diagnostic Quiz: Limits & Continuity"
                   className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
                 />
               </div>
 
+              {/* Topic Selector / Custom Topic */}
               <div>
                 <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
-                  Target Topics &amp; Concept
+                  Target Topic &amp; Concept
                 </label>
-                <input
-                  type="text"
-                  value={newQuizTopic}
-                  onChange={(e) => setNewQuizTopic(e.target.value)}
-                  placeholder="e.g. Limits, Squeeze Theorem, AVL Rotations"
-                  className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
-                />
+                {classTopics.length > 0 ? (
+                  <div className="space-y-2">
+                    <select
+                      value={selectedTopicId}
+                      onChange={(e) => {
+                        setSelectedTopicId(e.target.value);
+                        const found = classTopics.find((t) => t.id === e.target.value);
+                        if (found) setNewQuizTopic(found.title);
+                      }}
+                      className="w-full px-3.5 py-2.5 text-xs neu-input text-white font-bold cursor-pointer"
+                    >
+                      <option value="" className="bg-[#262626]">-- Choose from Syllabus or Type Custom Below --</option>
+                      {classTopics.map((top) => (
+                        <option key={top.id} value={top.id} className="bg-[#262626]">
+                          {top.title}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      value={newQuizTopic}
+                      onChange={(e) => {
+                        setNewQuizTopic(e.target.value);
+                        setSelectedTopicId('');
+                      }}
+                      placeholder="Or specify custom topic (e.g. Squeeze Theorem, AVL Rotations)"
+                      className="w-full px-3.5 py-2 text-xs neu-input text-white placeholder:text-[#666666]"
+                    />
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    value={newQuizTopic}
+                    onChange={(e) => setNewQuizTopic(e.target.value)}
+                    placeholder="e.g. Limits, Squeeze Theorem, AVL Rotations"
+                    className="w-full px-3.5 py-2.5 text-xs neu-input text-white placeholder:text-[#666666]"
+                  />
+                )}
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
-                  Diagnostic Difficulty
-                </label>
-                <select
-                  value={newQuizDifficulty}
-                  onChange={(e) => setNewQuizDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
-                  className="w-full px-3.5 py-2.5 text-xs neu-input text-white font-bold cursor-pointer"
-                >
-                  <option value="easy" className="bg-[#262626]">Easy (Foundational Concepts)</option>
-                  <option value="medium" className="bg-[#262626]">Medium (Conceptual Traps &amp; Distractors)</option>
-                  <option value="hard" className="bg-[#262626]">Hard (Edge Cases &amp; Multi-step Proofs)</option>
-                </select>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
+                    Difficulty
+                  </label>
+                  <select
+                    value={newQuizDifficulty}
+                    onChange={(e) => setNewQuizDifficulty(e.target.value as 'easy' | 'medium' | 'hard')}
+                    className="w-full px-3 py-2 text-xs neu-input text-white font-bold cursor-pointer"
+                  >
+                    <option value="easy" className="bg-[#262626]">Easy</option>
+                    <option value="medium" className="bg-[#262626]">Medium</option>
+                    <option value="hard" className="bg-[#262626]">Hard</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
+                    Questions
+                  </label>
+                  <select
+                    value={newQuizQuestionCount}
+                    onChange={(e) => setNewQuizQuestionCount(Number(e.target.value))}
+                    className="w-full px-3 py-2 text-xs neu-input text-white font-bold cursor-pointer"
+                  >
+                    <option value={3} className="bg-[#262626]">3 Questions</option>
+                    <option value={5} className="bg-[#262626]">5 Questions</option>
+                    <option value={8} className="bg-[#262626]">8 Questions</option>
+                    <option value={10} className="bg-[#262626]">10 Questions</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#9e9e9e] uppercase mb-1">
+                    Duration
+                  </label>
+                  <select
+                    value={newQuizDuration}
+                    onChange={(e) => setNewQuizDuration(Number(e.target.value))}
+                    className="w-full px-3 py-2 text-xs neu-input text-white font-bold cursor-pointer"
+                  >
+                    <option value={15} className="bg-[#262626]">15 mins</option>
+                    <option value={20} className="bg-[#262626]">20 mins</option>
+                    <option value={30} className="bg-[#262626]">30 mins</option>
+                    <option value={45} className="bg-[#262626]">45 mins</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Informational Callout */}
+              <div className="p-3 rounded-2xl bg-cyan-950/30 border border-cyan-500/20 text-[11px] text-cyan-300/90 leading-relaxed flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-cyan-400 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Draft &amp; Publish Lifecycle:</strong> AI will generate questions based on course notes and syllabus. The quiz is created in <strong>Draft</strong> mode so you can preview, edit, or adjust before publishing to students.
+                </span>
               </div>
             </div>
 
@@ -1329,33 +1629,186 @@ export default function ClassWorkspace({
                   onClick={handleGenerateAiQuiz}
                   className="flex-1 sm:flex-none px-4 py-2 neu-btn-accent text-[#0a0f1d] text-xs font-black cursor-pointer flex items-center justify-center gap-1.5 shadow-[0_4px_16px_rgba(0,210,255,0.4)] disabled:opacity-50"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#0a0f1d]" />
-                  <span>{isGeneratingQuiz ? 'Generating Questions...' : '⚡ AI Generate with Gemini'}</span>
+                  {isGeneratingQuiz ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Generating Questions with Gemini...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5 text-[#0a0f1d]" />
+                      <span>⚡ AI Generate Questions (Draft)</span>
+                    </>
+                  )}
                 </button>
 
                 <button
                   type="button"
-                  disabled={!newQuizTitle.trim()}
-                  onClick={() => {
-                    const newQ = {
-                      id: `quiz-${Date.now()}`,
-                      title: newQuizTitle,
-                      date: 'Today',
-                      topics: [newQuizTopic || 'General'],
-                      completionRate: 0,
-                      avgScore: 0,
-                      totalQuestions: 3,
-                      status: 'Upcoming' as const,
-                    };
-                    setQuizList((prev) => [newQ, ...prev]);
-                    setCreateQuizModalOpen(false);
-                    setNewQuizTitle('');
-                    setNewQuizTopic('');
-                  }}
-                  className="flex-1 sm:flex-none px-3.5 py-2 neu-btn-white text-black text-xs font-bold cursor-pointer"
+                  disabled={isGeneratingQuiz || !newQuizTitle.trim()}
+                  onClick={handleCreateBlankQuiz}
+                  className="flex-1 sm:flex-none px-3.5 py-2 neu-btn text-xs font-bold text-white hover:border-white/30 cursor-pointer disabled:opacity-50"
                 >
-                  Publish Blank
+                  Save Blank Draft
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* PREVIEW / REVIEW QUIZ QUESTIONS MODAL                           */}
+      {/* ============================================================== */}
+      {previewQuiz && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-2xl rounded-3xl neu-card-raised p-6 space-y-4 animate-in zoom-in-95 text-white border border-white/10 shadow-[0_24px_50px_rgba(0,0,0,0.85)] max-h-[92vh] overflow-y-auto">
+            {/* Header */}
+            <div className="flex items-start justify-between border-b border-white/5 pb-3">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                      previewQuiz.status === 'published'
+                        ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                        : 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
+                    }`}
+                  >
+                    {previewQuiz.status === 'published' ? '● Published (Live to Students)' : '○ Draft (Unpublished)'}
+                  </span>
+                  <span className="text-xs text-[#757575] font-medium">
+                    {previewQuiz.exam_duration} mins • {previewQuiz.difficulty?.toUpperCase()}
+                  </span>
+                </div>
+                <h3 className="text-base font-black text-white">{previewQuiz.title}</h3>
+                {previewQuiz.description && (
+                  <p className="text-xs text-[#9e9e9e]">{previewQuiz.description}</p>
+                )}
+              </div>
+              <button
+                onClick={() => setPreviewQuiz(null)}
+                className="p-1.5 rounded-lg text-[#9e9e9e] hover:text-white cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Questions List */}
+            <div className="space-y-4 py-1">
+              {isLoadingPreview ? (
+                <div className="py-12 flex flex-col items-center justify-center gap-3">
+                  <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
+                  <p className="text-xs text-[#9e9e9e]">Loading quiz questions...</p>
+                </div>
+              ) : (
+                (() => {
+                  const questionsList = previewQuiz.questions || previewQuiz.quiz_questions || [];
+                  if (questionsList.length === 0) {
+                    return (
+                      <div className="p-8 neu-inset rounded-2xl text-center space-y-2">
+                        <p className="text-xs font-bold text-[#9e9e9e]">No questions added to this quiz yet.</p>
+                        <p className="text-[11px] text-[#757575]">Use AI generation or add questions via the API.</p>
+                      </div>
+                    );
+                  }
+
+                  return questionsList.map((q, idx) => {
+                    const prompt = q.questionText || q.question_text || `Question #${idx + 1}`;
+                    const correctAns = q.correctAnswer || q.correct_answer;
+                    const explanation = q.explanation;
+                    const options = q.options || [];
+
+                    return (
+                      <div key={q.id || idx} className="p-4 rounded-2xl neu-inset space-y-3 border border-white/5">
+                        <div className="flex items-start justify-between gap-3">
+                          <span className="text-xs font-black text-cyan-400">Q{idx + 1}.</span>
+                          <p className="text-xs font-bold text-white flex-1 leading-relaxed">{prompt}</p>
+                          <span className="text-[10px] font-mono text-[#757575] bg-white/5 px-2 py-0.5 rounded">
+                            {q.marks || 1} mark
+                          </span>
+                        </div>
+
+                        {/* Options */}
+                        {options.length > 0 && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                            {options.map((opt, optIdx) => {
+                              const isCorrect = correctAns === opt || correctAns === optIdx;
+                              return (
+                                <div
+                                  key={optIdx}
+                                  className={`p-2.5 rounded-xl text-xs flex items-center gap-2 border transition-all ${
+                                    isCorrect
+                                      ? 'bg-emerald-950/40 border-emerald-500/50 text-emerald-300 font-bold'
+                                      : 'bg-white/5 border-white/5 text-[#cccccc]'
+                                  }`}
+                                >
+                                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono shrink-0 ${
+                                    isCorrect ? 'bg-emerald-500 text-black font-black' : 'bg-white/10 text-white/70'
+                                  }`}>
+                                    {String.fromCharCode(65 + optIdx)}
+                                  </span>
+                                  <span className="leading-snug">{opt}</span>
+                                  {isCorrect && (
+                                    <Check className="w-3.5 h-3.5 text-emerald-400 ml-auto shrink-0" />
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* Pedagogical Explanation */}
+                        {explanation && (
+                          <div className="p-2.5 rounded-xl bg-white/5 border border-white/5 text-[11px] text-[#9e9e9e] leading-relaxed">
+                            <span className="font-bold text-cyan-400 block mb-0.5">Pedagogical Rubric &amp; Explanation:</span>
+                            {explanation}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  });
+                })()
+              )}
+            </div>
+
+            {/* Bottom Actions */}
+            <div className="pt-3 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-xs text-[#9e9e9e]">
+                {previewQuiz.status === 'draft' ? (
+                  <span>Ready to assign? Click <strong>Publish Quiz</strong> to make it live for students.</span>
+                ) : (
+                  <span className="text-emerald-400">● Live for all enrolled students in {cls.name}.</span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setPreviewQuiz(null)}
+                  className="px-4 py-2 neu-btn text-xs font-bold text-[#9e9e9e] hover:text-white cursor-pointer"
+                >
+                  Close
+                </button>
+
+                {previewQuiz.status === 'draft' ? (
+                  <button
+                    type="button"
+                    disabled={isUpdatingStatus === previewQuiz.id}
+                    onClick={() => handleTogglePublishStatus(previewQuiz.id, 'draft')}
+                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs rounded-xl flex items-center gap-1.5 cursor-pointer shadow-lg disabled:opacity-50"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{isUpdatingStatus === previewQuiz.id ? 'Publishing...' : 'Publish Quiz to Students'}</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isUpdatingStatus === previewQuiz.id}
+                    onClick={() => handleTogglePublishStatus(previewQuiz.id, 'published')}
+                    className="px-4 py-2 neu-btn text-xs font-bold text-amber-300 hover:text-amber-200 rounded-xl cursor-pointer disabled:opacity-50"
+                  >
+                    <span>{isUpdatingStatus === previewQuiz.id ? 'Updating...' : 'Unpublish (Move to Draft)'}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

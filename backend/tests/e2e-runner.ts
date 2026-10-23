@@ -441,7 +441,35 @@ Another fundamental trigonometric limit derived from geometric bounds on the uni
 
     await executeHttp({
       category: 'Quizzes & Deterministic Mastery',
-      name: 'Inspect Quiz Details & Questions',
+      name: 'Teacher Inspects Draft Quiz Details & Questions',
+      method: 'GET',
+      path: `/api/v1/quizzes/detail/${quizId}`,
+      token: teacher.accessToken,
+      expectedStatus: 200,
+    });
+
+    await executeHttp({
+      category: 'Quizzes & Deterministic Mastery',
+      name: 'Student Blocked from Starting Draft Quiz Attempt',
+      method: 'POST',
+      path: `/api/v1/quizzes/detail/${quizId}/attempts`,
+      token: student.accessToken,
+      expectedStatus: 400,
+    });
+
+    await executeHttp({
+      category: 'Quizzes & Deterministic Mastery',
+      name: 'Teacher Publishes Draft Quiz to Students',
+      method: 'PATCH',
+      path: `/api/v1/quizzes/detail/${quizId}/status`,
+      token: teacher.accessToken,
+      body: { status: 'published' },
+      expectedStatus: 200,
+    });
+
+    await executeHttp({
+      category: 'Quizzes & Deterministic Mastery',
+      name: 'Student Inspects Published Quiz Details',
       method: 'GET',
       path: `/api/v1/quizzes/detail/${quizId}`,
       token: student.accessToken,

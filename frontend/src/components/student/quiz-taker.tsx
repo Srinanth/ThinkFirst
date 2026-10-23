@@ -100,17 +100,19 @@ export default function QuizTaker({
       quizzesApi
         .getQuizDetail(quiz.id)
         .then((detail) => {
-          if (isMounted && detail && detail.quiz_questions && detail.quiz_questions.length > 0) {
-            const mappedQuestions: Question[] = detail.quiz_questions.map((q, idx) => ({
+          if (!isMounted || !detail) return;
+          const rawQuestions = detail.questions || detail.quiz_questions || [];
+          if (rawQuestions.length > 0) {
+            const mappedQuestions: Question[] = rawQuestions.map((q, idx) => ({
               id: idx + 1,
               questionId: q.id,
-              prompt: q.question_text,
+              prompt: q.questionText || q.question_text || 'Diagnostic Question',
               options:
                 q.options && q.options.length > 0
                   ? q.options
                   : ['Option A (True)', 'Option B (False)', 'Option C (Inconclusive)', 'Option D (Undefined)'],
               correctIndex: 0,
-              explanation: 'Assessed against curriculum syllabus.',
+              explanation: q.explanation || 'Assessed against curriculum syllabus.',
             }));
             setQuestions(mappedQuestions);
           }

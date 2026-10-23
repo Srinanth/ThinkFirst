@@ -177,6 +177,34 @@ export const tutorApi = {
 // ============================================================================
 // QUIZZES & EVALUATOR AGENT API
 // ============================================================================
+export interface QuizQuestionItem {
+  id: string;
+  question_text?: string;
+  questionText?: string;
+  question_type?: 'multiple_choice' | 'short_answer' | 'long_answer';
+  questionType?: 'multiple_choice' | 'short_answer' | 'long_answer';
+  options?: string[];
+  marks: number;
+  position: number;
+  correct_answer?: any;
+  correctAnswer?: any;
+  explanation?: string;
+}
+
+export interface QuizDetailResponse {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  exam_duration: number;
+  question_count?: number;
+  status: 'draft' | 'published' | 'archived';
+  curriculum_topic_id?: string;
+  curriculum_topics?: { id: string; title: string };
+  questions?: QuizQuestionItem[];
+  quiz_questions?: QuizQuestionItem[];
+}
+
 export const quizzesApi = {
   listQuizzes: (subjectId: string) =>
     fetchWithAuth<
@@ -187,41 +215,44 @@ export const quizzesApi = {
         difficulty: string;
         question_count: number;
         exam_duration: number;
-        status: string;
+        status: 'draft' | 'published' | 'archived';
         created_at: string;
         curriculum_topics?: { id: string; title: string };
       }>
     >(`/quizzes/${subjectId}`),
 
   getQuizDetail: (quizId: string) =>
-    fetchWithAuth<{
-      id: string;
+    fetchWithAuth<QuizDetailResponse>(`/quizzes/detail/${quizId}`),
+
+  createQuiz: (
+    subjectId: string,
+    input: {
       title: string;
-      description: string;
-      difficulty: string;
-      exam_duration: number;
-      curriculum_topic_id?: string;
-      quiz_questions: Array<{
-        id: string;
-        question_text: string;
-        question_type: 'multiple_choice' | 'short_answer';
-        options?: string[];
-        marks: number;
-        position: number;
-      }>;
-    }>(`/quizzes/detail/${quizId}`),
+      description?: string;
+      difficulty?: 'easy' | 'medium' | 'hard';
+      examDuration?: number;
+      curriculumTopicId?: string;
+      topicTitle?: string;
+      status?: 'draft' | 'published' | 'archived';
+    }
+  ) =>
+    fetchWithAuth<QuizDetailResponse>(`/quizzes/${subjectId}`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
 
   generateQuiz: (
     subjectId: string,
     input: {
-      curriculumTopicId: string;
+      curriculumTopicId?: string;
+      topicTitle?: string;
       title: string;
       difficulty: 'easy' | 'medium' | 'hard';
       questionCount: number;
       examDuration?: number;
     }
   ) =>
-    fetchWithAuth<{ id: string; title: string; question_count: number }>(
+    fetchWithAuth<QuizDetailResponse>(
       `/quizzes/${subjectId}/generate`,
       {
         method: 'POST',
@@ -231,6 +262,32 @@ export const quizzesApi = {
         }),
       }
     ),
+
+  updateQuizStatus: (quizId: string, status: 'draft' | 'published' | 'archived') =>
+    fetchWithAuth<{ id: string; status: string }>(`/quizzes/detail/${quizId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+
+  updateQuiz: (
+    quizId: string,
+    input: {
+      title?: string;
+      description?: string;
+      difficulty?: 'easy' | 'medium' | 'hard';
+      examDuration?: number;
+      status?: 'draft' | 'published' | 'archived';
+    }
+  ) =>
+    fetchWithAuth<QuizDetailResponse>(`/quizzes/detail/${quizId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+    }),
+
+  deleteQuiz: (quizId: string) =>
+    fetchWithAuth<{ success: boolean; message: string }>(`/quizzes/detail/${quizId}`, {
+      method: 'DELETE',
+    }),
 
   startAttempt: (quizId: string) =>
     fetchWithAuth<{ id: string; status: string }>(

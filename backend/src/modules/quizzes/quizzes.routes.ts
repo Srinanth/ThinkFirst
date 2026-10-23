@@ -9,11 +9,13 @@ import {
   createQuizSchema,
   generateQuizSchema,
   submitAttemptSchema,
+  updateQuizSchema,
+  updateQuizStatusSchema,
 } from './quizzes.schemas.js';
 
 const router = Router();
 
-// Create quiz manually
+// Create quiz manually (defaults to 'draft')
 router.post(
   '/:subjectId',
   requireAuth,
@@ -23,7 +25,7 @@ router.post(
   quizzesController.create
 );
 
-// List quizzes in subject
+// List quizzes in subject (students only see published; teachers see all)
 router.get(
   '/:subjectId',
   requireAuth,
@@ -39,6 +41,35 @@ router.get(
   quizzesController.getById
 );
 
+// Update quiz status (draft -> published -> archived)
+router.patch(
+  '/detail/:quizId/status',
+  requireAuth,
+  requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
+  validateRequest({ body: updateQuizStatusSchema }),
+  quizzesController.updateStatus
+);
+
+// Update general quiz details
+router.patch(
+  '/detail/:quizId',
+  requireAuth,
+  requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
+  validateRequest({ body: updateQuizSchema }),
+  quizzesController.update
+);
+
+// Delete quiz and associated questions
+router.delete(
+  '/detail/:quizId',
+  requireAuth,
+  requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
+  quizzesController.delete
+);
+
 // Add question to quiz
 router.post(
   '/detail/:quizId/questions',
@@ -49,7 +80,7 @@ router.post(
   quizzesController.addQuestion
 );
 
-// Quiz Agent: generate diagnostic quiz from topic & materials
+// Quiz Agent: generate diagnostic quiz from topic & materials (saved as 'draft')
 router.post(
   '/:subjectId/generate',
   requireAuth,

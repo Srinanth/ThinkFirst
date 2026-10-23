@@ -36,6 +36,8 @@ export async function getOrCreateTestUser(
       throw new Error(`Failed to create test user ${email}: ${createError?.message}`);
     }
     user = created.user;
+  } else {
+    await supabaseAdmin.auth.admin.updateUserById(user.id, { password });
   }
 
   // 2. Ensure profile exists in public.profiles

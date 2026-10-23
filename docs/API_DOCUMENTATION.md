@@ -433,30 +433,66 @@ Content-Type: application/json
 - **Method & Path**: `GET /api/v1/quizzes/:subjectId`
 - **Access**: Subject members
 
-#### 5.3 Generate Targeted Diagnostic Quiz (Traditional LLM Service)
+#### 5.3 Generate Targeted Diagnostic Quiz (Quiz Agent)
 - **Method & Path**: `POST /api/v1/quizzes/:subjectId/generate`
-- **Access**: Subject instructor
+- **Access**: Subject instructor (`teacher` or `admin`)
+- **Lifecycle**: Generated quizzes are automatically created in `draft` status so the teacher can preview questions and rubric explanations before publishing to learners.
 - **Request Body**:
 ```json
 {
-  "curriculumTopicId": "top_01",
+  "curriculumTopicId": "optional-uuid",
+  "topicTitle": "Limits & Continuity",
   "title": "Diagnostic Quiz - Squeeze Theorem",
   "difficulty": "medium",
-  "questionCount": 3
+  "questionCount": 3,
+  "examDuration": 20
 }
 ```
-- **Response `201 Created`**: Generated quiz with `quiz_questions` stored.
+- **Response `201 Created`**: Generated quiz with `status: "draft"` and full pedagogical `questions` array.
 
-#### 5.4 Get Quiz Details & Questions
+#### 5.4 Update Quiz Status (Publish / Unpublish Lifecycle)
+- **Method & Path**: `PATCH /api/v1/quizzes/detail/:quizId/status`
+- **Access**: Assigned subject instructor or admin
+- **Request Body**:
+```json
+{
+  "status": "published"
+}
+```
+- **Allowed Values**: `"draft"`, `"published"`, `"archived"`
+- **Response `200 OK`**: Updated quiz object. Note: Students can only view and attempt quizzes in `"published"` status. Attempts on `"draft"` quizzes return `400 Bad Request`.
+
+#### 5.5 Update Quiz Details
+- **Method & Path**: `PATCH /api/v1/quizzes/detail/:quizId`
+- **Access**: Assigned subject instructor or admin
+- **Request Body**:
+```json
+{
+  "title": "Diagnostic Quiz - Advanced Calculus",
+  "description": "Comprehensive review of limits and derivatives",
+  "difficulty": "hard",
+  "examDuration": 30,
+  "status": "published"
+}
+```
+- **Response `200 OK`**: Updated quiz record.
+
+#### 5.6 Delete Quiz
+- **Method & Path**: `DELETE /api/v1/quizzes/detail/:quizId`
+- **Access**: Assigned subject instructor or admin
+- **Response `200 OK`**: `{ "success": true, "message": "Quiz deleted successfully" }`
+
+#### 5.7 Get Quiz Details & Questions
 - **Method & Path**: `GET /api/v1/quizzes/detail/:quizId`
-- **Access**: Authenticated
+- **Access**: Authenticated subject members (Teachers/admins receive complete rubrics and answer keys; Students receive prompts and options only, and can only access published quizzes)
 
-#### 5.5 Start Quiz Attempt
+#### 5.8 Start Quiz Attempt
 - **Method & Path**: `POST /api/v1/quizzes/detail/:quizId/attempts`
 - **Access**: Enrolled student
+- **Constraint**: Fails with `400 Bad Request` if quiz status is not `"published"`.
 - **Response `201 Created`**: New `quiz_attempts` session record.
 
-#### 5.6 Submit Attempt Session (Quiz Evaluator Agent + Student Insight Dossier + Deterministic Mastery Engine)
+#### 5.9 Submit Attempt Session (Quiz Evaluator Agent + Student Insight Dossier + Deterministic Mastery Engine)
 - **Method & Path**: `POST /api/v1/quizzes/attempts/:attemptId/submit`
 - **Access**: Student owner of attempt
 - **Request Body**:
