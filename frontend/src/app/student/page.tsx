@@ -12,7 +12,7 @@ import CourseDrilldown, {
   OpenQuiz,
 } from '@/components/student/course-drilldown';
 import QuizTaker from '@/components/student/quiz-taker';
-import AiTutorDrawer from '@/components/student/ai-tutor-drawer';
+import AiTutorDrawer, { RemediationMissionData } from '@/components/student/ai-tutor-drawer';
 import AdmissionModals from '@/components/modals/admission-modals';
 import { CheckCircle, X, Clock, Calendar } from 'lucide-react';
 
@@ -23,6 +23,8 @@ export default function StudentPage() {
   const [activeView, setActiveView] = useState<'overview' | 'course' | 'taking_quiz'>('overview');
   const [selectedCourse, setSelectedCourse] = useState<CourseItem>(ENROLLED_COURSES[0]);
   const [activeQuiz, setActiveQuiz] = useState<OpenQuiz | null>(null);
+  const [activeRemediationMission, setActiveRemediationMission] = useState<RemediationMissionData | null>(null);
+  const [tutorForceOpen, setTutorForceOpen] = useState(false);
 
   // Review Completed Quiz Modal State
   const [reviewedQuiz, setReviewedQuiz] = useState<CompletedQuiz | null>(null);
@@ -63,6 +65,14 @@ export default function StudentPage() {
     setActiveView('course');
     setActiveQuiz(null);
     showToast(`Quiz completed with ${score}%! AI Tutor is now re-enabled.`);
+  };
+
+  const handleStartRemediation = (mission: RemediationMissionData) => {
+    setActiveRemediationMission(mission);
+    setActiveView('course');
+    setActiveQuiz(null);
+    setTutorForceOpen(true);
+    showToast(`Remediation Mission launched: ${mission.title}! Action widgets ready.`);
   };
 
   return (
@@ -113,6 +123,7 @@ export default function StudentPage() {
           <QuizTaker
             quiz={activeQuiz}
             onFinishQuiz={handleFinishQuiz}
+            onStartRemediation={handleStartRemediation}
             onCancel={() => {
               setActiveView('course');
               setActiveQuiz(null);
@@ -121,11 +132,15 @@ export default function StudentPage() {
         )}
       </main>
 
-      {/* Contextual AI Tutor */}
+      {/* Contextual AI Tutor (Method 2 Interactive Action Widgets) */}
       <AiTutorDrawer
         currentCourse={`${selectedCourse.code}: ${selectedCourse.title}`}
+        subjectId={selectedCourse.id}
         isVisible={activeView === 'course'}
         isQuizActive={activeView === 'taking_quiz'}
+        initialMission={activeRemediationMission}
+        forceOpen={tutorForceOpen}
+        onClose={() => setTutorForceOpen(false)}
       />
 
       {/* Review Completed Quiz Modal (Dark Neumorphic with White Contrast) */}

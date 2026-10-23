@@ -24,7 +24,7 @@ export default function TeacherPage() {
       <Navbar
         role="teacher"
         userName="Prof. Sarah Connor"
-        userEmail="s.connor@eduanalytics.org"
+        userEmail="s.connor@thinkfirst.edu"
         avatarText="SC"
         onBrandClick={() => setSelectedClass(null)}
         onSignOut={handleSignOut}

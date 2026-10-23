@@ -285,7 +285,7 @@ export default function AdminLoginPage() {
             System activity is cryptographically signed and logged.
           </p>
           <p className="text-[11px] text-[#555555]">
-            EduAnalytics Admin Core &copy; 2026 &bull; Higher Education Division
+            ThinkFirst Admin Core &copy; 2026 &bull; Higher Education Division
           </p>
         </div>
       </div>

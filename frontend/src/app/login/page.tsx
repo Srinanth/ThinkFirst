@@ -342,7 +342,7 @@ export default function AcademicLoginPage() {
             Protected by Institutional Role-Based Access Control (RBAC).
           </p>
           <p className="text-[11px] text-[#555555]">
-            EduAnalytics &copy; 2026 &bull; Real-time AI learning telemetry
+            ThinkFirst &copy; 2026 &bull; Real-time Agentic AI &amp; Deterministic Mastery
           </p>
         </div>
       </div>

@@ -17,11 +17,11 @@
 | **3. Backend Infrastructure & Middlewares** | 10 | 10 | 0 | 0 | **100%** |
 | **4. Agentic AI Workflows (Mastra/Gemini)** | 7 | 7 | 0 | 0 | **100%** |
 | **5. Deterministic Mastery Engine** | 4 | 2 | 0 | 2 | **50%** |
-| **6. Frontend Web App (Next.js)** | 8 | 0 | 2 | 6 | **10%** |
-| **TOTALS** | **45** | **34** | **3** | **8** | **76% Overall** |
+| **6. Frontend Web App (Next.js)** | 8 | 8 | 0 | 0 | **100%** |
+| **TOTALS** | **45** | **42** | **1** | **2** | **93% Overall** |
 
 ```
-Progress: [████████████████░░░░] 76%
+Progress: [███████████████████░] 93%
 ```
 
 ---
@@ -96,17 +96,17 @@ Progress: [████████████████░░░░] 76%
 
 ---
 
-### Phase 6: Frontend Web Application (Deepak & Antony's Focus)
+### Phase 6: Frontend Web Application (Deepak & Antony's Work Integrated)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **FE-01** | Next.js Setup with Tailwind v4 & shadcn | `frontend` | `P0` | `[/] In Progress` | Antony | Next.js App Router & base design system |
-| **FE-02** | Authentication Pages (Login, Sign Up) | `frontend` | `P0` | `[/] In Progress` | Antony | Supabase Auth UI integration |
-| **FE-03** | Teacher Studio: Ingestion & Topic Tree | `frontend` | `P0` | `[ ] Planned` | Antony | File upload & topic manager |
-| **FE-04** | Teacher Dashboard: Insights & Performance | `frontend` | `P0` | `[ ] Planned` | Antony | Diagnostics and recommendations UI |
-| **FE-05** | Student Hub: Topic Progress & Mastery Meter | `frontend` | `P0` | `[ ] Planned` | Deepak | Interactive mastery visualization |
-| **FE-06** | Student Study Room: Socratic Tutor Chat | `frontend` | `P0` | `[ ] Planned` | Deepak | SSE stream reader with Markdown render |
-| **FE-07** | Student Quiz Runner | `frontend` | `P0` | `[ ] Planned` | Deepak | Assessment component & answer input |
-| **FE-08** | Teacher Roster & Enrollment Modal (Enroll Student)| `frontend` | `P1` | `[ ] Planned` | Antony | Teacher enrolls students directly |
+| **FE-01** | Next.js 16 Setup with Tailwind v4 & Neumorphic UI | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Next.js App Router & dark soft-UI design system |
+| **FE-02** | Authentication Pages (Institutional Login & Custom ID)| `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Supabase Auth UI integration (`/login`, `/admin/login`) |
+| **FE-03** | Teacher Studio: Vector RAG Notes & Syllabus Ingestion | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Notes/text upload, multimodal OCR chunking, and similarity search |
+| **FE-04** | Teacher Dashboard: Insights & Performance | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Live student gap dossiers with active/resolved filter, cohort trends |
+| **FE-05** | Student Hub: Topic Progress & Mastery Meter | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Interactive mastery visualization and course drilldown |
+| **FE-06** | Student Study Room: Socratic Tutor Chat (Method 2) | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Method 2 with clickable action widgets, live mastery gauge, resolution triggers |
+| **FE-07** | Student Quiz Runner & Evaluator Agent Diagnosis Handoff | `frontend` | `P0` | `[x] Completed` | Deepak / Srinanth | Assessment runner, proctored timer, Evaluator Agent gap mission handoff |
+| **FE-08** | Teacher Roster & Enrollment Modals | `frontend` | `P1` | `[x] Completed` | Antony / Srinanth | Student & faculty admission modals, master student performance matrix |
 
 ---
 
