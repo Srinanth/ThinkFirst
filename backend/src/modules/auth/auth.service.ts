@@ -119,13 +119,23 @@ export class AuthService {
         const userMap = new Map(usersData.users.map((u) => [u.id, u]));
         return (profiles || []).map((p) => {
           const u = userMap.get(p.id);
-          const loginId =
-            (u?.user_metadata as Record<string, any> | undefined)?.login_id ||
-            (p.role === 'student'
-              ? `STD-${p.id.slice(0, 4).toUpperCase()}`
-              : p.role === 'teacher'
-              ? `TCR-${p.id.slice(0, 4).toUpperCase()}`
-              : `ADM-${p.id.slice(0, 4).toUpperCase()}`);
+          let loginId = (u?.user_metadata as Record<string, any> | undefined)?.login_id;
+
+          if (!loginId || loginId.endsWith('-')) {
+            if (p.role === 'admin') {
+              loginId = 'ADM-89421';
+            } else if (u?.email === 'teacher.demo@thinkfirst.edu') {
+              loginId = 'TCR-1042';
+            } else if (u?.email === 'student.demo@thinkfirst.edu') {
+              loginId = 'STD-8821';
+            } else if (loginId?.endsWith('-')) {
+              const hash = (parseInt(p.id.replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
+              loginId = `${loginId}${hash}`;
+            } else {
+              const hash = (parseInt(p.id.replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
+              loginId = `${p.role === 'student' ? 'STD' : 'TCR'}-2026-${hash}`;
+            }
+          }
 
           return {
             ...p,
@@ -138,16 +148,17 @@ export class AuthService {
       // Fallback
     }
 
-    return (profiles || []).map((p) => ({
-      ...p,
-      email: `${p.role}.${p.id.slice(0, 6)}@institution.edu`,
-      login_id:
-        p.role === 'student'
-          ? `STD-${p.id.slice(0, 4).toUpperCase()}`
-          : p.role === 'teacher'
-          ? `TCR-${p.id.slice(0, 4).toUpperCase()}`
-          : `ADM-${p.id.slice(0, 4).toUpperCase()}`,
-    }));
+    return (profiles || []).map((p) => {
+      const hash = (parseInt(p.id.replace(/-/g, '').slice(0, 4), 16) % 9000) + 1000;
+      return {
+        ...p,
+        email: `${p.role}.${p.id.slice(0, 6)}@institution.edu`,
+        login_id:
+          p.role === 'admin'
+            ? 'ADM-89421'
+            : `${p.role === 'student' ? 'STD' : 'TCR'}-2026-${hash}`,
+      };
+    });
   }
 
   /**
@@ -156,6 +167,14 @@ export class AuthService {
   async createUser(input: CreateUserInput) {
     if (!input.email || !input.fullName || !input.role) {
       throw new BadRequestError('Email, full name, and role are required.');
+    }
+
+    let finalLoginId = input.loginId?.trim();
+    if (!finalLoginId || finalLoginId.endsWith('-') || finalLoginId.length < 8) {
+      const randomDigits = Math.floor(1000 + Math.random() * 9000);
+      finalLoginId = finalLoginId?.endsWith('-')
+        ? `${finalLoginId}${randomDigits}`
+        : `${input.role === 'student' ? 'STD' : 'TCR'}-2026-${randomDigits}`;
     }
 
     const defaultPassword =
@@ -171,7 +190,7 @@ export class AuthService {
           full_name: input.fullName,
           role: input.role,
           college: input.college || 'Faculty of Engineering',
-          login_id: input.loginId,
+          login_id: finalLoginId,
         },
       });
 

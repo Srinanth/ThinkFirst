@@ -60,17 +60,24 @@ export default function DashboardView({
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [isTeacherModalOpen, setIsTeacherModalOpen] = useState(false);
 
+  const generateRandomId = (prefix: 'STD' | 'TCR') =>
+    `${prefix}-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+
   // Student Form State
   const [studentName, setStudentName] = useState('');
   const [studentEmail, setStudentEmail] = useState('');
-  const [studentId, setStudentId] = useState('STD-2026-');
+  const [studentId, setStudentId] = useState(() =>
+    generateRandomId('STD')
+  );
   const [studentPassword, setStudentPassword] = useState('');
   const [showStudentPassword, setShowStudentPassword] = useState(false);
 
   // Teacher Form State
   const [teacherName, setTeacherName] = useState('');
   const [teacherEmail, setTeacherEmail] = useState('');
-  const [teacherId, setTeacherId] = useState('TCR-2026-');
+  const [teacherId, setTeacherId] = useState(() =>
+    generateRandomId('TCR')
+  );
   const [teacherPassword, setTeacherPassword] = useState('');
   const [showTeacherPassword, setShowTeacherPassword] = useState(false);
 
@@ -327,7 +334,10 @@ export default function DashboardView({
             {/* Action Card 1: ADD STUDENT */}
             <button
               type="button"
-              onClick={() => setIsStudentModalOpen(true)}
+              onClick={() => {
+                setStudentId(generateRandomId('STD'));
+                setIsStudentModalOpen(true);
+              }}
               className="text-left w-full neu-card hover:shadow-[10px_10px_24px_rgba(0,0,0,0.55),-5px_-5px_15px_rgba(255,255,255,0.04)] hover:-translate-y-1 p-6 transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[175px] group text-white"
             >
               <div className="flex items-start justify-between w-full">
@@ -357,7 +367,10 @@ export default function DashboardView({
             {/* Action Card 2: ADD TEACHER */}
             <button
               type="button"
-              onClick={() => setIsTeacherModalOpen(true)}
+              onClick={() => {
+                setTeacherId(generateRandomId('TCR'));
+                setIsTeacherModalOpen(true);
+              }}
               className="text-left w-full neu-card hover:shadow-[10px_10px_24px_rgba(0,0,0,0.55),-5px_-5px_15px_rgba(255,255,255,0.04)] hover:-translate-y-1 p-6 transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[175px] group text-white"
             >
               <div className="flex items-start justify-between w-full">
