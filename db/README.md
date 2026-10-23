@@ -74,6 +74,7 @@ ThinkFirst implements an institutional multi-tenant hierarchy:
    - `tutor_conversations`: Socratic chat threads scoped to subject and student.
    - `tutor_messages`: Individual conversation turns (`user`, `assistant`, `system`).
    - `teacher_insights`: Aggregated pedagogical signals and intervention recommendations.
+   - `student_mastery_history` : Mastery changes over time.
 
 3. **Performance & Vector Indexes**:
    - HNSW index on `note_embeddings.embedding` using `vector_cosine_ops` ($m=16$, $ef\_construction=64$).
