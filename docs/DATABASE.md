@@ -304,21 +304,39 @@ Individual dialogue turns exchanged in a Socratic conversation.
 ---
 
 ### 3.15 `teacher_insights`
-AI-generated diagnostic signals for teachers based on aggregated student evidence.
+Diagnostic dossier and learning gap tracking bridging students and teachers. Generated autonomously by the **Quiz Evaluator Agent** upon quiz submission, updated interactively by the **AI Tutor Agent** during gap coaching, and displayed live on the Teacher Dashboard.
 
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | `UUID` | `PRIMARY KEY DEFAULT gen_random_uuid()` | Insight ID |
 | `teacher_subject_id` | `UUID` | `NOT NULL`, references `teacher_subjects(id) ON DELETE CASCADE` | Subject class |
 | `insight_type` | `TEXT` | `NOT NULL, CHECK (insight_type = ANY (ARRAY['weak_areas'::text, 'strong_areas'::text, 'summary'::text]))` | Diagnostic category |
-| `title` | `TEXT` | `NOT NULL` | Summary headline |
-| `description` | `TEXT` | `NOT NULL` | Pedagogical explanation |
+| `title` | `TEXT` | `NOT NULL` | Summary headline (e.g. "Knowledge Gap: Removable Discontinuities") |
+| `description` | `TEXT` | `NOT NULL` | Detailed cognitive diagnosis of the gap |
 | `curriculum_topic_id` | `UUID` | `NULL`, references `curriculum_topics(id) ON DELETE SET NULL` | Impacted topic |
-| `student_id` | `UUID` | `NULL`, references `profiles(id) ON DELETE CASCADE` | Flagged student |
-| `evidence` | `JSONB` | `NULL` | Supporting stats / response traces |
-| `status` | `TEXT` | `NOT NULL DEFAULT 'active'::text, CHECK (status = ANY (ARRAY['active'::text, 'dismissed'::text, 'resolved'::text]))` | Insight state |
+| `student_id` | `UUID` | `NULL`, references `profiles(id) ON DELETE CASCADE` | Flagged student (or NULL for class-wide summary) |
+| `evidence` | `JSONB` | `NULL` | Structured diagnostic & remediation trace (schema below) |
+| `status` | `TEXT` | `NOT NULL DEFAULT 'active'::text, CHECK (status = ANY (ARRAY['active'::text, 'dismissed'::text, 'resolved'::text]))` | Lifecycle state: `'active'` (unresolved gap) ➔ `'resolved'` (cleared by Tutor) |
 | `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Generation timestamp |
 | `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT now()` | Last update timestamp |
+
+#### `evidence` JSONB Structure for Student Gaps:
+```json
+{
+  "initialScore": 0.40,
+  "diagnosedGap": "Removable Discontinuities (direct substitution yielding 0/0)",
+  "missedQuestions": ["Q2", "Q3"],
+  "actionPlan": "Socratic Micro-Ladder: factoring difference of squares and evaluating cancelled limit",
+  "actionWidgets": [
+    { "label": "Factor into (x-2)(x+2)", "value": "factor" },
+    { "label": "Substitute x=0", "value": "sub_zero" }
+  ],
+  "progressTrace": [
+    { "turn": 1, "studentResponse": "factor", "understandingDelta": 0.20, "timestamp": "2026-10-24T01:30:00Z" }
+  ],
+  "teacherAdvice": "Concept is secure. Reinforce by asking about piecewise definitions in lecture."
+}
+```
 
 ---
 

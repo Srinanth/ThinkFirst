@@ -3,10 +3,12 @@ import { supabaseAdmin } from '../../config/supabase.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
 import {
   generateSocraticResponse,
+  generateInteractiveSocraticTurn,
   streamSocraticResponse,
   TutorMessageHistory,
 } from '../../agents/tutor.agent.js';
 import { materialsService } from '../materials/materials.service.js';
+import { masteryService } from '../mastery/mastery.service.js';
 import { CreateConversationInput, SendMessageInput } from './tutor.schemas.js';
 
 export class TutorService {
@@ -111,7 +113,7 @@ export class TutorService {
   }
 
   /**
-   * Standard JSON turn in Socratic tutor dialogue
+   * Standard JSON turn in Socratic tutor dialogue (Method 2: Interactive Chat with Action Widgets)
    */
   async chatTurn(conversationId: string, studentId: string, input: SendMessageInput) {
     const { conv, history, topicTitle, studentMasteryLevel } = await this.getConversationContext(
@@ -143,16 +145,39 @@ export class TutorService {
       // Continue even if vector search yields no matches
     }
 
-    // Generate Socratic response from Tutor Agent
-    const assistantContent = await generateSocraticResponse({
+    // Check for an active diagnosed gap in teacher_insights
+    const targetTopicId = input.curriculumTopicId || null;
+    let activeInsight: any = null;
+    if (targetTopicId) {
+      const { data: ins } = await supabaseAdmin
+        .from('teacher_insights')
+        .select('*')
+        .eq('student_id', studentId)
+        .eq('curriculum_topic_id', targetTopicId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      activeInsight = ins;
+    }
+
+    // Generate Method 2 Interactive Socratic response from Tutor Agent
+    const turnResult = await generateInteractiveSocraticTurn({
       studentMessage: input.message,
       history,
       contextNotes,
       topicTitle,
       studentMasteryLevel,
+      activeGapDescription: activeInsight ? activeInsight.description : undefined,
     });
 
     // Save assistant response
+    const assistantContent =
+      turnResult.message ||
+      (turnResult as any).content ||
+      'Let\'s break down this concept together. What do you think our first step should be?';
+
     const { data: assistantMsg, error: msgError } = await supabaseAdmin
       .from('tutor_messages')
       .insert({
@@ -166,13 +191,66 @@ export class TutorService {
 
     if (msgError) throw new BadRequestError(msgError.message);
 
+    // Deterministic Mastery Update if topic is active
+    let updatedMasteryScore = studentMasteryLevel ?? 0;
+    if (targetTopicId && turnResult.understandingScore > 0) {
+      try {
+        const masteryRecord = await masteryService.recordEvidence({
+          studentId,
+          teacherSubjectId: conv.teacher_subject_id,
+          curriculumTopicId: targetTopicId,
+          evidenceScore: turnResult.understandingScore,
+          source: 'ai_tutor',
+        });
+        updatedMasteryScore = masteryRecord.masteryScore;
+      } catch {
+        // Continue if mastery recording fails
+      }
+    }
+
+    // Update teacher_insights record with progress trace and resolution status
+    if (activeInsight) {
+      const currentEvidence = (activeInsight.evidence as Record<string, any>) || {};
+      const progressTrace = Array.isArray(currentEvidence.progressTrace) ? currentEvidence.progressTrace : [];
+
+      progressTrace.push({
+        turn: progressTrace.length + 1,
+        studentMessage: input.message,
+        understandingScore: turnResult.understandingScore,
+        teacherNote: turnResult.teacherNote,
+        timestamp: new Date().toISOString(),
+      });
+
+      const newStatus = turnResult.isGapResolved ? 'resolved' : 'active';
+
+      await supabaseAdmin
+        .from('teacher_insights')
+        .update({
+          status: newStatus,
+          evidence: {
+            ...currentEvidence,
+            actionWidgets: turnResult.actionWidgets,
+            progressTrace,
+            teacherAdvice: turnResult.teacherNote,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', activeInsight.id);
+    }
+
     // Update conversation updated_at
     await supabaseAdmin
       .from('tutor_conversations')
       .update({ updated_at: new Date().toISOString() })
       .eq('id', conversationId);
 
-    return assistantMsg;
+    return {
+      ...assistantMsg,
+      actionWidgets: turnResult.actionWidgets,
+      understandingScore: turnResult.understandingScore,
+      isResolved: turnResult.isGapResolved,
+      currentMastery: updatedMasteryScore,
+    };
   }
 
   /**

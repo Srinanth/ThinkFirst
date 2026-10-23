@@ -6,7 +6,8 @@ export class InsightsController {
   async list(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const status = req.query.status as string | undefined;
-      const list = await insightsService.listInsights(req.params.subjectId as string, status);
+      const studentId = req.query.studentId as string | undefined;
+      const list = await insightsService.listInsights(req.params.subjectId as string, status, studentId);
       sendSuccess(res, list);
     } catch (err) {
       next(err);

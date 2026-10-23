@@ -5,9 +5,9 @@ import { masteryService } from '../mastery/mastery.service.js';
 
 export class InsightsService {
   /**
-   * List insights for a subject offering
+   * List insights for a subject offering with optional status and studentId filters
    */
-  async listInsights(subjectId: string, status?: string) {
+  async listInsights(subjectId: string, status?: string, studentId?: string) {
     let query = supabaseAdmin
       .from('teacher_insights')
       .select(`
@@ -30,6 +30,10 @@ export class InsightsService {
 
     if (status) {
       query = query.eq('status', status);
+    }
+
+    if (studentId) {
+      query = query.eq('student_id', studentId);
     }
 
     const { data, error } = await query;

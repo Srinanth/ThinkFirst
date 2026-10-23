@@ -79,10 +79,10 @@ Progress: [████████████████░░░░] 76%
 | **AI-01** | Gemini Client Configuration & Embeddings Client | `agents` | `P0` | `[x] Completed` | Srinanth | `@google/genai` (Gemini 3.5 Flash/Lite, 768-dim embeddings verified) |
 | **AI-02** | OCR Document & Notes Extraction Pipeline | `utils/ocr` | `P0` | `[x] Completed` | Srinanth | Multimodal OCR (PDF/Images) & direct text ingestion (Replaced Curriculum Agent per Review) |
 | **AI-03** | Notes & Retrieval: Semantic Chunking & Embeddings | `materials` | `P0` | `[x] Completed` | Srinanth | 500-token chunks with 768-dim embeddings |
-| **AI-04** | Quiz Agent: Adaptive Question Generator | `agents` | `P0` | `[x] Completed` | Srinanth | Generates targeted diagnostic questions (verified via 27 E2E tests) |
-| **AI-05** | Evaluator Agent: Answer & Reasoning Rubric Parser| `agents` | `P0` | `[x] Completed` | Srinanth | Evaluates student quiz & chat responses (verified via 27 E2E tests) |
-| **AI-06** | Tutor Agent: Socratic Dialogue & Anti-Cheat | `agents` | `P0` | `[x] Completed` | Srinanth | Guides reasoning, suppresses answers (verified via 27 E2E tests) |
-| **AI-07** | Insight Agent: Teacher Analytics Synthesizer | `agents` | `P1` | `[x] Completed` | Srinanth | Powers teacher insights (verified via 27 E2E tests) |
+| **AI-04** | Quiz Generation Service | `agents` | `P0` | `[x] Completed` | Srinanth | Traditional fast LLM generation from course notes & syllabus |
+| **AI-05** | Quiz Evaluator Agent: Answer Evaluation & Gap Diagnosis | `agents` | `P0` | `[x] Completed` | Srinanth | Evaluates answers, calculates mastery delta, and autonomously creates `teacher_insights` gap dossiers |
+| **AI-06** | AI Tutor Agent: Interactive Chat with Action Widgets (Method 2) | `agents` | `P0` | `[x] Completed` | Srinanth | Low-friction Socratic dialogue with action pills/options, increments mastery & marks gaps resolved |
+| **AI-07** | Teacher Insights Bridge: Student Learning Curves | `insights` | `P1` | `[x] Completed` | Srinanth | Real-time active vs resolved gap tracking, progress traces, and teacher advice |
 
 ---
 

@@ -425,6 +425,18 @@ Content-Type: application/json
       "oldScore": 0.50,
       "newScore": 0.65,
       "confidence": 0.85
+    },
+    "remediationMission": {
+      "insightId": "ins_01",
+      "topicId": "top_01",
+      "title": "Knowledge Gap: Removable Discontinuities",
+      "diagnosedGap": "Direct substitution yielding indeterminate 0/0 without factoring",
+      "openingPrompt": "On Question 3, you got 0/0. Since 0/0 is indeterminate, what is your first move for factoring (x^2 - 4)?",
+      "actionWidgets": [
+        { "type": "pill", "label": "Factor into (x-2)(x+2)", "value": "factor" },
+        { "type": "pill", "label": "Substitute x=0", "value": "sub_zero" },
+        { "type": "pill", "label": "Need a hint", "value": "hint" }
+      ]
     }
   }
 }
@@ -459,17 +471,36 @@ Content-Type: application/json
 - **Method & Path**: `GET /api/v1/tutor/conversations/:conversationId/messages`
 - **Access**: Conversation owner
 
-#### 6.4 Send Message & Stream Socratic Guidance (Tutor Agent)
+#### 6.4 Send Message & Interactive Guidance (Tutor Agent - Method 2)
 - **Method & Path**: `POST /api/v1/tutor/conversations/:conversationId/chat`
 - **Access**: Conversation owner
 - **Request Body**:
 ```json
 {
-  "content": "Can you solve this limit for me: lim x->0 (sin x)/x?",
-  "stream": true
+  "message": "factor",
+  "curriculumTopicId": "top_01",
+  "stream": false
 }
 ```
-- **Response**: SSE token stream (`text/event-stream`) or JSON response envelope (`stream: false`).
+- **Response `200 OK` (JSON Envelope)**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "msg_02",
+    "role": "assistant",
+    "content": "Spot on! By factoring into (x-2)(x+2), the (x-2) cancels with the denominator. Now evaluate (x+2) as x approaches 2.",
+    "actionWidgets": [
+      { "type": "pill", "label": "4", "value": "4" },
+      { "type": "pill", "label": "0", "value": "0" },
+      { "type": "pill", "label": "2", "value": "2" }
+    ],
+    "currentMastery": 0.70,
+    "isResolved": true
+  }
+}
+```
+*Note: Real-time SSE token streaming is also supported when `stream: true`.*
 
 ---
 
@@ -500,6 +531,7 @@ Content-Type: application/json
 #### 8.1 List Teacher Subject Insights
 - **Method & Path**: `GET /api/v1/insights/:subjectId`
 - **Access**: Instructor of `:subjectId`
+- **Query Params**: `?studentId=uuid&status=active|resolved|dismissed` (optional filters)
 - **Response `200 OK`**:
 ```json
 {
@@ -507,11 +539,27 @@ Content-Type: application/json
   "data": [
     {
       "id": "ins_01",
-      "insightType": "struggling_topic",
-      "title": "High Difficulty: Squeeze Theorem",
-      "description": "58% of students submitted answers missing the lower bounding inequality.",
+      "insightType": "weak_areas",
+      "title": "Knowledge Gap: Removable Discontinuities",
+      "description": "Student evaluated 0/0 directly instead of factoring first.",
       "curriculumTopicId": "top_01",
-      "status": "active"
+      "studentId": "std_01",
+      "evidence": {
+        "initialScore": 0.40,
+        "diagnosedGap": "Direct substitution yielding indeterminate 0/0 without factoring",
+        "missedQuestions": ["Q2", "Q3"],
+        "actionPlan": "Socratic Micro-Ladder on factoring difference of squares",
+        "actionWidgets": [
+          { "type": "pill", "label": "Factor into (x-2)(x+2)", "value": "factor" }
+        ],
+        "progressTrace": [
+          { "turn": 1, "studentResponse": "factor", "understandingDelta": 0.20, "timestamp": "2026-10-24T01:30:00Z" }
+        ],
+        "teacherAdvice": "Concept secure. Reinforce in lecture."
+      },
+      "status": "resolved",
+      "createdAt": "2026-10-24T01:25:00.000Z",
+      "updatedAt": "2026-10-24T01:30:00.000Z"
     }
   ]
 }

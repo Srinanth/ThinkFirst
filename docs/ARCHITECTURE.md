@@ -101,15 +101,15 @@ ThinkFirst is built upon a hybrid **Agentic Intelligence & Deterministic State A
     ──▶ [Global Error Handler Middleware]
   ```
 
-### 2.3 Layer 3: Agentic Intelligence Layer (Google Gemini & 4 Core AI Agents)
-Orchestrated using the **Google Gemini SDK** (Gemini 3.5 Flash / Flash Lite / Gemini 3.8 Flash):
+### 2.3 Layer 3: Agentic Intelligence Layer (Collaborative Agent Architecture)
+Orchestrated using the **Google Gemini SDK** (Gemini 3.5 Flash / Flash Lite) with cost-efficient structured dual-action outputs:
 
-| Agent Name | Input | Primary Tool / Logic | Output |
+| Component / Agent | Role & Type | Primary Action / Responsibility | Output & State Impact |
 |---|---|---|---|
-| **1. Quiz Agent** | Student Topic Context + Course Notes + Bloom's Taxonomy | Analyzes current mastery gaps, searches scoped vector context, formulates diagnostic questions | Targeted Diagnostic Quiz (MCQ & open conceptual reasoning questions with rubrics) |
-| **2. Evaluator Agent** | Student answer + Question Rubric + Concept Reference | Semantic evaluation, misconceptions detector, partial credit analysis | Structured Evaluation Evidence (`score`, `isCorrect`, `feedback`, `misconception`) |
-| **3. Tutor Agent** | Student prompt + Scoped Course Notes Context + Mastery Level | Grounded Socratic prompt chain, anti-shortcut laws, adaptive difficulty | Real-time Socratic Nudges & Hints (SSE streaming or JSON; never direct answers) |
-| **4. Insight Agent** | Aggregated classroom mastery scores + Struggling Topic Distribution | Trend analysis, prerequisite bottleneck detection, actionable pedagogy | Classroom Diagnostic Insights (weak areas, prerequisite blockers, remediation strategies) |
+| **1. Quiz Generator** | Traditional LLM Service | Generates targeted diagnostic questions from course notes & syllabus | Multi-format diagnostic quiz (MCQs & open conceptual prompts) |
+| **2. Quiz Evaluator Agent** | Autonomous Evaluator Agent | Evaluates student answers, calculates mastery delta, and **autonomously diagnoses knowledge gaps** | Emits grading feedback AND **automatically inserts/updates `teacher_insights`** (`status: 'active'`, gap diagnosis, student reasoning trace) |
+| **3. AI Tutor Agent** | Personal Agent & Teacher's Bridge | Delivers **Interactive Chat with Action Widgets (Method 2)** targeting missing knowledge | Socratic message + clickable action pills/options; **updates `student_topic_mastery` and transitions `teacher_insights` to `'resolved'`** |
+| **4. Teacher Insights** | Real-time Pedagogical Dossier | Aggregates classroom & individual student gap resolution traces | Live Teacher Dashboard: Active vs. Resolved gaps, student progress traces, and actionable lecture talking points |
 
 *Note: Document and notes extraction is handled via the deterministic **Multimodal OCR & Document Extraction Pipeline** (`utils/ocr.util.ts`), and curriculum structuring is handled via deterministic bulk hierarchical import (`POST /bulk`), eliminating non-deterministic LLM variance for syllabus ingestion.*
 
@@ -163,57 +163,58 @@ sequenceDiagram
     RW-->>Teacher: Material ready for Grounded Socratic RAG
 ```
 
-### 3.2 Flow B: Student Socratic Tutor Dialogue ("Talk to Teacher")
+### 3.2 Flow B: Student Interactive Socratic Chat with Action Widgets (Method 2)
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Student
     participant API as Express API
-    participant TutorAgent as Mastra Tutor Agent
-    participant DB as Supabase (pgvector & JSONB)
-    participant Gemini as Gemini 3.8 Flash
+    participant TutorAgent as AI Tutor Agent
+    participant DB as Supabase (pgvector, tutor_messages, mastery, teacher_insights)
+    participant Gemini as Gemini 3.5 Flash
+    actor Teacher
 
-    Student->>API: POST /api/v1/tutor/sessions/:id/messages (Student Prompt)
-    API->>DB: Fetch Student Knowledge Snapshot & Recent Chat History
-    API->>DB: Query note_embeddings WHERE classroom_id = :id ORDER BY embedding <=> query_vector LIMIT 5
-    DB-->>API: Grounding Context (Teacher Notes Chunks)
-    API->>TutorAgent: Execute Socratic Prompt Chain (Query + Context + Mastery State)
-    TutorAgent->>Gemini: Stream Socratic Guided Reasoning (Strict anti-cheat guardrails)
-    Gemini-->>API: Token Stream (SSE)
-    API-->>Student: Real-time Socratic Nudges & Hints (No direct answers)
-    
-    API->>Mastra: Async trigger Evaluator Agent (Analyze student understanding in turn)
-    Mastra->>DB: Record qualitative evidence event if misconception/insight detected
+    Student->>API: POST /api/v1/tutor/conversations/:id/chat (Student Response or Action Pill Tap)
+    API->>DB: Fetch Scoped Course Notes & Active Gap Dossier from teacher_insights
+    DB-->>API: Active Gap Context (e.g. "Removable Discontinuities") + Notes Chunks
+    API->>TutorAgent: Execute Dual-Action Turn (Student Response + Gap Context + History)
+    TutorAgent->>Gemini: Single LLM Call (Generates Socratic Message + Action Widgets + Insight Update)
+    Gemini-->>TutorAgent: Structured Dual-Action Payload
+    TutorAgent->>DB: Insert assistant message & Update student_topic_mastery
+    alt Gap Solved by Student
+        TutorAgent->>DB: Update teacher_insights (status: 'resolved', append progress trace)
+        DB-->>Teacher: Live Dashboard shows Gap Resolved!
+    else Gap In Progress
+        TutorAgent->>DB: Update teacher_insights (status: 'active', log progress trace)
+    end
+    TutorAgent-->>API: { message, actionWidgets: [{label, value}], currentMastery, isResolved }
+    API-->>Student: Render Socratic Message + Clickable Action Pills (Zero typing friction)
 ```
 
-### 3.3 Flow C: Adaptive Quiz, Evaluation & Deterministic Mastery Update
+### 3.3 Flow C: Quiz Evaluation & Automated Gap Diagnosis
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Student
     participant API as Express API
-    participant QuizAgent as Mastra Quiz Agent
-    participant EvalAgent as Mastra Evaluator Agent
-    participant MasteryEngine as Deterministic Mastery Engine
-    participant DB as Supabase (PostgreSQL + JSONB)
+    participant EvalAgent as Quiz Evaluator Agent
+    participant DB as Supabase (quiz_attempts, student_topic_mastery, teacher_insights)
+    participant Gemini as Gemini 3.5 Flash
+    actor Teacher
 
-    Student->>API: POST /api/v1/classrooms/:id/quizzes/generate
-    API->>DB: Read Student Knowledge Snapshot (Find unmastered nodes)
-    API->>QuizAgent: Generate targeted diagnostic quiz for gaps
-    QuizAgent-->>API: Structured Quiz (MCQ & reasoning questions)
-    API-->>Student: Render Quiz
-
-    Student->>API: POST /api/v1/quizzes/:id/submit (Student Answers)
-    API->>EvalAgent: Evaluate answers & reasoning traces
-    EvalAgent-->>API: Structured Evidence Token { node_id, score, confidence, misconception }
-    API->>DB: Insert into learning_evidence (Audit log)
-    API->>MasteryEngine: Apply Evidence Token to Student State
-    MasteryEngine->>MasteryEngine: Calculate new mastery score via deterministic formula
-    MasteryEngine->>DB: Write updated student_knowledge_snapshots (JSONB)
-    DB-->>API: Updated mastery confirmation
-    API-->>Student: Quiz Result, Explanations & Updated Mastery Progress
+    Student->>API: POST /api/v1/quizzes/attempts/:id/submit (Student Answers)
+    API->>EvalAgent: Grade Answers & Diagnose Root Knowledge Gaps
+    EvalAgent->>Gemini: Single LLM Call (Score + Explanations + Root Gap Diagnosis)
+    Gemini-->>EvalAgent: Structured Grading & Gap Analysis
+    EvalAgent->>DB: Record quiz_responses & Update student_topic_mastery
+    alt Student Has Knowledge Gaps (score < threshold)
+        EvalAgent->>DB: Insert teacher_insights (status: 'active', student_id, gap diagnosis, action plan)
+        DB-->>Teacher: Live Alert: "New Student Gap Detected on Limits"
+    end
+    EvalAgent-->>API: Return Quiz Results + Explanations + Remediation Mission
+    API-->>Student: Display Score, Explanations & 1-Click "Fix My Gaps with AI Tutor" Button
 ```
 
 ---

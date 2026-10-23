@@ -94,32 +94,32 @@ Current generative AI chatbots act as answer dispensaries: students query them f
 - **Classroom Multi-Tenancy**: All student interactions, notes, embeddings, quizzes, and analytics must be isolated per `classroom_id`.
 
 ### 5.2 Teacher Content Ingestion & Curriculum Structuring
-- **Syllabus Parsing**: Accepts course syllabus in PDF, TXT, or Markdown format.
-- **Curriculum Agent**: Extracts a hierarchical curriculum tree (Units $\rightarrow$ Topics $\rightarrow$ Learning Objectives $\rightarrow$ Prerequisites).
-- **Teacher Notes Management**: Upload and storage of teacher notes and slides.
-- **Notes & Retrieval Agent**: Splits teacher notes into semantically coherent chunks, computes embeddings via Gemini Embedding 2, and indexes them in `pgvector` with classroom metadata.
+- **Deterministic Syllabus Ingestion**: Supports direct bulk hierarchical import (`POST /bulk`) mapping Units $\rightarrow$ Topics $\rightarrow$ Subtopics directly into PostgreSQL.
+- **Multimodal OCR & Document Extraction Pipeline**: Extracts clean structured text, LaTeX formulas, and handwritten annotations from PDFs, slides, and images using Gemini multimodal OCR.
+- **Semantic Chunking & Scoped Vectors**: Splits teacher notes into 500-token chunks with 768-dimensional Gemini embeddings, indexed in `pgvector` with classroom multi-tenancy.
 
-### 5.3 Socratic AI Tutor ("Talk to Teacher")
+### 5.3 Socratic AI Tutor with Action Widgets (Method 2)
+- **Interactive Action Widgets**: Delivers low-friction interactive chats with clickable action pills/options alongside Socratic dialogue, eliminating typing burnout.
 - **Refusal to Answer Directly**: The tutor MUST NOT output final solutions, full essays, or direct answers to homework problems.
 - **Grounded Reasoning**: Uses similarity search against the classroom's vector database to ensure responses match the teacher's designated curriculum.
-- **Adaptive Scaffolding**: Adjusts questioning difficulty based on the student's current JSONB Knowledge Snapshot.
-- **Streaming Response**: Real-time token streaming using Server-Sent Events (SSE).
+- **Dual-Action State Impact**: On each interaction, the tutor increments the student's topic mastery and updates `teacher_insights` (transitions from `'active'` to `'resolved'` upon mastery).
 
-### 5.4 Diagnostic & Personalized Quizzes
-- **Quiz Agent**: Dynamically generates multi-format questions (Multiple Choice, Short Concept Explanation, Step-by-Step Reasoning) targeted at a student's unmastered learning objectives.
-- **Evaluator Agent**: Evaluates student responses, parses reasoning traces, and extracts structured evidence tokens (`mastery_signal`, `misconception_tag`, `confidence_level`).
+### 5.4 Diagnostic Quizzes & Evaluator Agent
+- **Quiz Generation**: Direct, cost-effective LLM service generates multi-format diagnostic questions (MCQs & open conceptual prompts) from teacher notes and syllabus.
+- **Quiz Evaluator Agent**: Evaluates student responses, parses reasoning traces, calculates mastery delta, and **autonomously diagnoses knowledge gaps**, creating active case dossiers in `teacher_insights`.
 
-### 5.5 Deterministic Mastery Engine
-- **Canonical Learning State**: Persisted as a `JSONB` document per student per classroom (`student_knowledge_snapshots`).
-- **Deterministic Math**: Evaluator Agent yields evidence; the Mastery Engine deterministically updates node scores using a mathematically sound weighted progression model (e.g., exponential moving average with decay on failed concepts).
-- **Auditability**: Every mastery modification links directly to an immutable `learning_evidence` event ID.
+### 5.5 Deterministic Mastery Progression
+- **Canonical Learning State**: Persisted in `student_topic_mastery` and audit-logged in `student_mastery_history`.
+- **Deterministic Math**: Evaluator Agent yields evidence; the system deterministically updates node scores using a bounded Bayesian-inspired learning rate formula.
+- **Auditability**: Every mastery modification links directly to an immutable assessment history record.
 
-### 5.6 Teacher Analytics & Insight Generation
-- **Insight Agent**: Aggregates classroom-wide knowledge snapshots to extract:
-  - Top 3 hardest concepts for the class.
+### 5.6 Teacher Analytics & Intelligence Bridge
+- **Real-Time Student Gap Dossiers**: Automatically tracks active vs resolved student learning gaps, progress traces, and AI tutor interactions.
+- **Classroom Insight Synthesis**: Aggregates classroom-wide knowledge snapshots to extract:
+  - Top struggling topics and prerequisite bottlenecks.
   - Active misconceptions and recurring reasoning fallacies.
-  - Distribution of students across mastery quartiles (Novice, Developing, Proficient, Master).
-  - Recommended teaching adjustments for the upcoming lecture.
+  - Distribution of students across mastery levels.
+  - Recommended teaching adjustments and 5-minute lecture recap guides derived from the teacher's own notes.
 
 ---
 

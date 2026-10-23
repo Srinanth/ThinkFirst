@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '../../config/supabase.js';
 import { BadRequestError, NotFoundError } from '../../utils/errors.util.js';
 import { generateQuizQuestionsWithAgent } from '../../agents/quiz.agent.js';
-import { evaluateStudentAnswer } from '../../agents/evaluator.agent.js';
+import { evaluateStudentAnswer, diagnoseQuizGaps } from '../../agents/evaluator.agent.js';
 import { masteryService } from '../mastery/mastery.service.js';
 import { materialsService } from '../materials/materials.service.js';
 import {
@@ -329,6 +329,12 @@ export class QuizzesService {
     if (qError || !questions) throw new BadRequestError('Failed to fetch questions for evaluation');
 
     const questionMap = new Map(questions.map((q) => [q.id, q]));
+    const missedQuestions: Array<{
+      questionText: string;
+      studentAnswer: unknown;
+      correctAnswer: unknown;
+      feedback: string;
+    }> = [];
 
     // Evaluate each response
     for (const res of input.responses) {
@@ -348,6 +354,15 @@ export class QuizzesService {
       });
 
       totalScore += evaluation.marksAwarded;
+
+      if (!evaluation.isCorrect) {
+        missedQuestions.push({
+          questionText: q.question_text,
+          studentAnswer: res.studentAnswer,
+          correctAnswer: q.correct_answer,
+          feedback: evaluation.feedback,
+        });
+      }
 
       // Insert response into quiz_responses
       await supabaseAdmin
@@ -397,16 +412,103 @@ export class QuizzesService {
 
     if (updateError) throw new BadRequestError(`Failed to finalize attempt: ${updateError.message}`);
 
+    // Autonomous Gap Diagnosis & Teacher Insight Creation
+    let remediationMission: any = null;
+    const targetTopicId = quiz.curriculum_topic_id;
+
+    if (targetTopicId) {
+      let topicTitle = quiz.title;
+      const { data: topic } = await supabaseAdmin
+        .from('curriculum_topics')
+        .select('title')
+        .eq('id', targetTopicId)
+        .maybeSingle();
+
+      if (topic?.title) {
+        topicTitle = topic.title;
+      }
+
+      let courseNotesContext = '';
+      try {
+        const searchRes = await materialsService.similaritySearch(quiz.teacher_subject_id, {
+          query: topicTitle,
+          matchCount: 2,
+          matchThreshold: 0.45,
+        });
+        courseNotesContext = searchRes.matches.map((m) => m.content).join('\n---\n');
+      } catch {
+        // Continue if notes unavailable
+      }
+
+      const diagnosis = await diagnoseQuizGaps({
+        topicTitle,
+        totalScore,
+        maxScore: totalMax,
+        missedQuestions,
+        courseNotesContext,
+      });
+
+      if (diagnosis) {
+        // Check for existing active insight for this student & topic to avoid duplicates
+        const { data: existingInsight } = await supabaseAdmin
+          .from('teacher_insights')
+          .select('id')
+          .eq('student_id', studentId)
+          .eq('curriculum_topic_id', targetTopicId)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        let insightId = existingInsight?.id;
+
+        if (!insightId) {
+          const { data: insertedInsight } = await supabaseAdmin
+            .from('teacher_insights')
+            .insert({
+              teacher_subject_id: quiz.teacher_subject_id,
+              insight_type: 'weak_areas',
+              title: diagnosis.title,
+              description: diagnosis.diagnosedGap,
+              curriculum_topic_id: targetTopicId,
+              student_id: studentId,
+              evidence: {
+                initialScore: totalMax > 0 ? Number((totalScore / totalMax).toFixed(2)) : 0,
+                missedQuestions: missedQuestions.map((m) => m.questionText),
+                actionPlan: diagnosis.actionPlan,
+                actionWidgets: diagnosis.actionWidgets,
+                progressTrace: [],
+                teacherAdvice: diagnosis.teacherAdvice,
+              },
+              status: 'active',
+            })
+            .select('id')
+            .single();
+
+          insightId = insertedInsight?.id;
+        }
+
+        remediationMission = {
+          insightId,
+          topicId: targetTopicId,
+          title: diagnosis.title,
+          diagnosedGap: diagnosis.diagnosedGap,
+          actionPlan: diagnosis.actionPlan,
+          openingPrompt: diagnosis.openingPrompt,
+          actionWidgets: diagnosis.actionWidgets,
+        };
+      }
+    }
+
     return {
       attempt: updatedAttempt,
       score: totalScore,
       maxScore: totalMax,
       percentage: totalMax > 0 ? Number(((totalScore / totalMax) * 100).toFixed(1)) : 0,
+      remediationMission,
     };
   }
 
   /**
-   * Get graded attempt results with question-by-question breakdown
+   * Get graded attempt results with question-by-question breakdown and remediation mission
    */
   async getAttemptResults(attemptId: string) {
     const { data: attempt, error: attError } = await supabaseAdmin
@@ -421,7 +523,7 @@ export class QuizzesService {
         started_at,
         submitted_at,
         graded_at,
-        quizzes:quiz_id (id, title, difficulty)
+        quizzes:quiz_id (id, title, difficulty, curriculum_topic_id, teacher_subject_id)
       `)
       .eq('id', attemptId)
       .single();
@@ -453,9 +555,37 @@ export class QuizzesService {
 
     if (resError) throw new BadRequestError(resError.message);
 
+    // Retrieve any active or recently resolved gap mission for this topic
+    let remediationMission: any = null;
+    const quizData = attempt.quizzes as any;
+    if (quizData?.curriculum_topic_id) {
+      const { data: insight } = await supabaseAdmin
+        .from('teacher_insights')
+        .select('*')
+        .eq('student_id', attempt.student_id)
+        .eq('curriculum_topic_id', quizData.curriculum_topic_id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (insight) {
+        const evidence = (insight.evidence as Record<string, any>) || {};
+        remediationMission = {
+          insightId: insight.id,
+          topicId: insight.curriculum_topic_id,
+          title: insight.title,
+          diagnosedGap: insight.description,
+          actionPlan: evidence.actionPlan || '',
+          actionWidgets: evidence.actionWidgets || [],
+          status: insight.status,
+        };
+      }
+    }
+
     return {
       ...attempt,
       responses,
+      remediationMission,
     };
   }
 }
