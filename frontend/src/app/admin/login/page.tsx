@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
     const finalPassword = targetPassword ?? password;
 
     if (!finalId) {
-      setErrorMessage('Please enter your Institutional Administrator ID (e.g. ADM-89421).');
+      setErrorMessage('Please enter your Administrator Email or ID (e.g. admin@institution.edu or ADM-89421).');
       return;
     }
 
@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
     }
 
     if (!finalId.toUpperCase().startsWith('ADM') && !finalId.includes('@')) {
-      setErrorMessage('Invalid Administrator ID. Administrator IDs must begin with ADM- (e.g., ADM-89421).');
+      setErrorMessage('Please enter a valid administrator email or ID (e.g. admin@institution.edu).');
       return;
     }
 
@@ -150,7 +150,7 @@ export default function AdminLoginPage() {
                   htmlFor="adminId"
                   className="block text-xs font-bold uppercase tracking-wider text-[#9e9e9e]"
                 >
-                  Administrator ID <span className="text-white">*</span>
+                  Administrator Email / ID <span className="text-white">*</span>
                 </label>
 
                 {isAdminFormat && (
@@ -172,7 +172,7 @@ export default function AdminLoginPage() {
                   disabled={loading}
                   value={adminId}
                   onChange={(e) => setAdminId(e.target.value)}
-                  placeholder="Enter Admin ID (e.g., ADM-89421)"
+                  placeholder="admin@institution.edu or ADM-89421"
                   className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-xs sm:text-sm font-medium font-mono text-white"
                 />
               </div>

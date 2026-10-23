@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Sparkles,
-  CreditCard,
+  Mail,
   Lock,
   Eye,
   EyeOff,
@@ -22,36 +22,25 @@ import { createClient } from '@/lib/supabase/client';
 export default function AcademicLoginPage() {
   const router = useRouter();
 
-  const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Dynamic Role Badge Detection based on User ID prefix
-  const trimmedUpper = userId.trim().toUpperCase();
-  let detectedRole: 'teacher' | 'student' | 'admin_redirect' | null = null;
-
-  if (trimmedUpper.startsWith('TCR-') || trimmedUpper.startsWith('TCR')) {
-    detectedRole = 'teacher';
-  } else if (trimmedUpper.startsWith('STD-') || trimmedUpper.startsWith('STD')) {
-    detectedRole = 'student';
-  } else if (trimmedUpper.startsWith('ADM-') || trimmedUpper.startsWith('ADM')) {
-    detectedRole = 'admin_redirect';
-  }
-
-  const handleLogin = async (targetId?: string) => {
+  const handleLogin = async (overrideEmail?: string, overridePassword?: string) => {
     setErrorMessage(null);
-    const finalId = (targetId ?? userId).trim().toUpperCase();
+    const targetEmail = (overrideEmail ?? email).trim().toLowerCase();
+    const targetPassword = overridePassword ?? password;
 
-    if (!finalId) {
-      setErrorMessage('Please enter your Institutional ID (e.g. TCR-1042 for Faculty or STD-8821 for Student).');
+    if (!targetEmail) {
+      setErrorMessage('Please enter your email address.');
       return;
     }
 
-    if (finalId.startsWith('ADM-') || finalId.startsWith('ADM')) {
-      setErrorMessage('Administrative ID detected. Please sign in via the dedicated Admin Portal at /admin/login.');
+    if (!targetPassword) {
+      setErrorMessage('Please enter your password.');
       return;
     }
 
@@ -59,46 +48,50 @@ export default function AcademicLoginPage() {
 
     try {
       const supabase = createClient();
-      let resolvedEmail = finalId.includes('@') ? finalId : '';
-      let targetRole: 'teacher' | 'student' = 'student';
 
-      if (finalId.startsWith('TCR')) {
-        targetRole = 'teacher';
-        if (!resolvedEmail) resolvedEmail = 'teacher.demo@thinkfirst.edu';
-      } else {
-        targetRole = 'student';
-        if (!resolvedEmail) resolvedEmail = 'student.demo@thinkfirst.edu';
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: targetEmail,
+        password: targetPassword,
+      });
+
+      if (error || !data?.user) {
+        setLoading(false);
+        setErrorMessage(error?.message || 'Invalid email or password.');
+        return;
       }
 
-      await supabase.auth.signInWithPassword({
-        email: resolvedEmail,
-        password: 'Admin2026!',
-      }).catch(() => {});
+      // Determine user role from Supabase user_metadata
+      const role = (data.user.user_metadata?.role as string) || 'student';
 
-      if (targetRole === 'teacher') {
+      if (role === 'admin') {
+        document.cookie = 'thinkfirst_demo_admin=true; path=/; max-age=86400; SameSite=Lax';
+        document.cookie = 'thinkfirst_user_role=admin; path=/; max-age=86400; SameSite=Lax';
+        router.push('/admin');
+      } else if (role === 'teacher') {
         document.cookie = 'thinkfirst_user_role=teacher; path=/; max-age=86400; SameSite=Lax';
         router.push('/teacher');
       } else {
         document.cookie = 'thinkfirst_user_role=student; path=/; max-age=86400; SameSite=Lax';
         router.push('/student');
       }
+
       router.refresh();
-    } catch {
+    } catch (err: unknown) {
       setLoading(false);
-      setErrorMessage('Sign in failed.');
+      setErrorMessage(err instanceof Error ? err.message : 'Sign in failed.');
     }
   };
 
   const handleDemoTeacher = () => {
-    setUserId('TCR-1042');
+    setEmail('teacher.demo@thinkfirst.edu');
     setPassword('Teacher@2026');
-    handleLogin('TCR-1042');
+    handleLogin('teacher.demo@thinkfirst.edu', 'Teacher@2026');
   };
 
   const handleDemoStudent = () => {
-    setUserId('STD-8821');
+    setEmail('student.demo@thinkfirst.edu');
     setPassword('Student@2026');
-    handleLogin('STD-8821');
+    handleLogin('student.demo@thinkfirst.edu', 'Student@2026');
   };
 
   return (
@@ -130,16 +123,6 @@ export default function AcademicLoginPage() {
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
               <div className="flex-1">
                 {errorMessage}
-                {detectedRole === 'admin_redirect' && (
-                  <div className="mt-2">
-                    <Link
-                      href="/admin/login"
-                      className="inline-flex items-center gap-1.5 font-bold text-white underline hover:text-[#9e9e9e]"
-                    >
-                      Go to Admin Portal Login &rarr;
-                    </Link>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -151,58 +134,32 @@ export default function AcademicLoginPage() {
             }}
             className="space-y-4"
           >
-            {/* User ID Field */}
+            {/* Email Field */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label
-                  htmlFor="userId"
+                  htmlFor="email"
                   className="block text-xs font-bold uppercase tracking-wider text-[#9e9e9e]"
                 >
-                  Academic ID <span className="text-white">*</span>
+                  Email Address <span className="text-white">*</span>
                 </label>
-
-                {/* Dynamic Role Badge Indicator */}
-                {detectedRole === 'teacher' && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black neu-badge-white animate-in fade-in">
-                    <CheckCircle2 className="w-3 h-3 text-white" />
-                    Faculty Account
-                  </span>
-                )}
-                {detectedRole === 'student' && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black neu-badge-white animate-in fade-in">
-                    <CheckCircle2 className="w-3 h-3 text-white" />
-                    Student Account
-                  </span>
-                )}
-                {detectedRole === 'admin_redirect' && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-950/60 text-amber-300 border border-amber-500/30 animate-in fade-in">
-                    <ShieldAlert className="w-3 h-3 text-amber-400" />
-                    Admin ID (Use Admin Portal)
-                  </span>
-                )}
               </div>
 
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
-                  <CreditCard className="w-4 h-4 text-white" />
+                  <Mail className="w-4 h-4 text-white" />
                 </div>
                 <input
-                  id="userId"
-                  type="text"
+                  id="email"
+                  type="email"
                   required
                   disabled={loading}
-                  value={userId}
-                  onChange={(e) => setUserId(e.target.value)}
-                  placeholder="Enter ID (e.g., TCR-1042 or STD-8821)"
-                  className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-xs sm:text-sm font-medium font-mono text-white"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter email (e.g. deepak@gmail.com)"
+                  className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-xs sm:text-sm font-medium text-white"
                 />
               </div>
-
-              {!detectedRole && userId.length > 0 && (
-                <p className="text-[11px] text-[#757575] mt-1 font-medium flex items-center gap-1">
-                  Prefix required: Start with <strong className="text-white">TCR-</strong> (Faculty) or <strong className="text-white">STD-</strong> (Student).
-                </p>
-              )}
             </div>
 
             {/* Password Field */}
@@ -214,16 +171,7 @@ export default function AcademicLoginPage() {
                 >
                   Password <span className="text-white">*</span>
                 </label>
-                <a
-                  href="#forgot"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setErrorMessage('Please use the one-click demo login buttons below for instant testing.');
-                  }}
-                  className="text-xs font-semibold text-white hover:underline"
-                >
-                  Forgot Credentials?
-                </a>
+                <span className="text-[11px] text-[#757575]">Default: Teacher@2026 / Student@2026</span>
               </div>
 
               <div className="relative">
@@ -272,7 +220,7 @@ export default function AcademicLoginPage() {
               </label>
             </div>
 
-            {/* Primary Action Button (Pure White Tactile CTA) */}
+            {/* Primary Action Button */}
             <button
               type="submit"
               disabled={loading}
@@ -299,7 +247,7 @@ export default function AcademicLoginPage() {
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="px-3 bg-[#2a2a2a] text-[#757575] font-extrabold uppercase tracking-wider text-[10px]">
-                ONE-CLICK DEMO TESTING
+                ONE-CLICK DEMO LOGINS
               </span>
             </div>
           </div>
@@ -309,7 +257,7 @@ export default function AcademicLoginPage() {
             <button
               type="button"
               onClick={handleDemoTeacher}
-              className="p-3.5 neu-btn text-left flex flex-col justify-between cursor-pointer group"
+              className="p-3.5 neu-btn text-left flex flex-col justify-between cursor-pointer group rounded-xl"
             >
               <div className="flex items-center justify-between w-full">
                 <Users className="w-4 h-4 text-white" />
@@ -317,16 +265,16 @@ export default function AcademicLoginPage() {
               </div>
               <div className="mt-2.5">
                 <span className="font-bold text-xs block text-white group-hover:text-white transition-colors">
-                  Demo as Teacher
+                  Demo Teacher
                 </span>
-                <span className="text-[10px] text-[#9e9e9e] font-mono font-semibold">TCR-1042</span>
+                <span className="text-[10px] text-[#9e9e9e] font-mono truncate block">teacher.demo@thinkfirst.edu</span>
               </div>
             </button>
 
             <button
               type="button"
               onClick={handleDemoStudent}
-              className="p-3.5 neu-btn text-left flex flex-col justify-between cursor-pointer group"
+              className="p-3.5 neu-btn text-left flex flex-col justify-between cursor-pointer group rounded-xl"
             >
               <div className="flex items-center justify-between w-full">
                 <GraduationCap className="w-4 h-4 text-white" />
@@ -334,9 +282,9 @@ export default function AcademicLoginPage() {
               </div>
               <div className="mt-2.5">
                 <span className="font-bold text-xs block text-white group-hover:text-white transition-colors">
-                  Demo as Student
+                  Demo Student
                 </span>
-                <span className="text-[10px] text-[#9e9e9e] font-mono font-semibold">STD-8821</span>
+                <span className="text-[10px] text-[#9e9e9e] font-mono truncate block">student.demo@thinkfirst.edu</span>
               </div>
             </button>
           </div>
