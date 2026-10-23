@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { authApi, AdminStats, UserProfile } from '@/lib/api';
 import {
   GraduationCap,
   Building2,
@@ -21,6 +22,9 @@ import {
   CreditCard,
   Lock,
   ArrowRight,
+  BookOpen,
+  Loader2,
+  Mail,
 } from 'lucide-react';
 
 interface DashboardViewProps {
@@ -30,12 +34,27 @@ interface DashboardViewProps {
 }
 
 export default function DashboardView({
-  adminName,
-  adminEmail,
-  collegeName,
+  adminName: initialAdminName,
+  adminEmail: initialAdminEmail,
+  collegeName: initialCollegeName,
 }: DashboardViewProps) {
   const router = useRouter();
   const supabase = createClient();
+
+  // Dynamic Profile & Stats State from Backend
+  const [adminName, setAdminName] = useState(initialAdminName);
+  const [adminEmail, setAdminEmail] = useState(initialAdminEmail);
+  const [collegeName, setCollegeName] = useState(initialCollegeName);
+  const [stats, setStats] = useState<AdminStats>({
+    totalStudents: 0,
+    totalTeachers: 0,
+    totalSubjects: 0,
+    totalQuizzes: 0,
+    totalMaterials: 0,
+  });
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Modal State
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
@@ -43,12 +62,14 @@ export default function DashboardView({
 
   // Student Form State
   const [studentName, setStudentName] = useState('');
+  const [studentEmail, setStudentEmail] = useState('');
   const [studentId, setStudentId] = useState('STD-2026-');
   const [studentPassword, setStudentPassword] = useState('');
   const [showStudentPassword, setShowStudentPassword] = useState(false);
 
   // Teacher Form State
   const [teacherName, setTeacherName] = useState('');
+  const [teacherEmail, setTeacherEmail] = useState('');
   const [teacherId, setTeacherId] = useState('TCR-2026-');
   const [teacherPassword, setTeacherPassword] = useState('');
   const [showTeacherPassword, setShowTeacherPassword] = useState(false);
@@ -57,43 +78,122 @@ export default function DashboardView({
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
+  const loadBackendData = async () => {
+    try {
+      setLoading(true);
+      // 1. Fetch current profile
+      try {
+        const me = await authApi.getMe();
+        if (me) {
+          setAdminName(me.full_name || initialAdminName);
+          if (me.college) setCollegeName(me.college);
+        }
+      } catch {
+        // Fallback to initial props
+      }
+
+      // 2. Fetch system statistics
+      try {
+        const statsData = await authApi.getStats();
+        setStats(statsData);
+      } catch (err) {
+        console.warn('Could not fetch admin stats:', err);
+      }
+
+      // 3. Fetch active profiles
+      try {
+        const profilesData = await authApi.listProfiles();
+        setProfiles(profilesData || []);
+      } catch (err) {
+        console.warn('Could not list profiles:', err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBackendData();
+  }, []);
+
   const handleSignOut = async () => {
     document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
+    document.cookie = 'thinkfirst_user_role=; Max-Age=0; path=/;';
     await supabase.auth.signOut();
     router.push('/admin/login');
     router.refresh();
   };
 
-  const handleAddStudentSubmit = (e: React.FormEvent) => {
+  const handleAddStudentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!studentName || !studentId || !studentPassword) return;
+    if (!studentName || !studentId) return;
 
-    setToastMessage(`Student "${studentName}" (${studentId}) enrolled successfully!`);
-    setIsStudentModalOpen(false);
-    setStudentName('');
-    setStudentId('STD-2026-');
-    setStudentPassword('');
-    setShowStudentPassword(false);
+    const email =
+      studentEmail.trim() ||
+      `${studentId.toLowerCase().replace(/[^a-z0-9]/g, '')}@institution.edu`;
 
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4500);
+    setSubmitting(true);
+    try {
+      await authApi.createUser({
+        email,
+        fullName: studentName,
+        role: 'student',
+        password: studentPassword || 'Student@2026',
+        college: collegeName,
+        loginId: studentId,
+      });
+
+      setToastMessage(`Student "${studentName}" (${studentId}) enrolled in Supabase!`);
+      setIsStudentModalOpen(false);
+      setStudentName('');
+      setStudentEmail('');
+      setStudentId('STD-2026-');
+      setStudentPassword('');
+      setShowStudentPassword(false);
+      await loadBackendData();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Enrollment failed';
+      setToastMessage(`Error: ${msg}`);
+    } finally {
+      setSubmitting(false);
+      setTimeout(() => setToastMessage(null), 5000);
+    }
   };
 
-  const handleAddTeacherSubmit = (e: React.FormEvent) => {
+  const handleAddTeacherSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!teacherName || !teacherId || !teacherPassword) return;
+    if (!teacherName || !teacherId) return;
 
-    setToastMessage(`Teacher "${teacherName}" (${teacherId}) added to faculty!`);
-    setIsTeacherModalOpen(false);
-    setTeacherName('');
-    setTeacherId('TCR-2026-');
-    setTeacherPassword('');
-    setShowTeacherPassword(false);
+    const email =
+      teacherEmail.trim() ||
+      `${teacherId.toLowerCase().replace(/[^a-z0-9]/g, '')}@institution.edu`;
 
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4500);
+    setSubmitting(true);
+    try {
+      await authApi.createUser({
+        email,
+        fullName: teacherName,
+        role: 'teacher',
+        password: teacherPassword || 'Teacher@2026',
+        college: collegeName,
+        loginId: teacherId,
+      });
+
+      setToastMessage(`Faculty "${teacherName}" (${teacherId}) registered in Supabase!`);
+      setIsTeacherModalOpen(false);
+      setTeacherName('');
+      setTeacherEmail('');
+      setTeacherId('TCR-2026-');
+      setTeacherPassword('');
+      setShowTeacherPassword(false);
+      await loadBackendData();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Registration failed';
+      setToastMessage(`Error: ${msg}`);
+    } finally {
+      setSubmitting(false);
+      setTimeout(() => setToastMessage(null), 5000);
+    }
   };
 
   return (
@@ -113,33 +213,33 @@ export default function DashboardView({
         </div>
       )}
 
-      {/* 1. Top Navigation Bar (Neumorphic Soft Bar) */}
+      {/* 1. Top Navigation Bar */}
       <header className="bg-[#252525]/95 border-b border-white/5 sticky top-0 z-30 shadow-[0_8px_24px_rgba(0,0,0,0.5)] backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          {/* Left: Institutional badge icon and text hierarchy */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl neu-card-sm text-white flex items-center justify-center font-bold">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <div>
               <p className="text-[10px] font-black tracking-widest text-white uppercase">
-                ADMIN PORTAL
+                ADMIN PORTAL &bull; LIVE TELEMETRY
               </p>
               <h1 className="text-base font-black text-white tracking-tight leading-none">
-                Admin Home
+                Admin Gateway
               </h1>
             </div>
           </div>
 
-          {/* Right: Notification bell and Administrator profile avatar */}
           <div className="flex items-center gap-4">
             <button
               type="button"
+              onClick={loadBackendData}
               className="relative p-2.5 rounded-xl neu-btn text-[#9e9e9e] hover:text-white transition-colors cursor-pointer"
-              aria-label="Notifications"
+              title="Refresh Telemetry"
+              aria-label="Refresh Telemetry"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white]" />
+              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_6px_#00d2ff]" />
             </button>
 
             {/* Profile Avatar / Dropdown */}
@@ -187,29 +287,26 @@ export default function DashboardView({
 
       {/* Main Content Area */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 flex-1 w-full">
-        {/* 2. Hero Banner Card (Dark Neumorphic Raised) */}
+        {/* 2. Hero Banner Card */}
         <div className="neu-card-raised p-6 sm:p-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6 text-white">
           <div className="space-y-3 z-10 max-w-xl">
-            {/* Top tags */}
             <div className="flex items-center gap-2 flex-wrap">
               <span className="px-3 py-1 rounded-full neu-inset-sm text-xs font-bold text-white border border-white/10">
-                &bull; Fall 2026 Term
+                &bull; Live Postgres &amp; Auth Synchronized
               </span>
-              <span className="px-3 py-1 rounded-full neu-inset-sm text-xs font-bold text-[#9e9e9e]">
-                Week 4
+              <span className="px-3 py-1 rounded-full neu-inset-sm text-xs font-bold text-[#00d2ff]">
+                {collegeName}
               </span>
             </div>
 
-            {/* Greeting & Subtext */}
             <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Welcome back, Admin
+              Welcome back, {adminName}
             </h2>
             <p className="text-[#9e9e9e] text-sm leading-relaxed">
-              Campus operations are running smoothly. System telemetry active and synchronized.
+              Campus operations and deterministic mastery models are actively operating.
             </p>
           </div>
 
-          {/* Right side: Building / Institution Icon graphic */}
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl neu-inset flex items-center justify-center text-white shrink-0 self-start md:self-auto">
             <Building2 className="w-10 h-10 text-white" />
           </div>
@@ -222,7 +319,7 @@ export default function DashboardView({
               PRIMARY DIRECTIVES
             </h3>
             <span className="text-xs font-semibold text-[#757575] cursor-default">
-              Instant Actions
+              Live Enrollment Actions
             </span>
           </div>
 
@@ -247,12 +344,12 @@ export default function DashboardView({
                   ADD STUDENT
                 </h4>
                 <p className="text-[#9e9e9e] text-xs mt-0.5">
-                  Enroll new learner
+                  Enroll new learner into Supabase Auth &amp; Profiles
                 </p>
               </div>
 
               <div className="pt-3 border-t border-white/5 flex items-center gap-1.5 text-xs text-[#757575] font-semibold">
-                <span className="inline-block w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white]" />
+                <span className="inline-block w-2 h-2 rounded-full bg-[#00d2ff] shadow-[0_0_6px_#00d2ff]" />
                 &bull; Admissions Protocol Open
               </div>
             </button>
@@ -277,76 +374,174 @@ export default function DashboardView({
                   ADD TEACHER
                 </h4>
                 <p className="text-[#9e9e9e] text-xs mt-0.5">
-                  Onboard faculty staff
+                  Onboard faculty instructor with curriculum management rights
                 </p>
               </div>
 
               <div className="pt-3 border-t border-white/5 flex items-center gap-1.5 text-xs text-[#757575] font-semibold">
-                <span className="inline-block w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white]" />
+                <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
                 &bull; Staff Portal
               </div>
             </button>
           </div>
         </section>
 
-        {/* 4. Campus Pulse Section */}
+        {/* 4. Live Backend Metrics: CAMPUS PULSE */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-black tracking-wider text-[#757575] uppercase">
-              CAMPUS PULSE
+              CAMPUS PULSE &bull; BACKEND TELEMETRY
             </h3>
-            <span className="text-xs font-semibold text-[#757575] uppercase tracking-wider">
-              Real-time
+            <span className="text-xs font-semibold text-[#00d2ff] uppercase tracking-wider">
+              Live Database State
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Metric Card 1: Total Students */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Metric 1: Total Students */}
             <div className="neu-card p-6 flex items-center justify-between text-white">
               <div className="space-y-1">
                 <span className="text-xs font-bold text-[#757575] uppercase tracking-wide">
-                  Total Students
+                  Enrolled Students
                 </span>
                 <div className="text-3xl font-black text-white tracking-tight">
-                  1,248
+                  {loading ? '...' : stats.totalStudents}
                 </div>
                 <div className="inline-flex items-center gap-1 text-xs font-bold text-white pt-1">
-                  <TrendingUp className="w-3.5 h-3.5 text-white" />
-                  ↗ +32 this term
+                  <TrendingUp className="w-3.5 h-3.5 text-[#00d2ff]" />
+                  Active in database
                 </div>
               </div>
 
-              <div className="w-14 h-14 rounded-2xl neu-inset text-white flex items-center justify-center">
-                <GraduationCap className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-[#00d2ff]" />
               </div>
             </div>
 
-            {/* Metric Card 2: Faculty & Staff */}
+            {/* Metric 2: Faculty */}
             <div className="neu-card p-6 flex items-center justify-between text-white">
               <div className="space-y-1">
                 <span className="text-xs font-bold text-[#757575] uppercase tracking-wide">
                   Faculty &amp; Staff
                 </span>
                 <div className="text-3xl font-black text-white tracking-tight">
-                  84
+                  {loading ? '...' : stats.totalTeachers}
                 </div>
                 <div className="inline-flex items-center gap-1 text-xs font-semibold text-[#9e9e9e] pt-1">
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]" />
-                  &bull; All active roster
+                  Instructors
                 </div>
               </div>
 
-              <div className="w-14 h-14 rounded-2xl neu-inset text-white flex items-center justify-center">
-                <Users className="w-7 h-7 text-white" />
+              <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
+                <Users className="w-6 h-6 text-emerald-400" />
+              </div>
+            </div>
+
+            {/* Metric 3: Active Subjects */}
+            <div className="neu-card p-6 flex items-center justify-between text-white">
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-[#757575] uppercase tracking-wide">
+                  Class Offerings
+                </span>
+                <div className="text-3xl font-black text-white tracking-tight">
+                  {loading ? '...' : stats.totalSubjects}
+                </div>
+                <div className="inline-flex items-center gap-1 text-xs font-semibold text-[#9e9e9e] pt-1">
+                  Cohorts active
+                </div>
+              </div>
+
+              <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-[#8b5cf6]" />
+              </div>
+            </div>
+
+            {/* Metric 4: Evaluator Quizzes */}
+            <div className="neu-card p-6 flex items-center justify-between text-white">
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-[#757575] uppercase tracking-wide">
+                  Published Quizzes
+                </span>
+                <div className="text-3xl font-black text-white tracking-tight">
+                  {loading ? '...' : stats.totalQuizzes}
+                </div>
+                <div className="inline-flex items-center gap-1 text-xs font-semibold text-[#9e9e9e] pt-1">
+                  AI Evaluated
+                </div>
+              </div>
+
+              <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-[#00d2ff]" />
               </div>
             </div>
           </div>
         </section>
-      </main>
 
-      {/* ============================================================== */}
-      {/* 5. MODAL POPUPS                                                */}
-      {/* ============================================================== */}
+        {/* 5. Live Profiles Roster Table */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black tracking-wider text-[#757575] uppercase">
+              REGISTERED CAMPUS DIRECTORY &bull; LIVE POSTGRES
+            </h3>
+            <span className="text-xs font-semibold text-[#9e9e9e]">
+              {profiles.length} Total Users
+            </span>
+          </div>
+
+          <div className="neu-card overflow-hidden">
+            {profiles.length === 0 ? (
+              <div className="p-8 text-center text-[#9e9e9e] text-sm">
+                No user profiles retrieved yet.
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#202020] text-[#757575] font-black uppercase tracking-wider border-b border-white/5">
+                    <tr>
+                      <th className="py-3.5 px-6">Name</th>
+                      <th className="py-3.5 px-6">Role</th>
+                      <th className="py-3.5 px-6">College Affiliation</th>
+                      <th className="py-3.5 px-6">Joined Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5 text-[#d0d0d0]">
+                    {profiles.map((p) => (
+                      <tr key={p.id} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="py-3.5 px-6 font-bold text-white flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg neu-inset text-white flex items-center justify-center font-bold text-[10px]">
+                            {p.full_name?.slice(0, 2).toUpperCase() || 'U'}
+                          </div>
+                          <span>{p.full_name}</span>
+                        </td>
+                        <td className="py-3.5 px-6">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                              p.role === 'admin'
+                                ? 'bg-[#00d2ff]/10 text-[#00d2ff] border border-[#00d2ff]/30'
+                                : p.role === 'teacher'
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                                : 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
+                            }`}
+                          >
+                            {p.role}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-6 text-[#9e9e9e]">
+                          {p.college || 'ThinkFirst Institute'}
+                        </td>
+                        <td className="py-3.5 px-6 text-[#757575]">
+                          {new Date(p.created_at).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+      </main>
 
       {/* POPUP A: Add Student Modal */}
       {isStudentModalOpen && (
@@ -356,34 +551,27 @@ export default function DashboardView({
             role="dialog"
             aria-modal="true"
           >
-            {/* Modal Header */}
             <div className="p-6 border-b border-white/5 relative bg-[#232323]">
               <button
                 type="button"
                 onClick={() => setIsStudentModalOpen(false)}
-                className="absolute top-6 right-6 p-1.5 rounded-lg text-[#9e9e9e] hover:text-white neu-btn cursor-pointer"
-                aria-label="Close modal"
+                className="absolute top-5 right-5 p-1.5 rounded-lg neu-btn text-[#9e9e9e] hover:text-white cursor-pointer"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full neu-inset-sm text-white text-[10px] font-black tracking-wider uppercase mb-2">
-                <span className="w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white] animate-pulse" /> ADMISSIONS PROTOCOL
-              </div>
-              <h3 className="text-2xl font-black tracking-tight text-white">
+              <h3 className="text-lg font-black tracking-tight text-white">
                 ADD STUDENT
               </h3>
               <p className="text-[#9e9e9e] text-xs mt-1 font-medium">
-                Fill in institutional profile details to complete registration.
+                Enrolls a student directly into Supabase Auth and Profiles table.
               </p>
             </div>
 
-            {/* Modal Form */}
             <form onSubmit={handleAddStudentSubmit} className="p-6 space-y-4">
-              {/* Field 1: Name */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
-                  NAME
+                  FULL NAME
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
@@ -394,13 +582,30 @@ export default function DashboardView({
                     required
                     value={studentName}
                     onChange={(e) => setStudentName(e.target.value)}
-                    placeholder="Full Student Name"
+                    placeholder="e.g. Maya Chen"
                     className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-sm text-white"
                   />
                 </div>
               </div>
 
-              {/* Field 2: Student ID */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
+                  EMAIL ADDRESS (OPTIONAL)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
+                    <Mail className="w-4 h-4 text-white" />
+                  </div>
+                  <input
+                    type="email"
+                    value={studentEmail}
+                    onChange={(e) => setStudentEmail(e.target.value)}
+                    placeholder="maya.chen@institution.edu"
+                    className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-sm text-white"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
                   STUDENT ID
@@ -420,10 +625,9 @@ export default function DashboardView({
                 </div>
               </div>
 
-              {/* Field 3: Password */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
-                  PASSWORD
+                  PASSWORD (OPTIONAL, DEFAULTS TO Student@2026)
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
@@ -431,17 +635,15 @@ export default function DashboardView({
                   </div>
                   <input
                     type={showStudentPassword ? 'text' : 'password'}
-                    required
                     value={studentPassword}
                     onChange={(e) => setStudentPassword(e.target.value)}
-                    placeholder="Enter password"
+                    placeholder="Student@2026"
                     className="w-full pl-10 pr-11 py-2.5 neu-input placeholder:text-[#666666] text-sm text-white"
                   />
                   <button
                     type="button"
                     onClick={() => setShowStudentPassword(!showStudentPassword)}
                     className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#757575] hover:text-white focus:outline-none cursor-pointer"
-                    aria-label="Toggle password visibility"
                   >
                     {showStudentPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -452,7 +654,6 @@ export default function DashboardView({
                 </div>
               </div>
 
-              {/* Footer Buttons */}
               <div className="pt-4 border-t border-white/5 flex items-center justify-end gap-3">
                 <button
                   type="button"
@@ -463,10 +664,15 @@ export default function DashboardView({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer"
+                  disabled={submitting}
+                  className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
-                  ADD STUDENT
+                  {submitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
+                  )}
+                  ENROLL STUDENT
                 </button>
               </div>
             </form>
@@ -482,31 +688,24 @@ export default function DashboardView({
             role="dialog"
             aria-modal="true"
           >
-            {/* Modal Header */}
             <div className="p-6 border-b border-white/5 relative bg-[#232323]">
               <button
                 type="button"
                 onClick={() => setIsTeacherModalOpen(false)}
-                className="absolute top-6 right-6 p-1.5 rounded-lg text-[#9e9e9e] hover:text-white neu-btn cursor-pointer"
-                aria-label="Close modal"
+                className="absolute top-5 right-5 p-1.5 rounded-lg neu-btn text-[#9e9e9e] hover:text-white cursor-pointer"
+                aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
-
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full neu-inset-sm text-white text-[10px] font-black tracking-wider uppercase mb-2">
-                <span className="w-2 h-2 rounded-full bg-white shadow-[0_0_6px_white] animate-pulse" /> ADMISSIONS PROTOCOL
-              </div>
-              <h3 className="text-2xl font-black tracking-tight text-white">
+              <h3 className="text-lg font-black tracking-tight text-white">
                 ADD TEACHER
               </h3>
               <p className="text-[#9e9e9e] text-xs mt-1 font-medium">
-                Fill in institutional profile details to complete registration.
+                Registers new faculty with curriculum management permissions.
               </p>
             </div>
 
-            {/* Modal Form */}
             <form onSubmit={handleAddTeacherSubmit} className="p-6 space-y-4">
-              {/* Field 1: Name */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
                   NAME
@@ -526,7 +725,24 @@ export default function DashboardView({
                 </div>
               </div>
 
-              {/* Field 2: Teacher ID */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
+                  EMAIL ADDRESS (OPTIONAL)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
+                    <Mail className="w-4 h-4 text-white" />
+                  </div>
+                  <input
+                    type="email"
+                    value={teacherEmail}
+                    onChange={(e) => setTeacherEmail(e.target.value)}
+                    placeholder="faculty@institution.edu"
+                    className="w-full pl-10 pr-4 py-2.5 neu-input placeholder:text-[#666666] text-sm text-white"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
                   TEACHER ID
@@ -546,10 +762,9 @@ export default function DashboardView({
                 </div>
               </div>
 
-              {/* Field 3: Password */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[#9e9e9e] mb-1.5">
-                  PASSWORD
+                  PASSWORD (OPTIONAL, DEFAULTS TO Teacher@2026)
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#757575]">
@@ -557,17 +772,15 @@ export default function DashboardView({
                   </div>
                   <input
                     type={showTeacherPassword ? 'text' : 'password'}
-                    required
                     value={teacherPassword}
                     onChange={(e) => setTeacherPassword(e.target.value)}
-                    placeholder="Enter password"
+                    placeholder="Teacher@2026"
                     className="w-full pl-10 pr-11 py-2.5 neu-input placeholder:text-[#666666] text-sm text-white"
                   />
                   <button
                     type="button"
                     onClick={() => setShowTeacherPassword(!showTeacherPassword)}
                     className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#757575] hover:text-white focus:outline-none cursor-pointer"
-                    aria-label="Toggle password visibility"
                   >
                     {showTeacherPassword ? (
                       <EyeOff className="w-4 h-4" />
@@ -578,7 +791,6 @@ export default function DashboardView({
                 </div>
               </div>
 
-              {/* Footer Buttons */}
               <div className="pt-4 border-t border-white/5 flex items-center justify-end gap-3">
                 <button
                   type="button"
@@ -589,9 +801,14 @@ export default function DashboardView({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer"
+                  disabled={submitting}
+                  className="px-5 py-2.5 neu-btn-accent text-[#0a0f1d] font-bold text-xs tracking-wide flex items-center gap-2 cursor-pointer disabled:opacity-50"
                 >
-                  <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
+                  {submitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#0a0f1d]" />
+                  ) : (
+                    <CheckCircle className="w-4 h-4 text-[#0a0f1d]" />
+                  )}
                   ADD TEACHER
                 </button>
               </div>

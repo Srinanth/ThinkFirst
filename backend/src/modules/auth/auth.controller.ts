@@ -29,6 +29,34 @@ export class AuthController {
       next(err);
     }
   }
+
+  async getStats(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const stats = await authService.getStats();
+      sendSuccess(res, stats);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async listProfiles(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const role = req.query.role as string | undefined;
+      const profiles = await authService.listProfiles(role);
+      sendSuccess(res, profiles);
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await authService.createUser(req.body);
+      sendSuccess(res, result, 201);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
 
 export const authController = new AuthController();

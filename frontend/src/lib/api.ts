@@ -325,27 +325,148 @@ export const masteryApi = {
 };
 
 // ============================================================================
+// AUTH & INSTITUTIONAL ADMIN API
+// ============================================================================
+export interface UserProfile {
+  id: string;
+  full_name: string;
+  college?: string | null;
+  role: 'admin' | 'teacher' | 'student';
+  created_at: string;
+  email?: string;
+}
+
+export interface AdminStats {
+  totalStudents: number;
+  totalTeachers: number;
+  totalSubjects: number;
+  totalQuizzes: number;
+  totalMaterials: number;
+}
+
+export const authApi = {
+  getMe: () => fetchWithAuth<UserProfile>('/auth/me'),
+
+  updateMe: (data: { fullName?: string; college?: string }) =>
+    fetchWithAuth<UserProfile>('/auth/me', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  getStats: () => fetchWithAuth<AdminStats>('/auth/stats'),
+
+  listProfiles: (role?: 'teacher' | 'student' | 'admin') => {
+    const query = role ? `?role=${role}` : '';
+    return fetchWithAuth<UserProfile[]>(`/auth/profiles${query}`);
+  },
+
+  createUser: (data: {
+    email: string;
+    fullName: string;
+    role: 'teacher' | 'student';
+    password?: string;
+    college?: string;
+    loginId?: string;
+  }) =>
+    fetchWithAuth<{
+      profile: UserProfile;
+      email: string;
+      temporaryPassword?: string;
+      loginId?: string;
+    }>('/auth/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+};
+
+// ============================================================================
+// CURRICULUM TOPICS & SYLLABUS API
+// ============================================================================
+export interface CurriculumTopicNode {
+  id: string;
+  teacher_subject_id: string;
+  parent_topic_id: string | null;
+  title: string;
+  description?: string | null;
+  node_type: 'module' | 'topic' | 'subtopic';
+  created_at: string;
+  children?: CurriculumTopicNode[];
+}
+
+export const curriculumApi = {
+  getTree: (subjectId: string) =>
+    fetchWithAuth<CurriculumTopicNode[]>(`/curriculum/${subjectId}/tree`),
+
+  createTopic: (
+    subjectId: string,
+    data: {
+      title: string;
+      description?: string;
+      parentTopicId?: string;
+      nodeType?: 'module' | 'topic' | 'subtopic';
+    }
+  ) =>
+    fetchWithAuth<CurriculumTopicNode>(`/curriculum/${subjectId}/topics`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+};
+
+// ============================================================================
 // SUBJECTS & MATERIALS API
 // ============================================================================
+export interface SubjectOffering {
+  id: string;
+  subject: string;
+  academic_year: string;
+  class_name: string;
+  created_at: string;
+  studentCount?: number;
+  profiles?: {
+    id: string;
+    full_name: string;
+    college?: string;
+  };
+}
+
+export interface StudentRosterMember {
+  teacher_subject_id: string;
+  student_id: string;
+  joined_at: string;
+  profiles: {
+    id: string;
+    full_name: string;
+    college?: string;
+  };
+}
+
 export const subjectsApi = {
-  listSubjects: () =>
-    fetchWithAuth<
-      Array<{
-        id: string;
-        subject: string;
-        description?: string;
-        semester?: string;
-        studentCount?: number;
-      }>
-    >('/subjects'),
+  listSubjects: () => fetchWithAuth<SubjectOffering[]>('/subjects'),
 
   getSubject: (subjectId: string) =>
-    fetchWithAuth<{
-      id: string;
-      subject: string;
-      description?: string;
-      semester?: string;
-    }>(`/subjects/${subjectId}`),
+    fetchWithAuth<SubjectOffering>(`/subjects/${subjectId}`),
+
+  createSubject: (data: {
+    subject: string;
+    academicYear: string;
+    className: string;
+  }) =>
+    fetchWithAuth<SubjectOffering>('/subjects', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  getRoster: (subjectId: string) =>
+    fetchWithAuth<StudentRosterMember[]>(`/subjects/${subjectId}/roster`),
+
+  enrollStudent: (subjectId: string, studentId: string) =>
+    fetchWithAuth<{ teacherSubjectId: string; studentId: string; joinedAt: string }>(
+      `/subjects/${subjectId}/enroll`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ studentId }),
+      }
+    ),
 };
 
 export const materialsApi = {

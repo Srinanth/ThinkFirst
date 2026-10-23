@@ -7,6 +7,14 @@ const router = Router();
 
 router.get('/me', requireAuth, authController.getMe);
 router.put('/me', requireAuth, authController.updateMe);
-router.get('/profiles/:id', requireAuth, requireRole(['admin', 'teacher']), authController.getProfileById);
+router.get('/stats', requireAuth, requireRole(['admin']), authController.getStats);
+router.get('/profiles', requireAuth, requireRole(['admin']), authController.listProfiles);
+router.post('/users', requireAuth, requireRole(['admin']), authController.createUser);
+router.get(
+  '/profiles/:id',
+  requireAuth,
+  requireRole(['admin', 'teacher']),
+  authController.getProfileById
+);
 
 export const authRoutes: Router = router;

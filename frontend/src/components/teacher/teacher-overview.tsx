@@ -11,26 +11,37 @@ import {
   Clock,
   Sparkles,
   Award,
+  Plus,
 } from 'lucide-react';
 
 interface TeacherOverviewProps {
   onSelectClass: (cls: ClassData) => void;
   teacherName?: string;
+  classes?: ClassData[];
+  onCreateClass?: () => void;
 }
 
 export default function TeacherOverview({
   onSelectClass,
   teacherName = 'Prof. Sarah Connor',
+  classes,
+  onCreateClass,
 }: TeacherOverviewProps) {
-  // Aggregate Stats
-  const totalClasses = MOCK_CLASSES.length;
-  const totalStudents = MOCK_CLASSES.reduce(
-    (acc, c) => acc + c.studentCount,
+  const activeClasses = classes && classes.length > 0 ? classes : MOCK_CLASSES;
+
+  // Aggregate Stats dynamically from active classes
+  const totalClasses = activeClasses.length;
+  const totalStudents = activeClasses.reduce(
+    (acc, c) => acc + (c.studentCount || 0),
     0
   );
-  const avgMastery = Math.round(
-    MOCK_CLASSES.reduce((acc, c) => acc + c.overallMastery, 0) / totalClasses
-  );
+  const avgMastery =
+    totalClasses > 0
+      ? Math.round(
+          activeClasses.reduce((acc, c) => acc + (c.overallMastery || 80), 0) /
+            totalClasses
+        )
+      : 80;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-200 text-white">
@@ -38,15 +49,15 @@ export default function TeacherOverview({
       <div className="relative overflow-hidden neu-card-raised p-7 sm:p-9">
         <div className="relative z-10 max-w-2xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full neu-inset-sm text-white text-xs font-bold tracking-wide border border-white/10">
-            <Sparkles className="w-3.5 h-3.5 text-white" />
-            Fall Term 2026 &bull; Live Telemetry Active
+            <Sparkles className="w-3.5 h-3.5 text-[#00d2ff]" />
+            Live Supabase Postgres Telemetry Active
           </div>
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
             Good morning, {teacherName}
           </h1>
           <p className="text-[#9e9e9e] text-sm leading-relaxed max-w-xl">
             You are managing <span className="text-white font-bold">{totalClasses} active sections</span>. 
-            Recent quiz submissions show a <span className="text-white font-black underline decoration-white/40 decoration-2 underline-offset-2">+6.4% performance leap</span> in Graph Traversals.
+            Deterministic mastery engines and continuous student telemetry are evaluating learning gaps.
           </p>
         </div>
 
@@ -80,13 +91,13 @@ export default function TeacherOverview({
               Students Managed
             </p>
             <p className="text-3xl font-black text-white">{totalStudents}</p>
-            <p className="text-xs text-white flex items-center gap-1 font-bold pt-1">
-              <TrendingUp className="w-3.5 h-3.5 text-white" />
-              98.2% Active engagement
+            <p className="text-xs text-[#00d2ff] flex items-center gap-1 font-bold pt-1">
+              <TrendingUp className="w-3.5 h-3.5 text-[#00d2ff]" />
+              Live enrolled learners
             </p>
           </div>
           <div className="w-14 h-14 rounded-2xl neu-inset text-white flex items-center justify-center">
-            <Users className="w-7 h-7 text-white" />
+            <Users className="w-7 h-7 text-[#00d2ff]" />
           </div>
         </div>
 
@@ -116,22 +127,34 @@ export default function TeacherOverview({
               Managed Cohorts &amp; Classes
             </h2>
             <p className="text-xs text-[#9e9e9e] font-medium">
-              Click any class to enter its detailed workspace, analytics, quizzes, and student roster.
+              Click any class to enter its live workspace, analytics, AI quizzes, and student roster.
             </p>
           </div>
-          <span className="text-xs font-bold text-white neu-inset-sm px-3 py-1">
-            {totalClasses} Cohorts Assigned
-          </span>
+          <div className="flex items-center gap-3">
+            {onCreateClass && (
+              <button
+                type="button"
+                onClick={onCreateClass}
+                className="neu-btn-accent px-4 py-2 text-xs font-bold flex items-center gap-1.5 cursor-pointer text-[#0a0f1d]"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Add Subject Offering
+              </button>
+            )}
+            <span className="text-xs font-bold text-white neu-inset-sm px-3 py-1">
+              {totalClasses} Cohorts
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {MOCK_CLASSES.map((cls) => {
+          {activeClasses.map((cls) => {
             const ringColor =
               cls.overallMastery >= 80
-                ? '#00d2ff' // Electric Cyan (High Mastery Accent)
+                ? '#00d2ff'
                 : cls.overallMastery >= 65
-                ? '#ffffff' // Crisp White (Proficient)
-                : '#f59e0b'; // Amber (Intervention)
+                ? '#ffffff'
+                : '#f59e0b';
 
             return (
               <div
@@ -145,7 +168,6 @@ export default function TeacherOverview({
                 }}
               >
                 <div>
-                  {/* Top Bar with Badge & Action Indicator */}
                   <div className="flex items-start justify-between">
                     <span className="px-3 py-1 rounded-full neu-inset-sm text-white text-xs font-bold font-mono">
                       {cls.code}
@@ -155,7 +177,6 @@ export default function TeacherOverview({
                     </div>
                   </div>
 
-                  {/* Class Name & Section */}
                   <div className="mt-3">
                     <h3 className="text-xl font-black text-white group-hover:text-white transition-colors">
                       {cls.name}
@@ -166,14 +187,12 @@ export default function TeacherOverview({
                   </div>
                 </div>
 
-                {/* Bottom Metrics Bar */}
                 <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs text-[#9e9e9e] font-semibold">
                     <Users className="w-4 h-4 text-white" />
                     <span>{cls.studentCount} Students Enrolled</span>
                   </div>
 
-                  {/* Quick Performance Metric: Mini Progress Ring */}
                   <div className="flex items-center gap-3">
                     <div className="relative w-12 h-12 flex items-center justify-center">
                       <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
@@ -185,7 +204,7 @@ export default function TeacherOverview({
                         />
                         <path
                           stroke={ringColor}
-                          strokeDasharray={`${cls.overallMastery}, 100`}
+                          strokeDasharray={`${cls.overallMastery || 80}, 100`}
                           strokeWidth="3.5"
                           strokeLinecap="round"
                           fill="none"
@@ -193,7 +212,7 @@ export default function TeacherOverview({
                         />
                       </svg>
                       <span className="absolute text-[11px] font-black text-white">
-                        {cls.overallMastery}%
+                        {cls.overallMastery || 80}%
                       </span>
                     </div>
 

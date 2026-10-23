@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/navbar';
 import StudentDashboard, {
@@ -14,10 +14,18 @@ import CourseDrilldown, {
 import QuizTaker from '@/components/student/quiz-taker';
 import AiTutorDrawer, { RemediationMissionData } from '@/components/student/ai-tutor-drawer';
 import AdmissionModals from '@/components/modals/admission-modals';
+import { authApi, subjectsApi, SubjectOffering } from '@/lib/api';
 import { CheckCircle, X, Clock, Calendar } from 'lucide-react';
 
 export default function StudentPage() {
   const router = useRouter();
+
+  // Dynamic Student Profile State
+  const [studentName, setStudentName] = useState('Lucas Chen');
+  const [studentEmail, setStudentEmail] = useState('student.demo@thinkfirst.edu');
+  const [avatarText, setAvatarText] = useState('LC');
+  const [collegeName, setCollegeName] = useState('ThinkFirst Institute of AI & Cognitive Sciences');
+  const [courses, setCourses] = useState<CourseItem[]>(ENROLLED_COURSES);
 
   // Navigation & View States
   const [activeView, setActiveView] = useState<'overview' | 'course' | 'taking_quiz'>('overview');
@@ -42,6 +50,58 @@ export default function StudentPage() {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
   };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    // 1. Fetch authenticated student profile
+    authApi
+      .getMe()
+      .then((profile) => {
+        if (isMounted && profile) {
+          setStudentName(profile.full_name || 'Lucas Chen');
+          if (profile.email) setStudentEmail(profile.email);
+          if (profile.college) setCollegeName(profile.college);
+          const initials = (profile.full_name || 'LC')
+            .split(' ')
+            .map((n) => n[0])
+            .slice(0, 2)
+            .join('')
+            .toUpperCase();
+          setAvatarText(initials || 'LC');
+        }
+      })
+      .catch(() => {});
+
+    // 2. Fetch live enrolled subjects from Supabase backend
+    subjectsApi
+      .listSubjects()
+      .then((liveSubjects) => {
+        if (isMounted && liveSubjects && liveSubjects.length > 0) {
+          const mappedCourses: CourseItem[] = liveSubjects.map((s: SubjectOffering, idx: number) => {
+            const fallback = ENROLLED_COURSES[idx % ENROLLED_COURSES.length];
+            return {
+              id: s.id,
+              code: s.class_name || `SEC-${idx + 1}`,
+              title: s.subject,
+              instructor: s.profiles?.full_name || 'Dr. Alistair Vance',
+              location: s.academic_year || '2025-2026',
+              grade: fallback.grade,
+              percentage: fallback.percentage,
+              credits: fallback.credits,
+              color: fallback.color,
+            };
+          });
+          setCourses(mappedCourses);
+          setSelectedCourse(mappedCourses[0]);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const handleSignOut = () => {
     document.cookie = 'thinkfirst_demo_admin=; Max-Age=0; path=/;';
@@ -77,10 +137,10 @@ export default function StudentPage() {
 
   return (
     <div className="min-h-screen bg-[#1e1e1e] text-white flex flex-col font-sans relative">
-      {/* Toast Feedback (Neumorphic Dark Toast) */}
+      {/* Toast Feedback */}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 flex items-center gap-2.5 px-4 py-3 rounded-xl neu-card-raised border border-white/10 text-white shadow-[0_12px_32px_rgba(0,0,0,0.7)] animate-in slide-in-from-top-2 text-xs font-bold">
-          <CheckCircle className="w-4 h-4 text-white" />
+          <CheckCircle className="w-4 h-4 text-[#00d2ff]" />
           <span>{toastMessage}</span>
           <button
             onClick={() => setToastMessage(null)}
@@ -94,9 +154,9 @@ export default function StudentPage() {
       {/* Global Top Navbar */}
       <Navbar
         role="student"
-        userName="Alex Johnson"
-        userEmail="alex.johnson@edu.org"
-        avatarText="AJ"
+        userName={studentName}
+        userEmail={studentEmail}
+        avatarText={avatarText}
         onBrandClick={() => setActiveView('overview')}
         onSignOut={handleSignOut}
       />
@@ -107,6 +167,9 @@ export default function StudentPage() {
           <StudentDashboard
             onSelectCourse={handleSelectCourse}
             onOpenAddModal={(type) => setAdmissionModal({ isOpen: true, type })}
+            courses={courses}
+            studentName={studentName}
+            collegeName={collegeName}
           />
         )}
 
@@ -138,81 +201,66 @@ export default function StudentPage() {
         subjectId={selectedCourse.id}
         isVisible={activeView === 'course'}
         isQuizActive={activeView === 'taking_quiz'}
-        initialMission={activeRemediationMission}
         forceOpen={tutorForceOpen}
+        initialMission={activeRemediationMission}
         onClose={() => setTutorForceOpen(false)}
       />
 
-      {/* Review Completed Quiz Modal (Dark Neumorphic with White Contrast) */}
+      {/* Modal: Review Completed Quiz */}
       {reviewedQuiz && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
-          <div className="w-full max-w-md rounded-2xl neu-card-raised p-6 space-y-4 text-white border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.8)]">
+          <div className="w-full max-w-xl rounded-2xl neu-card-raised p-6 space-y-5 animate-in zoom-in-95 duration-150 text-white">
             <div className="flex items-center justify-between pb-3 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black neu-badge-white">
+                <span className="px-2.5 py-0.5 rounded-lg text-xs font-bold neu-card-sm text-white">
                   {reviewedQuiz.number}
                 </span>
-                <h3 className="font-extrabold text-sm text-white">
-                  Assessment Solution &amp; Rubric
-                </h3>
+                <h3 className="text-base font-black text-white">{reviewedQuiz.title}</h3>
               </div>
               <button
                 onClick={() => setReviewedQuiz(null)}
-                className="p-1.5 rounded-lg text-[#9e9e9e] hover:text-white neu-btn cursor-pointer"
+                className="p-1 rounded-lg neu-btn text-[#9e9e9e] hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              <h4 className="text-base font-black text-white">{reviewedQuiz.title}</h4>
-              <div className="flex items-center gap-3 text-xs text-[#9e9e9e] font-medium">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-white" />
-                  {reviewedQuiz.date}
-                </span>
-                <span>&bull;</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#757575]" />
-                  {reviewedQuiz.duration}
-                </span>
-              </div>
-
-              <div className="p-4 neu-inset flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase text-[#9e9e9e]">Official Score</p>
-                  <p className="text-xl font-black text-white">
-                    {reviewedQuiz.score} / {reviewedQuiz.maxScore}
-                  </p>
+            <div className="space-y-3 text-xs">
+              <div className="p-4 rounded-xl neu-inset space-y-2">
+                <p className="text-[#9e9e9e]">
+                  Official grading breakdown for submission completed on <strong className="text-white">{reviewedQuiz.date}</strong>.
+                </p>
+                <div className="flex items-center justify-between pt-2 border-t border-white/5 font-bold">
+                  <span className="text-white">Assessed Score:</span>
+                  <span className="text-[#00d2ff]">
+                    {reviewedQuiz.score} / {reviewedQuiz.maxScore} ({reviewedQuiz.percentage}%)
+                  </span>
                 </div>
-                <span className="px-3 py-1 rounded-full text-xs font-bold neu-badge-white">
-                  {reviewedQuiz.percentage}% (High Mastery)
-                </span>
               </div>
 
-              <p className="text-xs text-[#9e9e9e] leading-relaxed">
-                All 10 multiple-choice and reasoning proofs satisfied the grading rubric with zero conceptual flaws.
-              </p>
+              <div className="p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-500/20 text-[#00d2ff] leading-relaxed">
+                Deterministic telemetry logged to your Student Mastery Profile. Need guidance? Open the AI Socratic Tutor drawer.
+              </div>
             </div>
 
-            <div className="pt-2 flex justify-end">
+            <div className="flex justify-end pt-2">
               <button
                 onClick={() => setReviewedQuiz(null)}
-                className="px-4 py-2 neu-btn text-xs font-bold text-white hover:text-white cursor-pointer"
+                className="px-4 py-2 neu-btn text-xs font-bold text-white hover:text-[#9e9e9e] cursor-pointer"
               >
-                Close Review
+                Close Solution Key
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Admissions Modals */}
+      {/* Admission Protocols Modals */}
       <AdmissionModals
         isOpen={admissionModal.isOpen}
         type={admissionModal.type}
-        onClose={() => setAdmissionModal({ isOpen: false, type: 'student' })}
-        onSuccess={showToast}
+        onClose={() => setAdmissionModal((prev) => ({ ...prev, isOpen: false }))}
+        onSuccess={(msg) => showToast(msg)}
       />
     </div>
   );

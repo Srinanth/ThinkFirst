@@ -117,14 +117,52 @@ Content-Type: application/json
 ```
 
 #### 1.2 Update User Profile
-- **Method & Path**: `PUT /api/v1/profiles/me`
+- **Method & Path**: `PUT /api/v1/auth/me`
 - **Access**: Authenticated
 - **Request Body**:
 ```json
 {
-  "fullName": "Prof. Alistair Vance, Ph.D."
+  "fullName": "Prof. Alistair Vance, Ph.D.",
+  "college": "Faculty of Engineering"
 }
 ```
+
+#### 1.3 Get Institutional System Statistics
+- **Method & Path**: `GET /api/v1/auth/stats`
+- **Access**: `admin`
+- **Response `200 OK`**:
+```json
+{
+  "success": true,
+  "data": {
+    "totalStudents": 42,
+    "totalTeachers": 12,
+    "totalSubjects": 8,
+    "totalQuizzes": 15,
+    "totalMaterials": 24
+  }
+}
+```
+
+#### 1.4 List User Profiles
+- **Method & Path**: `GET /api/v1/auth/profiles?role=teacher`
+- **Access**: `admin`
+- **Response `200 OK`**: List of user profiles matching the optional role filter.
+
+#### 1.5 Admin Create / Enroll User
+- **Method & Path**: `POST /api/v1/auth/users`
+- **Access**: `admin`
+- **Request Body**:
+```json
+{
+  "email": "sarah.connor@institution.edu",
+  "fullName": "Prof. Sarah Connor",
+  "role": "teacher",
+  "college": "Faculty of Engineering",
+  "loginId": "TCR-2026-01"
+}
+```
+- **Response `201 Created`**: Returns created profile and initial credentials.
 
 ---
 
