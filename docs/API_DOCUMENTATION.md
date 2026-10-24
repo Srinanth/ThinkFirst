@@ -657,6 +657,73 @@ Content-Type: application/json
 - **Access**: Instructor of `:subjectId`
 - **Response `200 OK`**: Topic-by-topic class averages, struggle thresholds, and enrollment stats.
 
+#### 7.5 Get Class-Wide Database-Driven Analytics Dashboard
+- **Method & Path**: `GET /api/v1/mastery/:subjectId/analytics`
+- **Access**: Instructor of `:subjectId` or Admin
+- **Response `200 OK`**:
+```json
+{
+  "success": true,
+  "data": {
+    "overallMastery": 78,
+    "growthRate": "+18% Growth",
+    "trendData": [
+      { "quiz": "Q1: Relational Algebra", "fullTitle": "Quiz 1: Relational Algebra & Keys Diagnostic", "avgScore": 68, "benchmark": 70 }
+    ],
+    "distributionData": [
+      { "name": "Mastered", "value": 3, "color": "#00d2ff" },
+      { "name": "Developing", "value": 2, "color": "#38bdf8" },
+      { "name": "Needs Support", "value": 2, "color": "#8b5cf6" }
+    ],
+    "strongAreas": [
+      { "topic": "Relational Data Model & Keys", "avgScore": 88, "praise": "Students demonstrate solid proficiency with relational data model & keys concepts." }
+    ],
+    "variationSummary": [
+      { "quizTitle": "Quiz 2: Complex SQL & Normal Forms", "change": "+7% Shift", "isPositive": true, "detail": "Positive progression of 7% over prior assessment." }
+    ],
+    "insights": [],
+    "students": [
+      {
+        "id": "uuid",
+        "fullName": "Emma Watson",
+        "email": "emma.watson@institution.edu",
+        "loginId": "STD-2026-9999",
+        "college": "Faculty of Engineering",
+        "overallMastery": 94,
+        "tier": "Mastered",
+        "quizzesCompleted": 4,
+        "totalQuizzes": 4,
+        "avgScore": 100,
+        "studentTrend": [{ "quiz": "Q1", "quizTitle": "Quiz 1...", "score": 100, "hasTaken": true }],
+        "topicBreakdown": [{ "topicId": "uuid", "title": "Relational Data Model & Keys", "score": 93, "tier": "Mastered" }]
+      }
+    ]
+  }
+}
+```
+
+#### 7.6 Get Student Progress & Topic Readiness
+- **Method & Path**: `GET /api/v1/mastery/:subjectId/student-progress?studentId=uuid`
+- **Access**: Enrolled student (self) or instructor
+- **Description**: Returns qualitative readiness and completed quiz evaluations without exposing raw numeric grades to students (preserving student privacy and motivation).
+- **Response `200 OK`**:
+```json
+{
+  "success": true,
+  "data": {
+    "completedQuizzes": [
+      { "id": "uuid", "number": "Quiz 1", "title": "Quiz 1: Relational Algebra & Keys", "submittedAt": "2026-10-01T10:00:00Z", "score": 3, "maxScore": 4, "duration": "20 mins" }
+    ],
+    "topicReadiness": [
+      { "topicId": "uuid", "title": "Relational Data Model & Keys", "status": "Mastered", "lastAssessedAt": "2026-10-01T10:00:00Z" }
+    ],
+    "overallStanding": "On Track",
+    "completedCount": 4,
+    "totalCount": 4
+  }
+}
+```
+
 ---
 
 ### Module 8: Teacher Diagnostic Insights (`/insights`)

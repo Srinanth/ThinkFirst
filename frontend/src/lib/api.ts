@@ -366,6 +366,83 @@ export const insightsApi = {
 // ============================================================================
 // DETERMINISTIC MASTERY API
 // ============================================================================
+export interface StudentAnalyticsDetail {
+  id: string;
+  fullName: string;
+  email: string;
+  loginId: string;
+  college: string;
+  joinedAt: string;
+  overallMastery: number;
+  tier: 'Mastered' | 'Developing' | 'Needs Support';
+  quizzesCompleted: number;
+  totalQuizzes: number;
+  avgScore: number;
+  studentTrend: Array<{
+    quiz: string;
+    quizTitle: string;
+    score: number;
+    hasTaken: boolean;
+  }>;
+  topicBreakdown: Array<{
+    topicId: string;
+    title: string;
+    score: number;
+    tier: 'Mastered' | 'Developing' | 'Needs Support';
+  }>;
+}
+
+export interface ClassAnalyticsResponse {
+  overallMastery: number;
+  growthRate: string;
+  trendData: Array<{
+    quiz: string;
+    fullTitle: string;
+    avgScore: number;
+    benchmark: number;
+  }>;
+  distributionData: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  strongAreas: Array<{
+    topic: string;
+    avgScore: number;
+    praise: string;
+  }>;
+  variationSummary: Array<{
+    quizTitle: string;
+    change: string;
+    isPositive: boolean;
+    detail: string;
+  }>;
+  insights: any[];
+  students: StudentAnalyticsDetail[];
+}
+
+export interface StudentProgressResponse {
+  completedQuizzes: Array<{
+    id: string;
+    number: string;
+    title: string;
+    submittedAt: string;
+    score: number;
+    maxScore: number;
+    duration: string;
+  }>;
+  topicReadiness: Array<{
+    topicId: string;
+    title: string;
+    description: string;
+    status: 'Mastered' | 'Developing' | 'Needs Review';
+    lastAssessedAt: string;
+  }>;
+  overallStanding: string;
+  completedCount: number;
+  totalCount: number;
+}
+
 export const masteryApi = {
   getStudentMastery: (subjectId: string) =>
     fetchWithAuth<{
@@ -392,6 +469,14 @@ export const masteryApi = {
         strugglingStudentsCount: number;
       }>
     >(`/mastery/${subjectId}/overview`),
+
+  getClassAnalytics: (subjectId: string) =>
+    fetchWithAuth<ClassAnalyticsResponse>(`/mastery/${subjectId}/analytics`),
+
+  getStudentProgress: (subjectId: string, studentId?: string) =>
+    fetchWithAuth<StudentProgressResponse>(
+      `/mastery/${subjectId}/student-progress${studentId ? `?studentId=${studentId}` : ''}`
+    ),
 };
 
 // ============================================================================

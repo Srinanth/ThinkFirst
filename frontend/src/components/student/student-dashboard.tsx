@@ -126,7 +126,7 @@ export default function StudentDashboard({
           </div>
           <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Active Courses</p>
-            <p className="text-sm font-black text-white">{activeCourses.length} Cohorts</p>
+            <p className="text-sm font-black text-white">{activeCourses.length} Classes</p>
           </div>
         </div>
       </div>
@@ -216,7 +216,7 @@ export default function StudentDashboard({
                   Academic Learning Journey
                 </h3>
                 <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
-                  Live cohort standing and syllabus engagement
+                  Live class standing and syllabus engagement
                 </p>
               </div>
               <span className="text-xs font-bold text-white neu-inset-sm px-2.5 py-1">

@@ -6,7 +6,7 @@ import Navbar from '@/components/navbar';
 import TeacherOverview from '@/components/teacher/teacher-overview';
 import ClassWorkspace from '@/components/teacher/class-workspace';
 import { ClassData } from '@/data/mock-data';
-import { authApi, subjectsApi, SubjectOffering } from '@/lib/api';
+import { authApi, subjectsApi, SubjectOffering, masteryApi } from '@/lib/api';
 import { createClient } from '@/lib/supabase/client';
 import { X, Plus, CheckCircle, BookOpen, Loader2 } from 'lucide-react';
 
@@ -57,29 +57,50 @@ export default function TeacherPage() {
         console.warn('Could not fetch teacher profile:', err);
       }
 
-      // 2. Fetch live subjects for this teacher
+      // 2. Fetch live subjects for this teacher with live analytics
       try {
         const liveSubjects = await subjectsApi.listSubjects();
         if (liveSubjects && liveSubjects.length > 0) {
-          const mappedClasses: ClassData[] = liveSubjects.map((s: SubjectOffering, idx: number) => {
-            return {
-              id: s.id,
-              name: s.subject,
-              code: s.class_name || `SEC-${idx + 1}`,
-              section: s.academic_year || '2025-2026',
-              studentCount: s.studentCount ?? 0,
-              overallMastery: 0,
-              room: 'Campus Hall',
-              schedule: 'Active Term',
-              trendData: [],
-              distributionData: [],
-              weakAreas: [],
-              strongAreas: [],
-              variationSummary: [],
-              quizzes: [],
-              students: [],
-            };
-          });
+          const mappedClasses: ClassData[] = await Promise.all(
+            liveSubjects.map(async (s: SubjectOffering, idx: number) => {
+              let overallMastery = 0;
+              let trendData: any[] = [];
+              let distributionData: any[] = [];
+              let strongAreas: any[] = [];
+              let variationSummary: any[] = [];
+
+              try {
+                const analytics = await masteryApi.getClassAnalytics(s.id);
+                if (analytics) {
+                  overallMastery = analytics.overallMastery || 0;
+                  trendData = analytics.trendData || [];
+                  distributionData = analytics.distributionData || [];
+                  strongAreas = analytics.strongAreas || [];
+                  variationSummary = analytics.variationSummary || [];
+                }
+              } catch {
+                // Keep empty arrays if analytics not available yet
+              }
+
+              return {
+                id: s.id,
+                name: s.subject,
+                code: s.class_name || `SEC-${idx + 1}`,
+                section: s.academic_year || '2025-2026',
+                studentCount: s.studentCount ?? 0,
+                overallMastery,
+                room: 'Campus Hall',
+                schedule: 'Active Term',
+                trendData,
+                distributionData,
+                weakAreas: [],
+                strongAreas,
+                variationSummary,
+                quizzes: [],
+                students: [],
+              };
+            })
+          );
           setClasses(mappedClasses);
         } else {
           setClasses([]);

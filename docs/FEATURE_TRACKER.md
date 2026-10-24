@@ -16,12 +16,12 @@
 | **2. Database & Security (RLS)** | 8 | 7 | 1 | 0 | **88%** |
 | **3. Backend Infrastructure & Middlewares** | 10 | 10 | 0 | 0 | **100%** |
 | **4. Agentic AI Workflows (Mastra/Gemini)** | 7 | 7 | 0 | 0 | **100%** |
-| **5. Deterministic Mastery Engine** | 4 | 2 | 0 | 2 | **50%** |
-| **6. Frontend Web App (Next.js)** | 9 | 9 | 0 | 0 | **100%** |
-| **TOTALS** | **46** | **43** | **1** | **2** | **93% Overall** |
+| **5. Deterministic Mastery Engine** | 5 | 3 | 0 | 2 | **60%** |
+| **6. Frontend Web App (Next.js)** | 10 | 10 | 0 | 0 | **100%** |
+| **TOTALS** | **48** | **45** | **1** | **2** | **94% Overall** |
 
 ```
-Progress: [███████████████████░] 93%
+Progress: [███████████████████░] 94%
 ```
 
 ---
@@ -114,6 +114,8 @@ Progress: [███████████████████░] 93%
 | **FE-11** | Split-Screen Fitted Image Login UI (dev/antony sync) | `frontend` | `P0` | `[x] Completed` | Antony / Deepak / Srinanth | Pulled `origin/dev/antony` (commit `d6bd23c`) split-screen layout with full-height fitted image (`/images/knowledge-illuminated.jpg`), sleek dark form (`#0a0a0a`), `#18181b` inputs, while preserving live server-side bcrypt email/password authentication and Supabase session hydration |
 | **FE-12** | Subject-Scoped Socratic AI Tutor & Separate Chat Histories | `frontend` | `P0` | `[x] Completed` | Srinanth | AI Tutor drawer loads persistent isolated conversation histories per subject class offering; student switching courses switches context and thread automatically |
 | **FE-13** | Quiz Completion Gating & Student Mastery Score Privacy UX | `frontend` | `P0` | `[x] Completed` | Srinanth | Automatically moves completed quizzes to "Completed Quizzes" section upon submission; prevents duplicate retakes; replaces stressful numeric mastery percentages with qualitative growth badges ("Enrolled & Active", "On Track", "Completed & Evaluated") |
+| **FE-14** | Live Database-Driven Teacher & Student Dashboards | `frontend` | `P0` | `[x] Completed` | Srinanth | 100% database-driven analytics for Teacher Workspace (Performance Progression Trend, Score Tier Distribution donut, Strong Areas, Performance Shifts); interactive Student-Wise Progress Modal with individual quiz trends and topic breakdown; simplified terminology eliminating "cohort" across all views |
+| **ME-05** | Class & Student Analytics Engine | `mastery` | `P0` | `[x] Completed` | Srinanth | Added `/mastery/:subjectId/analytics` and `/mastery/:subjectId/student-progress` endpoints computing chronological quiz score averages, score tiers, and topic proficiencies |
 
 ---
 

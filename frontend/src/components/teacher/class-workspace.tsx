@@ -12,6 +12,8 @@ import {
   subjectsApi,
   StudentRosterMember,
   masteryApi,
+  ClassAnalyticsResponse,
+  StudentAnalyticsDetail,
 } from '@/lib/api';
 import {
   ArrowLeft,
@@ -44,6 +46,8 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -118,10 +122,13 @@ export default function ClassWorkspace({
     Array<{ id: string; title: string; file_type: string; processing_status: string; created_at: string }>
   >([]);
 
-  // Live Deterministic Class Mastery Overview
+  // Live Deterministic Class Mastery Overview & Analytics
   const [classOverview, setClassOverview] = useState<
     Array<{ topicId: string; title: string; averageMastery: number; strugglingStudentsCount: number }>
   >([]);
+  const [analyticsData, setAnalyticsData] = useState<ClassAnalyticsResponse | null>(null);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState(false);
+  const [selectedStudentDetail, setSelectedStudentDetail] = useState<StudentAnalyticsDetail | null>(null);
 
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [activeUploadTab, setActiveUploadTab] = useState<'file' | 'text'>('file');
@@ -234,6 +241,20 @@ export default function ClassWorkspace({
     }
   };
 
+  const fetchAnalytics = async () => {
+    setIsLoadingAnalytics(true);
+    try {
+      const data = await masteryApi.getClassAnalytics(cls.id);
+      if (data) {
+        setAnalyticsData(data);
+      }
+    } catch (err) {
+      console.warn('Could not fetch class analytics:', err);
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  };
+
   useEffect(() => {
     fetchRoster();
     fetchQuizzes();
@@ -241,6 +262,7 @@ export default function ClassWorkspace({
     fetchMaterials();
     fetchInsights();
     fetchMasteryOverview();
+    fetchAnalytics();
   }, [cls.id]);
 
   // Background polling for quizzes with AI generation in progress
@@ -598,10 +620,12 @@ export default function ClassWorkspace({
         <div className="flex items-center gap-4 neu-inset p-4 self-start md:self-auto border border-white/10">
           <div className="text-right">
             <span className="text-[10px] font-black uppercase tracking-wider text-[#757575] block">
-              Cohort Mastery
+              Class Mastery
             </span>
             <span className="text-2xl font-black text-white">
-              {cls.overallMastery > 0 ? `${cls.overallMastery}%` : 'N/A'}
+              {(analyticsData?.overallMastery ?? cls.overallMastery) > 0
+                ? `${analyticsData?.overallMastery ?? cls.overallMastery}%`
+                : 'Awaiting Data'}
             </span>
           </div>
           <div className="w-12 h-12 rounded-xl neu-card-sm text-white flex items-center justify-center font-bold text-sm">
@@ -703,21 +727,21 @@ export default function ClassWorkspace({
                     Performance Progression Trend
                   </h3>
                   <p className="text-xs text-[#9e9e9e]">
-                    Cohort average vs. institutional benchmark (70%) over past quizzes
+                    Class average vs. class target (70%) over past quizzes
                   </p>
                 </div>
                 <span className="text-xs font-bold neu-badge-white px-3 py-1 flex items-center gap-1">
                   <TrendingUp className="w-3.5 h-3.5 text-white" />
-                  +16% Growth
+                  {analyticsData?.growthRate || '+16% Growth'}
                 </span>
               </div>
 
               {/* Responsive Area Chart inside Inset Container */}
               <div className="neu-inset p-3 rounded-2xl h-64 sm:h-72 w-full pt-2">
-                {cls.trendData && cls.trendData.length > 0 ? (
+                {((analyticsData?.trendData && analyticsData.trendData.length > 0) ? analyticsData.trendData : (cls.trendData || [])).length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
-                      data={cls.trendData}
+                      data={(analyticsData?.trendData && analyticsData.trendData.length > 0) ? analyticsData.trendData : cls.trendData}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
                       <defs>
@@ -762,7 +786,7 @@ export default function ClassWorkspace({
                       <Area
                         type="monotone"
                         dataKey="benchmark"
-                        name="Benchmark (70%)"
+                        name="Class Target (70%)"
                         stroke="#555555"
                         strokeDasharray="4 4"
                         strokeWidth={2}
@@ -773,7 +797,7 @@ export default function ClassWorkspace({
                 ) : (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-2 p-6">
                     <TrendingUp className="w-8 h-8 text-white" />
-                    <p className="text-sm font-bold text-white">No Progression Telemetry Yet</p>
+                    <p className="text-sm font-bold text-white">No Quiz Progression Data Yet</p>
                     <p className="text-xs text-[#9e9e9e] max-w-sm">
                       Student progress curves will plot automatically once learners complete diagnostic quizzes.
                     </p>
@@ -795,11 +819,11 @@ export default function ClassWorkspace({
 
               {/* Donut Chart inside Recessed Container */}
               <div className="neu-inset p-3 rounded-2xl h-56 w-full flex items-center justify-center">
-                {cls.distributionData && cls.distributionData.length > 0 ? (
+                {((analyticsData?.distributionData && analyticsData.distributionData.length > 0) ? analyticsData.distributionData : (cls.distributionData || [])).length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={cls.distributionData}
+                        data={(analyticsData?.distributionData && analyticsData.distributionData.length > 0) ? analyticsData.distributionData : cls.distributionData}
                         cx="50%"
                         cy="50%"
                         innerRadius={55}
@@ -807,7 +831,7 @@ export default function ClassWorkspace({
                         paddingAngle={4}
                         dataKey="value"
                       >
-                        {cls.distributionData.map((_entry, index) => {
+                        {((analyticsData?.distributionData && analyticsData.distributionData.length > 0) ? analyticsData.distributionData : cls.distributionData).map((_entry, index) => {
                           const cellColor =
                             index === 0
                               ? '#00d2ff' // Electric Cyan
@@ -979,13 +1003,13 @@ export default function ClassWorkspace({
                     Strong Areas &amp; Mastery
                   </h4>
                   <p className="text-xs text-[#9e9e9e]">
-                    Concepts where cohort demonstrates solid proficiency.
+                    Concepts where students demonstrate solid proficiency.
                   </p>
                 </div>
 
                 <div className="space-y-3 pt-2">
-                  {cls.strongAreas && cls.strongAreas.length > 0 ? (
-                    cls.strongAreas.map((item, idx) => (
+                  {((analyticsData?.strongAreas && analyticsData.strongAreas.length > 0) ? analyticsData.strongAreas : (cls.strongAreas || [])).length > 0 ? (
+                    ((analyticsData?.strongAreas && analyticsData.strongAreas.length > 0) ? analyticsData.strongAreas : cls.strongAreas).map((item, idx) => (
                       <div
                         key={idx}
                         className="p-3 rounded-2xl neu-inset text-xs space-y-1.5"
@@ -1028,13 +1052,13 @@ export default function ClassWorkspace({
                     Performance Shifts
                   </h4>
                   <p className="text-xs text-[#9e9e9e]">
-                    Tracking cohort trajectory following assessments and reviews.
+                    Tracking student trajectory following assessments and reviews.
                   </p>
                 </div>
 
                 <div className="space-y-2.5 pt-2">
-                  {cls.variationSummary && cls.variationSummary.length > 0 ? (
-                    cls.variationSummary.map((item, idx) => (
+                  {((analyticsData?.variationSummary && analyticsData.variationSummary.length > 0) ? analyticsData.variationSummary : (cls.variationSummary || [])).length > 0 ? (
+                    ((analyticsData?.variationSummary && analyticsData.variationSummary.length > 0) ? analyticsData.variationSummary : cls.variationSummary).map((item, idx) => (
                       <div
                         key={idx}
                         className="p-3 rounded-2xl neu-inset text-xs space-y-1"
@@ -1312,15 +1336,16 @@ export default function ClassWorkspace({
                   <tr className="bg-[#222222] border-b border-white/5 text-[11px] font-black uppercase tracking-wider text-[#757575]">
                     <th className="py-4 px-6">Student Info</th>
                     <th className="py-4 px-6">Roll / Student ID</th>
-                    <th className="py-4 px-6">College / Department</th>
-                    <th className="py-4 px-6">Enrolled Date</th>
-                    <th className="py-4 px-6 text-center">Status</th>
+                    <th className="py-4 px-6">Mastery Level</th>
+                    <th className="py-4 px-6 text-center">Quizzes</th>
+                    <th className="py-4 px-6 text-center">Avg Quiz Score</th>
+                    <th className="py-4 px-6 text-right">Progress Analysis</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5 text-xs">
                   {filteredStudents.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="py-12 text-center text-[#757575]">
+                      <td colSpan={6} className="py-12 text-center text-[#757575]">
                         {roster.length === 0 ? (
                           <div className="space-y-3">
                             <div className="w-12 h-12 mx-auto rounded-2xl neu-inset flex items-center justify-center text-white">
@@ -1343,43 +1368,235 @@ export default function ClassWorkspace({
                       </td>
                     </tr>
                   ) : (
-                    filteredStudents.map((st) => (
-                      <tr key={st.id} className="hover:bg-[#202020] transition-colors">
-                        <td className="py-4 px-6">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full neu-inset text-white flex items-center justify-center font-bold text-xs">
-                              {st.fullName ? st.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() : 'ST'}
+                    filteredStudents.map((st) => {
+                      const stAnalytics = analyticsData?.students?.find((s) => s.id === st.id);
+                      const tier = stAnalytics?.tier || 'Enrolled';
+                      const masteryPct = stAnalytics?.overallMastery ?? 0;
+                      const quizzesCompleted = stAnalytics?.quizzesCompleted ?? 0;
+                      const totalQuizzes = stAnalytics?.totalQuizzes ?? quizList.length;
+                      const avgScore = stAnalytics?.avgScore ?? 0;
+
+                      return (
+                        <tr key={st.id} className="hover:bg-[#202020] transition-colors">
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full neu-inset text-white flex items-center justify-center font-bold text-xs">
+                                {st.fullName ? st.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase() : 'ST'}
+                              </div>
+                              <div>
+                                <span className="font-bold text-white block">{st.fullName}</span>
+                                <span className="text-[11px] text-[#9e9e9e]">{st.email}</span>
+                              </div>
                             </div>
-                            <div>
-                              <span className="font-bold text-white block">{st.fullName}</span>
-                              <span className="text-[11px] text-[#9e9e9e]">{st.email}</span>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6">
-                          <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold neu-badge-white">
-                            {st.loginId || 'STD-2026'}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-[#9e9e9e]">
-                          {st.college || 'Faculty of Engineering'}
-                        </td>
-                        <td className="py-4 px-6 text-[#9e9e9e]">
-                          {st.joinedAt ? new Date(st.joinedAt).toLocaleDateString() : 'Active'}
-                        </td>
-                        <td className="py-4 px-6 text-center">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold text-xs bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
-                            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                            Enrolled
-                          </span>
-                        </td>
-                      </tr>
-                    ))
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold neu-badge-white">
+                              {st.loginId || 'STD-2026'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6">
+                            {tier === 'Mastered' ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold text-xs bg-cyan-950/80 text-cyan-300 border border-cyan-500/30">
+                                <CheckCircle className="w-3.5 h-3.5 text-cyan-400" />
+                                Mastered ({masteryPct}%)
+                              </span>
+                            ) : tier === 'Developing' ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold text-xs bg-sky-950/80 text-sky-300 border border-sky-500/30">
+                                <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
+                                Developing ({masteryPct}%)
+                              </span>
+                            ) : tier === 'Needs Support' ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold text-xs bg-purple-950/80 text-purple-300 border border-purple-500/30">
+                                <AlertTriangle className="w-3.5 h-3.5 text-purple-400" />
+                                Needs Support ({masteryPct}%)
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold text-xs bg-neutral-900 text-[#9e9e9e] border border-white/10">
+                                Enrolled
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-center font-mono font-bold text-white">
+                            {quizzesCompleted} / {totalQuizzes}
+                          </td>
+                          <td className="py-4 px-6 text-center font-mono font-bold text-white">
+                            {avgScore > 0 ? `${avgScore}%` : '—'}
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (stAnalytics) setSelectedStudentDetail(stAnalytics);
+                              }}
+                              disabled={!stAnalytics}
+                              className="neu-btn px-3 py-1.5 text-xs font-bold text-white hover:text-white rounded-xl inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-40"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-[#00d2ff]" />
+                              <span>View Progress</span>
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
             </div>
           </div>
+
+          {/* Student Progress & Progression Drilldown Modal */}
+          {selectedStudentDetail && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+              <div className="neu-card-raised p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-3xl space-y-5 border border-white/20 text-white">
+                <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl neu-inset text-white flex items-center justify-center font-black text-lg">
+                      {selectedStudentDetail.fullName
+                        ? selectedStudentDetail.fullName.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
+                        : 'ST'}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-white">{selectedStudentDetail.fullName}</h3>
+                      <p className="text-xs text-[#9e9e9e]">
+                        {selectedStudentDetail.loginId} &bull; {selectedStudentDetail.email} &bull; {selectedStudentDetail.college}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedStudentDetail(null)}
+                    className="w-8 h-8 rounded-full neu-btn flex items-center justify-center text-[#757575] hover:text-white cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* KPI Cards */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3.5 rounded-2xl neu-inset text-center">
+                    <p className="text-[10px] uppercase font-bold text-[#757575]">Mastery Tier</p>
+                    <p className="text-sm font-black text-white mt-0.5">{selectedStudentDetail.tier}</p>
+                    <p className="text-[10px] text-[#00d2ff] font-bold">{selectedStudentDetail.overallMastery}% Mastery</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl neu-inset text-center">
+                    <p className="text-[10px] uppercase font-bold text-[#757575]">Quizzes Taken</p>
+                    <p className="text-sm font-black text-white mt-0.5">
+                      {selectedStudentDetail.quizzesCompleted} / {selectedStudentDetail.totalQuizzes}
+                    </p>
+                    <p className="text-[10px] text-emerald-400 font-bold">Completed</p>
+                  </div>
+                  <div className="p-3.5 rounded-2xl neu-inset text-center">
+                    <p className="text-[10px] uppercase font-bold text-[#757575]">Average Quiz Score</p>
+                    <p className="text-sm font-black text-white mt-0.5">{selectedStudentDetail.avgScore}%</p>
+                    <p className="text-[10px] text-[#9e9e9e] font-bold">Evaluated</p>
+                  </div>
+                </div>
+
+                {/* Student Performance Progression Trend Chart */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-1.5">
+                    <TrendingUp className="w-4 h-4 text-[#00d2ff]" />
+                    <span>Student Quiz Progression Trend</span>
+                  </h4>
+                  <div className="neu-inset p-3 rounded-2xl h-48 w-full pt-2">
+                    {selectedStudentDetail.studentTrend && selectedStudentDetail.studentTrend.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={selectedStudentDetail.studentTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                          <XAxis dataKey="quiz" stroke="#757575" fontSize={11} tickLine={false} />
+                          <YAxis domain={[40, 100]} stroke="#757575" fontSize={11} tickLine={false} />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: '#262626',
+                              borderRadius: '12px',
+                              color: '#ffffff',
+                              border: '1px solid rgba(255,255,255,0.08)',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                            }}
+                            formatter={(val: any) => [`${val}%`, 'Score']}
+                            labelFormatter={(lbl) => {
+                              const item = selectedStudentDetail.studentTrend.find((t) => t.quiz === lbl);
+                              return item ? item.quizTitle : lbl;
+                            }}
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="score"
+                            name="Student Score (%)"
+                            stroke="#00d2ff"
+                            strokeWidth={2.5}
+                            dot={{ fill: '#00d2ff', r: 4 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-xs text-[#757575]">
+                        No quiz attempts recorded yet
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Topic Mastery Breakdown */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                    Curriculum Topic Mastery Breakdown
+                  </h4>
+                  <div className="neu-inset rounded-2xl overflow-hidden">
+                    <table className="w-full text-left text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-[#262626] border-b border-white/5 text-[10px] font-bold text-[#757575] uppercase">
+                          <th className="py-2.5 px-4">Topic</th>
+                          <th className="py-2.5 px-4 text-center">Mastery Score</th>
+                          <th className="py-2.5 px-4 text-right">Status Tier</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5">
+                        {selectedStudentDetail.topicBreakdown && selectedStudentDetail.topicBreakdown.length > 0 ? (
+                          selectedStudentDetail.topicBreakdown.map((t) => (
+                            <tr key={t.topicId} className="hover:bg-white/[0.02]">
+                              <td className="py-2.5 px-4 font-bold text-white">{t.title}</td>
+                              <td className="py-2.5 px-4 text-center font-mono font-bold text-emerald-400">{t.score}%</td>
+                              <td className="py-2.5 px-4 text-right">
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    t.tier === 'Mastered'
+                                      ? 'bg-cyan-950/80 text-cyan-300 border border-cyan-500/30'
+                                      : t.tier === 'Developing'
+                                      ? 'bg-sky-950/80 text-sky-300 border border-sky-500/30'
+                                      : 'bg-purple-950/80 text-purple-300 border border-purple-500/30'
+                                  }`}
+                                >
+                                  {t.tier}
+                                </span>
+                              </td>
+                            </tr>
+                          ))
+                        ) : (
+                          <tr>
+                            <td colSpan={3} className="py-4 text-center text-xs text-[#757575]">
+                              No topic mastery records assessed yet
+                            </td>
+                          </tr>
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedStudentDetail(null)}
+                    className="neu-btn px-4 py-2 text-xs font-bold text-white rounded-xl cursor-pointer"
+                  >
+                    Close Detail
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -40,4 +40,21 @@ router.get(
   masteryController.getClassOverview
 );
 
+// Teacher class-wide database-driven analytics dashboard (trendData, distributionData, strongAreas, shifts, students)
+router.get(
+  '/:subjectId/analytics',
+  requireAuth,
+  requireRole(['teacher', 'admin']),
+  requireSubjectMembership('teacher'),
+  masteryController.getClassAnalytics
+);
+
+// Student-facing completed quizzes and qualitative topic readiness
+router.get(
+  '/:subjectId/student-progress',
+  requireAuth,
+  requireSubjectMembership('any'),
+  masteryController.getStudentProgress
+);
+
 export const masteryRoutes: Router = router;

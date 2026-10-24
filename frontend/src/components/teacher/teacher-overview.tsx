@@ -78,7 +78,7 @@ export default function TeacherOverview({
             <p className="text-3xl font-black text-white">{totalClasses}</p>
             <p className="text-xs text-[#9e9e9e] flex items-center gap-1 font-medium pt-1">
               <Clock className="w-3.5 h-3.5 text-white" />
-              {totalClasses > 0 ? 'All cohorts scheduled' : 'No cohorts created'}
+              {totalClasses > 0 ? 'All classes active' : 'No classes created'}
             </p>
           </div>
           <div className="w-14 h-14 rounded-2xl neu-inset text-white flex items-center justify-center">
@@ -90,12 +90,12 @@ export default function TeacherOverview({
         <div className="neu-card p-6 flex items-center justify-between text-white">
           <div className="space-y-1">
             <p className="text-xs font-bold uppercase tracking-wider text-[#757575]">
-              Students Managed
+              Students Enrolled
             </p>
             <p className="text-3xl font-black text-white">{totalStudents}</p>
             <p className="text-xs text-white flex items-center gap-1 font-bold pt-1">
               <TrendingUp className="w-3.5 h-3.5 text-white" />
-              Live enrolled learners
+              Active learners in class
             </p>
           </div>
           <div className="w-14 h-14 rounded-2xl neu-inset text-white flex items-center justify-center">
@@ -110,7 +110,7 @@ export default function TeacherOverview({
               Overall Mastery Avg
             </p>
             <p className="text-3xl font-black text-white">
-              {avgMastery > 0 ? `${avgMastery}%` : 'N/A'}
+              {avgMastery > 0 ? `${avgMastery}%` : 'Awaiting Data'}
             </p>
             <p className="text-xs text-[#9e9e9e] flex items-center gap-1 font-medium pt-1">
               <Award className="w-3.5 h-3.5 text-white" />
@@ -128,7 +128,7 @@ export default function TeacherOverview({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-black text-white tracking-tight">
-              Managed Cohorts &amp; Classes
+              Managed Classes &amp; Courses
             </h2>
             <p className="text-xs text-[#9e9e9e] font-medium">
               Click any class to enter its live workspace, analytics, AI quizzes, and student roster.
@@ -146,7 +146,7 @@ export default function TeacherOverview({
               </button>
             )}
             <span className="text-xs font-bold text-white neu-inset-sm px-3 py-1">
-              {totalClasses} Cohorts
+              {totalClasses} Classes
             </span>
           </div>
         </div>

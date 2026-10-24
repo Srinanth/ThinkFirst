@@ -461,7 +461,7 @@ export default function DashboardView({
                   {loading ? '...' : stats.totalSubjects}
                 </div>
                 <div className="inline-flex items-center gap-1 text-xs font-semibold text-[#9e9e9e] pt-1">
-                  Cohorts active
+                  Classes active
                 </div>
               </div>
 
