@@ -8,7 +8,7 @@ dotenv.config({ path: path.resolve(process.cwd(), 'backend', '.env') });
 dotenv.config({ path: path.resolve(process.cwd(), '..', '.env') });
 
 const envSchema = z.object({
-  PORT: z.string().default('5000').transform((val) => parseInt(val, 10)),
+  PORT: z.union([z.string(), z.number()]).transform((val) => (typeof val === 'number' ? val : parseInt(val, 10))).default('5000'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
   SUPABASE_URL: z.string().url().default('https://placeholder.supabase.co'),

@@ -22,7 +22,20 @@ const app: Application = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: [env.FRONTEND_URL, 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, healthchecks, mobile)
+      if (!origin) return callback(null, true);
+      const allowedOrigins = [env.FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'];
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.onrender.com') ||
+        origin.endsWith('.vercel.app') ||
+        env.NODE_ENV !== 'production'
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
