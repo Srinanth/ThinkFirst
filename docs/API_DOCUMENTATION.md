@@ -612,6 +612,7 @@ Content-Type: application/json
     "pedagogicalMode": "foundational_assistance",
     "urgency": "high",
     "recommendationReason": "You had difficulty with fundamental questions in DBMS Quiz #1. Foundational personal assistance recommended.",
+    "whatWentWrong": "Struggled with foundational definitions and core principles in 1 introductory question. Foundational scaffolding recommended.",
     "speechBubblePrompt": "Study Recommended: Relational Normalization — You had trouble with basic questions. Let's build your foundations together!",
     "openingPrompt": "Hello! In your recent quiz on Relational Normalization, you encountered some tricky foundational questions. Let's take it from first principles together.",
     "actionWidgets": [

@@ -12,6 +12,7 @@ import {
   Minimize2,
   Award,
   Zap,
+  AlertCircle,
 } from 'lucide-react';
 import { tutorApi, ActionWidget, TutorRecommendation } from '@/lib/api';
 
@@ -587,40 +588,22 @@ export default function AiTutorDrawer({
               <p className="text-[11px] text-[#9e9e9e] leading-relaxed">
                 {recommendation.recommendationReason}
               </p>
-              {recommendation.difficultyBreakdown?.totalQuestions > 0 && (
-                <div className="flex items-center gap-2 pt-1 text-[10px] text-[#757575]">
-                  <span>Difficulty breakdown:</span>
-                  <span
-                    className={
-                      recommendation.difficultyBreakdown.easyMissed > 0
-                        ? 'text-amber-400 font-bold'
-                        : ''
-                    }
-                  >
-                    {recommendation.difficultyBreakdown.easyMissed} missed easy
-                  </span>
-                  &bull;
-                  <span
-                    className={
-                      recommendation.difficultyBreakdown.mediumMissed > 0
-                        ? 'text-blue-400 font-bold'
-                        : ''
-                    }
-                  >
-                    {recommendation.difficultyBreakdown.mediumMissed} missed med
-                  </span>
-                  &bull;
-                  <span
-                    className={
-                      recommendation.difficultyBreakdown.hardMissed > 0
-                        ? 'text-purple-400 font-bold'
-                        : ''
-                    }
-                  >
-                    {recommendation.difficultyBreakdown.hardMissed} missed hard
+              <div className="pt-1.5 flex items-start gap-2 text-[11px] text-[#cccccc] bg-black/25 p-2.5 rounded-xl border border-white/5">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                <div className="leading-snug">
+                  <span className="font-bold text-white mr-1.5">What went wrong:</span>
+                  <span>
+                    {recommendation.whatWentWrong ||
+                      (recommendation.difficultyBreakdown?.easyMissed > 0
+                        ? 'Struggled with core terminology and foundational definitions in introductory questions.'
+                        : recommendation.difficultyBreakdown?.mediumMissed > 0
+                        ? 'Understood basic definitions, but hit friction when connecting multi-step logic and applying rules to practical scenarios.'
+                        : recommendation.difficultyBreakdown?.hardMissed > 0
+                        ? 'Fundamentals are solid, but tripped up on complex boundary constraints and tricky edge cases.'
+                        : 'No critical conceptual misconceptions identified.')}
                   </span>
                 </div>
-              )}
+              </div>
             </div>
           )}
 

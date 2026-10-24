@@ -294,6 +294,21 @@ export class TutorService {
         ];
       }
 
+      let whatWentWrong = '';
+      if (easyMissed > 0) {
+        whatWentWrong = `Struggled with foundational definitions and core principles in ${easyMissed} introductory question${easyMissed > 1 ? 's' : ''}. Foundational scaffolding recommended.`;
+      } else if (mediumMissed > 0) {
+        whatWentWrong = `Understood basic definitions, but hit friction when connecting multi-step logic and applying rules in ${mediumMissed} applied question${mediumMissed > 1 ? 's' : ''}.`;
+      } else if (hardMissed > 0) {
+        whatWentWrong = `Solid grasp of fundamentals, but tripped up on complex boundary constraints and edge cases in ${hardMissed} stretch question${hardMissed > 1 ? 's' : ''}.`;
+      } else {
+        whatWentWrong = `Strong accuracy demonstrated across all difficulty tiers with no core misconceptions identified.`;
+      }
+
+      if (activeInsight?.description) {
+        whatWentWrong += ` Specific diagnosed gap: "${activeInsight.description}".`;
+      }
+
       return {
         hasRecommendation: true,
         topicId: targetTopicId,
@@ -302,6 +317,7 @@ export class TutorService {
         pedagogicalMode,
         urgency,
         recommendationReason,
+        whatWentWrong,
         speechBubblePrompt,
         openingPrompt,
         actionWidgets,
@@ -349,6 +365,7 @@ export class TutorService {
       pedagogicalMode: 'conceptual_reinforcement' as PedagogicalMode,
       urgency: 'medium' as const,
       recommendationReason: 'Welcome! Start exploring your course concepts with the Socratic AI Tutor.',
+      whatWentWrong: 'No completed quizzes yet. Ready for an exploratory Socratic learning session.',
       speechBubblePrompt: fallbackTopicTitle
         ? `Study Recommended: ${fallbackTopicTitle} — Get a head start with your Socratic AI Tutor!`
         : 'Socratic AI Tutor Ready — Ask questions and practice your understanding!',

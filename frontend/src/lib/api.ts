@@ -143,6 +143,7 @@ export interface TutorRecommendation {
     | 'socratic_mastery';
   urgency: 'high' | 'medium' | 'low';
   recommendationReason: string;
+  whatWentWrong?: string;
   speechBubblePrompt: string;
   openingPrompt: string;
   actionWidgets: ActionWidget[];
