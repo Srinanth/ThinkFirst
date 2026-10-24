@@ -83,7 +83,31 @@ render login
 
 ---
 
-## 4. 1-Click Deployment via Render Blueprint
+## 4. Live Production Service Details
+
+The ThinkFirst backend API has been provisioned and deployed via the Render MCP integration:
+
+| Parameter | Value |
+|---|---|
+| **Service Name** | `thinkfirst-api` |
+| **Service ID** | `srv-dbe054l9fdbs738sij4g` |
+| **Workspace** | `My Workspace` (`tea-cvc8t3pc1ekc73eoledg`) |
+| **Primary Region** | Oregon (`oregon`) |
+| **Runtime Environment** | Node.js 22 LTS |
+| **Root Directory** | `backend` |
+| **Build Command** | `npx --yes pnpm install --frozen-lockfile=false && npx --yes pnpm run build` |
+| **Start Command** | `node dist/server.js` |
+| **Health Check Path** | `/health` |
+| **Live Base URL** | `https://thinkfirst-api-0kpo.onrender.com` |
+| **Health Check URL** | `https://thinkfirst-api-0kpo.onrender.com/health` |
+| **API Discovery URL** | `https://thinkfirst-api-0kpo.onrender.com/api/v1` |
+| **Active Git Branch** | `dev/srinanth` |
+| **Auto-Deploy** | Enabled (Deploys automatically on each push to `dev/srinanth`) |
+| **Deployment Status** | `Live` |
+
+---
+
+## 5. 1-Click Deployment via Render Blueprint
 
 1. Push your repository to GitHub.
 2. In the Render Dashboard, click **New +** $\rightarrow$ **Blueprint**.

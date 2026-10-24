@@ -120,7 +120,7 @@ Progress: [███████████████████░] 93%
 ### Phase 7: Cloud Infrastructure & Render Platform (Render Workflows)
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
-| **INFRA-01** | Render Web Service: Express API Gateway | `infra` | `P0` | `[/] In Progress` | Srinanth | Deploy backend web service on Render |
+| **INFRA-01** | Render Web Service: Express API Gateway | `infra` | `P0` | `[x] Completed` | Srinanth | Deployed & live on Render (`thinkfirst-api` / `srv-dbe054l9fdbs738sij4g`) at `https://thinkfirst-api-0kpo.onrender.com` with auto-deploy from `dev/srinanth` |
 | **INFRA-02** | Render Workflows: Notes Ingestion Pipeline | `infra` | `P0` | `[/] In Progress` | Srinanth | Durable multi-step PDF chunk & embed job |
 | **INFRA-03** | Render Workflows: Teacher Insights Synthesis | `infra` | `P1` | `[ ] Planned` | Srinanth | Scheduled & on-demand class analytics job |
-| **INFRA-04** | Render MCP Integration | `infra` | `P1` | `[/] In Progress` | Srinanth | Connect Render MCP for automated agent ops |
+| **INFRA-04** | Render MCP Integration | `infra` | `P1` | `[x] Completed` | Srinanth | Official Render MCP connected (`tea-cvc8t3pc1ekc73eoledg`) managing services, deployments, build monitoring, and log streaming |
