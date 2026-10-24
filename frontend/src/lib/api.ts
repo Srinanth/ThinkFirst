@@ -135,6 +135,17 @@ async function fetchWithAuth<T>(
 // AI TUTOR API (Method 2: Interactive Action Widgets)
 // ============================================================================
 export const tutorApi = {
+  getActiveConversation: (subjectId: string) =>
+    fetchWithAuth<{
+      conversation: { id: string; title: string; session_type: string; updated_at: string };
+      messages: Array<{
+        id: string;
+        role: 'user' | 'assistant';
+        content: string;
+        created_at: string;
+      }>;
+    }>(`/tutor/subjects/${subjectId}/active`),
+
   createConversation: (teacherSubjectId: string, title?: string) =>
     fetchWithAuth<{ id: string; title: string }>('/tutor/conversations', {
       method: 'POST',

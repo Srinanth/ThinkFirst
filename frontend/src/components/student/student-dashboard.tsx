@@ -195,12 +195,9 @@ export default function StudentDashboard({
                       </div>
 
                       <div className="text-right">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-lg font-black text-white">{course.grade}</span>
-                          {course.percentage > 0 && (
-                            <span className="text-xs font-bold text-[#9e9e9e]">({course.percentage}%)</span>
-                          )}
-                        </div>
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold neu-badge-white text-white">
+                          Enrolled &bull; Active
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -216,20 +213,20 @@ export default function StudentDashboard({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-white tracking-tight">
-                  Academic Mastery Breakdown
+                  Academic Learning Journey
                 </h3>
                 <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
-                  Real-time course evaluation
+                  Live cohort standing and syllabus engagement
                 </p>
               </div>
-              <span className="text-xs font-bold text-[#00d2ff] neu-inset-sm px-2.5 py-1">
-                Live
+              <span className="text-xs font-bold text-white neu-inset-sm px-2.5 py-1">
+                Active
               </span>
             </div>
 
             {activeCourses.length === 0 ? (
               <p className="text-xs text-[#757575] py-4 text-center">
-                Awaiting course enrollment and quiz submissions to visualize mastery breakdowns.
+                Awaiting course enrollment to visualize your academic learning journey.
               </p>
             ) : (
               <div className="space-y-2 pt-1">
@@ -245,8 +242,8 @@ export default function StudentDashboard({
                         {course.title}
                       </span>
                     </div>
-                    <span className="font-black text-white">
-                      {course.percentage > 0 ? `${course.percentage}%` : 'Pending'}
+                    <span className="font-bold text-xs text-neutral-300 px-2.5 py-0.5 rounded-full neu-inset-sm">
+                      On Track
                     </span>
                   </div>
                 ))}
@@ -259,14 +256,14 @@ export default function StudentDashboard({
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-base font-black text-white tracking-tight">
-                  Mastery Progress Graph
+                  Study Engagement Trend
                 </h3>
                 <p className="text-xs text-[#9e9e9e] font-medium mt-0.5">
-                  Weekly quiz performance trend Weeks 1 to 9
+                  Consistent weekly practice and learning activity
                 </p>
               </div>
               <span className="text-[11px] font-bold text-white neu-inset-sm px-2.5 py-1">
-                Target: 80%
+                Active Streak
               </span>
             </div>
 
@@ -281,11 +278,11 @@ export default function StudentDashboard({
                     tickLine={false}
                   />
                   <YAxis
-                    domain={[65, 100]}
+                    domain={[60, 100]}
                     tick={{ fill: '#757575', fontSize: 11, fontWeight: 600 }}
                     axisLine={false}
                     tickLine={false}
-                    tickFormatter={(v) => `${v}%`}
+                    hide
                   />
                   <Tooltip
                     contentStyle={{
@@ -298,15 +295,9 @@ export default function StudentDashboard({
                       boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
                     }}
                     formatter={(value: unknown, name: unknown) => [
-                      `${String(value)}%`,
-                      String(name) === 'score' ? "Mastery Score" : 'Benchmark Target',
+                      'Consistent Engagement',
+                      'Weekly Socratic Activity',
                     ]}
-                  />
-                  <ReferenceLine
-                    y={80}
-                    stroke="#555555"
-                    strokeDasharray="4 4"
-                    label={{ value: 'Target 80%', fill: '#757575', fontSize: 10, position: 'insideTopRight' }}
                   />
                   <Line
                     type="monotone"
@@ -314,7 +305,7 @@ export default function StudentDashboard({
                     stroke="#ffffff"
                     strokeWidth={2.5}
                     dot={{ fill: '#1e1e1e', r: 4, strokeWidth: 2, stroke: '#ffffff' }}
-                    activeDot={{ r: 6, fill: '#00d2ff', stroke: '#ffffff', strokeWidth: 2 }}
+                    activeDot={{ r: 6, fill: '#ffffff', stroke: '#222222', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -323,16 +314,16 @@ export default function StudentDashboard({
             {/* Bottom Performance Callouts */}
             <div className="grid grid-cols-3 gap-2.5 pt-2 border-t border-white/5 text-center">
               <div className="p-2.5 rounded-xl neu-inset">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Lowest</p>
-                <p className="text-xs font-black text-white/80">76% in W3</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Learning Pace</p>
+                <p className="text-xs font-black text-white/90">Steady &bull; Active</p>
               </div>
               <div className="p-2.5 rounded-xl neu-card-sm border border-white/20 shadow-[0_0_15px_rgba(255,255,255,0.05)]">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-white">Peak</p>
-                <p className="text-xs font-black text-white">95% in W8</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-white">Focus</p>
+                <p className="text-xs font-black text-white">Consistent</p>
               </div>
               <div className="p-2.5 rounded-xl neu-inset">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Projected</p>
-                <p className="text-xs font-black text-white">87.5% (A)</p>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Curriculum</p>
+                <p className="text-xs font-black text-white">On Track</p>
               </div>
             </div>
           </div>

@@ -10,6 +10,7 @@ import {
   Award,
   ChevronRight,
   Sparkles,
+  CheckCircle,
 } from 'lucide-react';
 import { CourseItem } from './student-dashboard';
 import { quizzesApi, masteryApi } from '@/lib/api';
@@ -73,24 +74,58 @@ export default function CourseDrilldown({
         .then((quizzes) => {
           if (isMounted) {
             if (quizzes && quizzes.length > 0) {
-              const mapped: OpenQuiz[] = quizzes.map((q, idx) => ({
-                id: q.id,
-                number: `Quiz ${idx + 1}`,
-                title: q.title,
-                dueDate: 'Active Assessment',
-                isDueToday: true,
-                timeLimit: `${q.exam_duration || 20} mins`,
-                questionCount: q.question_count || 3,
-                topics: q.curriculum_topics ? [q.curriculum_topics.title] : ['Course Material'],
-              }));
-              setOpenQuizzes(mapped);
+              const open: OpenQuiz[] = [];
+              const completed: CompletedQuiz[] = [];
+
+              quizzes.forEach((q, idx) => {
+                const userAttempt = (q as any).userAttempt;
+                const isCompleted =
+                  userAttempt &&
+                  (userAttempt.status === 'submitted' || userAttempt.status === 'graded');
+
+                if (isCompleted) {
+                  completed.push({
+                    id: q.id,
+                    number: `Quiz ${idx + 1}`,
+                    title: q.title,
+                    date: userAttempt.submitted_at
+                      ? new Date(userAttempt.submitted_at).toLocaleDateString([], {
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : 'Completed',
+                    duration: `${q.exam_duration || 20} mins`,
+                    score: Number(userAttempt.score) || 0,
+                    maxScore: Number(userAttempt.max_score) || 1,
+                    percentage: 0,
+                  });
+                } else {
+                  open.push({
+                    id: q.id,
+                    number: `Quiz ${idx + 1}`,
+                    title: q.title,
+                    dueDate: 'Active Assessment',
+                    isDueToday: true,
+                    timeLimit: `${q.exam_duration || 20} mins`,
+                    questionCount: q.question_count || 3,
+                    topics: q.curriculum_topics ? [q.curriculum_topics.title] : ['Course Material'],
+                  });
+                }
+              });
+
+              setOpenQuizzes(open);
+              setCompletedQuizzes(completed);
             } else {
               setOpenQuizzes([]);
+              setCompletedQuizzes([]);
             }
           }
         })
         .catch(() => {
-          if (isMounted) setOpenQuizzes([]);
+          if (isMounted) {
+            setOpenQuizzes([]);
+            setCompletedQuizzes([]);
+          }
         });
 
       masteryApi
@@ -155,12 +190,13 @@ export default function CourseDrilldown({
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="p-4 rounded-2xl neu-inset text-center min-w-[110px]">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Overall Mastery</p>
-              <p className="text-2xl font-black text-white">
-                {masteryData?.overallMastery ?? course.percentage}%
+            <div className="p-4 rounded-2xl neu-inset text-center min-w-[140px]">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Course Status</p>
+              <p className="text-sm font-black text-white flex items-center justify-center gap-1.5 mt-0.5">
+                <CheckCircle className="w-3.5 h-3.5 text-white" />
+                Enrolled
               </p>
-              <p className="text-[10px] font-bold text-white">Grade {course.grade}</p>
+              <p className="text-[10px] font-bold text-[#9e9e9e]">Curriculum Active</p>
             </div>
           </div>
         </div>
@@ -223,9 +259,9 @@ export default function CourseDrilldown({
 
                   <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
                     <div className="text-right">
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold neu-badge-white">
-                        <Award className="w-3.5 h-3.5 text-white" />
-                        {quiz.score} / {quiz.maxScore} ({quiz.percentage}%)
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold neu-badge-white">
+                        <CheckCircle className="w-3.5 h-3.5 text-white" />
+                        Completed &amp; Evaluated
                       </span>
                     </div>
 

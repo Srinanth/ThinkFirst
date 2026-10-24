@@ -389,28 +389,22 @@ export default function QuizTaker({
 
               <div className="space-y-1">
                 <h3 className="text-2xl font-black text-white">
-                  Assessment Evaluated by Evaluator Agent!
+                  Assessment Submitted Successfully!
                 </h3>
                 <p className="text-xs text-[#9e9e9e] font-medium">
-                  Evidence logged into student mastery table. Knowledge gap diagnosed.
+                  Evidence logged for deterministic evaluation. Socratic practice ready.
                 </p>
               </div>
 
-              {/* Score Metric Card */}
-              <div className="max-w-xs mx-auto p-4 neu-inset text-center border border-white/10 rounded-2xl">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">
-                  Score Achieved
+              {/* Submission Status Card */}
+              <div className="max-w-md mx-auto p-5 neu-inset text-center border border-white/10 rounded-2xl space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold neu-badge-white text-white">
+                  <CheckCircle className="w-3.5 h-3.5 text-white" />
+                  <span>Assessment Completed &amp; Recorded</span>
+                </div>
+                <p className="text-xs text-[#9e9e9e] leading-relaxed">
+                  Your responses have been safely saved. The AI Evaluator Agent is analyzing conceptual nuances in the background for your instructor&apos;s curriculum dashboard.
                 </p>
-                <p className="text-4xl font-black text-white mt-1">{calculatedScore}%</p>
-                <span
-                  className={`inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-bold ${
-                    calculatedScore >= 80
-                      ? 'neu-badge-white'
-                      : 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
-                  }`}
-                >
-                  {calculatedScore >= 80 ? 'Mastery Confirmed' : 'Knowledge Gaps Detected'}
-                </span>
               </div>
             </div>
 

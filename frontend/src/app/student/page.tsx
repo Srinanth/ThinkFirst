@@ -33,6 +33,7 @@ export default function StudentPage() {
   const [activeQuiz, setActiveQuiz] = useState<OpenQuiz | null>(null);
   const [activeRemediationMission, setActiveRemediationMission] = useState<RemediationMissionData | null>(null);
   const [tutorForceOpen, setTutorForceOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   // Review Completed Quiz Modal State
   const [reviewedQuiz, setReviewedQuiz] = useState<CompletedQuiz | null>(null);
@@ -142,18 +143,20 @@ export default function StudentPage() {
     showToast(`Entering Proctored Mode for ${quiz.number}. AI Tutor has been temporarily locked.`);
   };
 
-  const handleFinishQuiz = (score: number) => {
+  const handleFinishQuiz = () => {
     setActiveView('course');
     setActiveQuiz(null);
-    showToast(`Quiz completed with ${score}%! AI Tutor is now re-enabled.`);
+    setRefreshKey((prev) => prev + 1);
+    showToast('Assessment submitted successfully! Socratic AI Tutor is now available.');
   };
 
   const handleStartRemediation = (mission: RemediationMissionData) => {
     setActiveRemediationMission(mission);
     setActiveView('course');
     setActiveQuiz(null);
+    setRefreshKey((prev) => prev + 1);
     setTutorForceOpen(true);
-    showToast(`Remediation Mission launched: ${mission.title}! Action widgets ready.`);
+    showToast(`Remediation Mission ready: ${mission.title}! Socratic Tutor launched.`);
   };
 
   return (
@@ -196,6 +199,7 @@ export default function StudentPage() {
 
         {activeView === 'course' && selectedCourse && (
           <CourseDrilldown
+            key={`${selectedCourse.id}-${refreshKey}`}
             course={selectedCourse}
             onBack={() => setActiveView('overview')}
             onStartQuiz={handleStartQuiz}

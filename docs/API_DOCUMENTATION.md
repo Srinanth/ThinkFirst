@@ -334,6 +334,7 @@ Content-Type: application/json
 - **Method & Path**: `POST /api/v1/materials/:subjectId/upload`
 - **Content-Type**: `multipart/form-data` or `application/json`
 - **Access**: Instructor of `:subjectId`
+- **Execution Mode**: Non-blocking asynchronous background execution.
 - **Request Fields**:
   - `file`: Multipart file binary (`.pdf`, `.png`, `.jpg`, `.jpeg`, `.webp`, `.txt`, `.md`)
   - `title`: String (e.g. "Lecture 04: The Squeeze Theorem")
@@ -348,14 +349,16 @@ Content-Type: application/json
     "material": {
       "id": "mat_881",
       "title": "Lecture 04: The Squeeze Theorem",
-      "processing_status": "ready"
+      "processing_status": "pending"
     },
     "extractedCharacterCount": 1420,
-    "chunksCount": 3,
-    "processingStatus": "ready"
+    "chunksCount": 0,
+    "processingStatus": "pending",
+    "message": "Learning material registered. Semantic chunking and vector embeddings are running in background."
   }
 }
 ```
+*Note: Embeddings and vector storage are executed in a non-blocking background task. Status transitions from `pending` -> `processing` -> `ready` (or `failed`).*
 
 #### 4.2 Register Learning Material Metadata (Manual)
 - **Method & Path**: `POST /api/v1/materials/:subjectId`
@@ -436,7 +439,8 @@ Content-Type: application/json
 #### 5.3 Generate Targeted Diagnostic Quiz (Quiz Agent)
 - **Method & Path**: `POST /api/v1/quizzes/:subjectId/generate`
 - **Access**: Subject instructor (`teacher` or `admin`)
-- **Lifecycle**: Generated quizzes are automatically created in `draft` status so the teacher can preview questions and rubric explanations before publishing to learners.
+- **Execution Mode**: Non-blocking asynchronous background execution.
+- **Lifecycle**: Creates the quiz record immediately with `status: "draft"` and `question_count: 0`. AI question synthesis runs asynchronously in the background. Teachers can preview and publish once question synthesis completes.
 - **Request Body**:
 ```json
 {
@@ -448,7 +452,20 @@ Content-Type: application/json
   "examDuration": 20
 }
 ```
-- **Response `201 Created`**: Generated quiz with `status: "draft"` and full pedagogical `questions` array.
+- **Response `201 Created`**:
+```json
+{
+  "success": true,
+  "data": {
+    "id": "quiz_01",
+    "title": "Diagnostic Quiz - Squeeze Theorem",
+    "status": "draft",
+    "question_count": 0,
+    "processingStatus": "processing",
+    "message": "Quiz container created in draft mode. AI questions are generating in the background."
+  }
+}
+```
 
 #### 5.4 Update Quiz Status (Publish / Unpublish Lifecycle)
 - **Method & Path**: `PATCH /api/v1/quizzes/detail/:quizId/status`
@@ -492,19 +509,18 @@ Content-Type: application/json
 - **Constraint**: Fails with `400 Bad Request` if quiz status is not `"published"`.
 - **Response `201 Created`**: New `quiz_attempts` session record.
 
-#### 5.9 Submit Attempt Session (Quiz Evaluator Agent + Student Insight Dossier + Deterministic Mastery Engine)
+#### 5.9 Submit Attempt Session (Non-Blocking Deterministic Evaluation + Async Evaluator Agent)
 - **Method & Path**: `POST /api/v1/quizzes/attempts/:attemptId/submit`
 - **Access**: Student owner of attempt
+- **Execution Mode**: Non-blocking asynchronous background execution.
+- **Behavior**: Instantly evaluates multiple-choice answers deterministically, updates attempt to `status: "submitted"`, and returns immediate confirmation (<50ms). Asynchronously in the background, the Evaluator Agent synthesizes cognitive gap diagnoses, logs teacher insight dossiers, and updates topic mastery, marking the attempt as `"graded"`.
 - **Request Body**:
 ```json
 {
   "responses": [
     {
       "questionId": "qq_01",
-      "studentAnswer": {
-        "selectedOption": "cos(x)",
-        "explanation": "Derivative of sin(x) is cos(x)"
-      }
+      "studentAnswer": "cos(x)"
     }
   ]
 }
@@ -514,34 +530,17 @@ Content-Type: application/json
 {
   "success": true,
   "data": {
-    "attemptId": "att_01",
-    "score": 100,
-    "evaluatedResponses": [
-      {
-        "questionId": "qq_01",
-        "isCorrect": true,
-        "marksAwarded": 1.0,
-        "feedback": "Correct reasoning on trigonometric derivatives."
-      }
-    ],
-    "masteryUpdate": {
-      "curriculumTopicId": "top_01",
-      "oldScore": 0.50,
-      "newScore": 0.65,
-      "confidence": 0.85
+    "attempt": {
+      "id": "att_01",
+      "status": "submitted",
+      "score": 5,
+      "max_score": 5
     },
-    "remediationMission": {
-      "insightId": "ins_01",
-      "topicId": "top_01",
-      "title": "Knowledge Gap: Removable Discontinuities",
-      "diagnosedGap": "Direct substitution yielding indeterminate 0/0 without factoring",
-      "openingPrompt": "On Question 3, you got 0/0. Since 0/0 is indeterminate, what is your first move for factoring (x^2 - 4)?",
-      "actionWidgets": [
-        { "type": "pill", "label": "Factor into (x-2)(x+2)", "value": "factor" },
-        { "type": "pill", "label": "Substitute x=0", "value": "sub_zero" },
-        { "type": "pill", "label": "Need a hint", "value": "hint" }
-      ]
-    }
+    "score": 5,
+    "maxScore": 5,
+    "percentage": 100,
+    "status": "submitted",
+    "message": "Assessment submitted successfully. Evaluator Agent analysis running in background."
   }
 }
 ```
@@ -567,15 +566,45 @@ Content-Type: application/json
 ```
 - **Response `201 Created`**: Conversation record.
 
-#### 6.2 List Student's Conversations for Subject
+#### 6.2 Get or Initialize Active Subject Conversation (Isolated Per Subject)
+- **Method & Path**: `GET /api/v1/tutor/subjects/:subjectId/active`
+- **Access**: Enrolled student member of `:subjectId`
+- **Description**: Returns the active persistent Socratic conversation thread and full message history for the student in that specific subject offering. If no conversation exists yet, automatically creates one with an introductory greeting grounded in that course.
+- **Response `200 OK`**:
+```json
+{
+  "success": true,
+  "data": {
+    "conversation": {
+      "id": "conv_991",
+      "student_id": "stu_01",
+      "teacher_subject_id": "e30e71ab-5e60-449e-b5c6-55bb24c8c114",
+      "title": "MATH101 Socratic Session",
+      "session_type": "ai_tutor",
+      "updated_at": "2026-10-24T05:58:00Z"
+    },
+    "messages": [
+      {
+        "id": "msg_01",
+        "conversation_id": "conv_991",
+        "role": "assistant",
+        "content": "Hello! I'm your Socratic AI Tutor for Calculus. How can I guide your understanding today?",
+        "created_at": "2026-10-24T05:58:01Z"
+      }
+    ]
+  }
+}
+```
+
+#### 6.3 List Student's Conversations for Subject
 - **Method & Path**: `GET /api/v1/tutor/conversations/:subjectId`
 - **Access**: Enrolled student
 
-#### 6.3 Get Conversation Message History
+#### 6.4 Get Conversation Message History
 - **Method & Path**: `GET /api/v1/tutor/conversations/:conversationId/messages`
 - **Access**: Conversation owner
 
-#### 6.4 Send Message & Interactive Guidance (AI Tutor Agent - Method 2 Interactive Action Widgets)
+#### 6.5 Send Message & Interactive Guidance (AI Tutor Agent - Method 2 Interactive Action Widgets)
 - **Method & Path**: `POST /api/v1/tutor/conversations/:conversationId/chat`
 - **Access**: Conversation owner
 - **Request Body**:

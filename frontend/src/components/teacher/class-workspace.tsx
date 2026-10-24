@@ -165,7 +165,7 @@ export default function ClassWorkspace({
             topics: [q.curriculum_topics?.title || 'Diagnostic Assessment'],
             completionRate: 0,
             avgScore: 0,
-            totalQuestions: q.question_count || 5,
+            totalQuestions: q.question_count ?? 0,
             status: q.status || 'draft',
             difficulty: q.difficulty || 'medium',
             examDuration: q.exam_duration || 30,
@@ -242,6 +242,32 @@ export default function ClassWorkspace({
     fetchInsights();
     fetchMasteryOverview();
   }, [cls.id]);
+
+  // Background polling for quizzes with AI generation in progress
+  useEffect(() => {
+    const hasPendingQuizzes = quizList.some((q) => q.status === 'draft' && q.totalQuestions === 0);
+    if (!hasPendingQuizzes) return;
+
+    const timer = setTimeout(() => {
+      fetchQuizzes();
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [quizList]);
+
+  // Background polling for materials processing embeddings
+  useEffect(() => {
+    const hasPendingMaterials = materialsList.some(
+      (m) => m.processing_status === 'pending' || m.processing_status === 'processing'
+    );
+    if (!hasPendingMaterials) return;
+
+    const timer = setTimeout(() => {
+      fetchMaterials();
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [materialsList]);
 
   const handleEnrollStudent = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -413,7 +439,7 @@ export default function ClassWorkspace({
 
       setQuizActionMessage({
         type: 'success',
-        text: `Diagnostic quiz "${res.title}" successfully generated with ${res.question_count || (res.questions?.length ?? 3)} AI questions! Saved in Draft mode — review and publish when ready.`,
+        text: `Diagnostic quiz "${res.title}" created in Draft mode! AI questions are synthesizing in the background. Review and publish to class once ready.`,
       });
     } catch (err: any) {
       console.error('Failed to generate quiz:', err);
@@ -1166,9 +1192,16 @@ export default function ClassWorkspace({
                           {t}
                         </span>
                       ))}
-                      <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-white text-[11px] font-bold">
-                        {quiz.totalQuestions} Questions
-                      </span>
+                      {quiz.totalQuestions === 0 && quiz.status === 'draft' ? (
+                        <span className="px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] font-bold flex items-center gap-1">
+                          <Loader2 className="w-3 h-3 animate-spin text-amber-300" />
+                          AI Generating Questions...
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-white text-[11px] font-bold">
+                          {quiz.totalQuestions} Questions
+                        </span>
+                      )}
                       <span className="px-2 py-0.5 rounded-lg neu-inset-sm text-[#9e9e9e] text-[11px] font-bold uppercase">
                         {quiz.difficulty}
                       </span>
@@ -1190,12 +1223,18 @@ export default function ClassWorkspace({
                       {quiz.status === 'draft' ? (
                         <button
                           type="button"
-                          disabled={isUpdatingStatus === quiz.id}
+                          disabled={isUpdatingStatus === quiz.id || quiz.totalQuestions === 0}
                           onClick={() => handleTogglePublishStatus(quiz.id, quiz.status)}
                           className="px-3.5 py-1.5 rounded-xl neu-btn-white text-black font-black text-xs flex items-center gap-1.5 cursor-pointer shadow-md transition-all disabled:opacity-50"
                         >
                           <Send className="w-3.5 h-3.5 text-black" />
-                          <span>{isUpdatingStatus === quiz.id ? 'Publishing...' : 'Publish to Class'}</span>
+                          <span>
+                            {isUpdatingStatus === quiz.id
+                              ? 'Publishing...'
+                              : quiz.totalQuestions === 0
+                              ? 'AI Generating...'
+                              : 'Publish to Class'}
+                          </span>
                         </button>
                       ) : (
                         <button
@@ -1451,9 +1490,27 @@ export default function ClassWorkspace({
                         </span>
                       </div>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold neu-badge-white">
-                      {mat.processing_status === 'ready' ? 'Ready for RAG' : 'Processing'}
-                    </span>
+                    {mat.processing_status === 'ready' ? (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold neu-badge-white flex items-center gap-1">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                        Ready for RAG
+                      </span>
+                    ) : mat.processing_status === 'pending' ? (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-300 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-amber-300" />
+                        Pending Embedding
+                      </span>
+                    ) : mat.processing_status === 'failed' ? (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 border border-rose-500/30 text-rose-300 flex items-center gap-1">
+                        <AlertTriangle className="w-3 h-3 text-rose-300" />
+                        Failed
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 border border-sky-500/30 text-sky-300 flex items-center gap-1">
+                        <Loader2 className="w-3 h-3 animate-spin text-sky-300" />
+                        Processing Chunks
+                      </span>
+                    )}
                   </div>
 
                   <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs text-[#9e9e9e]">

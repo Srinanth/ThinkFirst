@@ -70,6 +70,8 @@ Progress: [███████████████████░] 93%
 | **BE-09** | Socratic Chat Controller & SSE Stream Route | `modules/tutor` | `P0` | `[x] Completed` | Srinanth | SSE & JSON Socratic tutor (verified via 27 E2E tests) |
 | **BE-10** | Quizzes & Attempts Submissions Pipeline | `modules/quizzes` | `P0` | `[x] Completed` | Srinanth | `quizzes`, `quiz_questions`, `quiz_attempts` with draft-to-published status lifecycle, status patching, deletion, and student gating (verified via 30 E2E tests) |
 | **BE-11** | Colleges & Multi-Tenant Onboarding Module | `modules/colleges` | `P0` | `[/] In Progress` | Srinanth | Superadmin & College Admin flows |
+| **BE-12** | Asynchronous Non-Blocking Background Pipelines | `modules/core` | `P0` | `[x] Completed` | Srinanth | Non-blocking execution for quiz generation (`processingStatus: 'processing'`), note OCR embeddings (`processing_status: 'pending'`), and instantaneous quiz submissions with background Evaluator Agent & Deterministic Mastery updates |
+| **BE-13** | Subject-Scoped Persistent Tutor Conversations | `modules/tutor` | `P0` | `[x] Completed` | Srinanth | Dedicated Socratic tutor conversations per subject offering (`/subjects/:subjectId/active`) with isolated chat histories |
 
 ---
 
@@ -110,6 +112,8 @@ Progress: [███████████████████░] 93%
 | **FE-09** | Teacher Quiz Studio: Draft-to-Published Lifecycle & AI Question Inspector | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Full draft-to-published quiz lifecycle, AI generation modal with question count & syllabus topic picker, interactive question preview modal, publish/unpublish toggle, and student draft access gating |
 | **FE-10** | Monochromatic B&W Neumorphic Theme Harmonization | `frontend` | `P0` | `[x] Completed` | Antony / Srinanth | Harmonized entire frontend with `dev/antony` (commit `90ac287`) pure monochrome Dark Neumorphic design system (`.neu-btn-white`, `.neu-badge-white`, white glowing telemetry indicators, monochrome line charts, and tactile cards) while keeping 100% of live backend APIs, authentication, and state bindings intact |
 | **FE-11** | Split-Screen Fitted Image Login UI (dev/antony sync) | `frontend` | `P0` | `[x] Completed` | Antony / Deepak / Srinanth | Pulled `origin/dev/antony` (commit `d6bd23c`) split-screen layout with full-height fitted image (`/images/knowledge-illuminated.jpg`), sleek dark form (`#0a0a0a`), `#18181b` inputs, while preserving live server-side bcrypt email/password authentication and Supabase session hydration |
+| **FE-12** | Subject-Scoped Socratic AI Tutor & Separate Chat Histories | `frontend` | `P0` | `[x] Completed` | Srinanth | AI Tutor drawer loads persistent isolated conversation histories per subject class offering; student switching courses switches context and thread automatically |
+| **FE-13** | Quiz Completion Gating & Student Mastery Score Privacy UX | `frontend` | `P0` | `[x] Completed` | Srinanth | Automatically moves completed quizzes to "Completed Quizzes" section upon submission; prevents duplicate retakes; replaces stressful numeric mastery percentages with qualitative growth badges ("Enrolled & Active", "On Track", "Completed & Evaluated") |
 
 ---
 

@@ -31,6 +31,78 @@ export class TutorService {
   }
 
   /**
+   * Get or create the isolated active conversation for a student in a specific subject
+   */
+  async getOrCreateSubjectConversation(studentId: string, subjectId: string) {
+    // 1. Check for existing conversation for this student and subject
+    const { data: existing } = await supabaseAdmin
+      .from('tutor_conversations')
+      .select('*')
+      .eq('student_id', studentId)
+      .eq('teacher_subject_id', subjectId)
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      // Fetch its messages
+      const { data: messages } = await supabaseAdmin
+        .from('tutor_messages')
+        .select('id, conversation_id, role, content, curriculum_topic_id, created_at')
+        .eq('conversation_id', existing.id)
+        .order('created_at', { ascending: true });
+
+      return {
+        conversation: existing,
+        messages: messages || [],
+      };
+    }
+
+    // 2. Fetch subject details to personalize title
+    const { data: subject } = await supabaseAdmin
+      .from('teacher_subjects')
+      .select('id, subjects (name, code)')
+      .eq('id', subjectId)
+      .maybeSingle();
+
+    const subjData = subject?.subjects as unknown as { name?: string; code?: string } | undefined;
+    const title = subjData?.code ? `${subjData.code} Socratic Session` : 'Socratic Session';
+
+    // 3. Create new conversation
+    const { data: conv, error: convError } = await supabaseAdmin
+      .from('tutor_conversations')
+      .insert({
+        student_id: studentId,
+        teacher_subject_id: subjectId,
+        title,
+        session_type: 'ai_tutor',
+      })
+      .select('*')
+      .single();
+
+    if (convError || !conv) {
+      throw new BadRequestError(`Failed to create tutor conversation: ${convError?.message}`);
+    }
+
+    // 4. Create initial welcome message for this subject
+    const welcomeText = `Hello! I'm your Socratic AI Tutor for ${subjData?.name || 'this course'}. How can I guide your understanding today?`;
+    const { data: welcomeMsg } = await supabaseAdmin
+      .from('tutor_messages')
+      .insert({
+        conversation_id: conv.id,
+        role: 'assistant',
+        content: welcomeText,
+      })
+      .select('id, conversation_id, role, content, curriculum_topic_id, created_at')
+      .single();
+
+    return {
+      conversation: conv,
+      messages: welcomeMsg ? [welcomeMsg] : [],
+    };
+  }
+
+  /**
    * List conversations for a student in a subject
    */
   async listConversations(studentId: string, subjectId: string) {

@@ -12,6 +12,18 @@ export class TutorController {
     }
   }
 
+  async getActiveSubjectConversation(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const active = await tutorService.getOrCreateSubjectConversation(
+        req.user!.id,
+        req.params.subjectId as string
+      );
+      sendSuccess(res, active);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async listConversations(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const list = await tutorService.listConversations(req.user!.id, req.params.subjectId as string);

@@ -239,7 +239,7 @@ export class MaterialsService {
         file_path: filePath,
         file_type: fileType,
         material_type: input.materialType || 'lecture_notes',
-        processing_status: 'processing',
+        processing_status: 'pending',
       })
       .select('id, teacher_subject_id, curriculum_topic_id, title, file_path, file_type, material_type, processing_status, created_at')
       .single();
@@ -248,14 +248,25 @@ export class MaterialsService {
       throw new BadRequestError(`Failed to register learning material: ${matError?.message}`);
     }
 
-    // 3. Chunk and embed
-    const ingestResult = await this.ingestMaterialText(material.id, extractedText);
+    // 3. Asynchronously trigger semantic chunking and vector embedding in background
+    (async () => {
+      try {
+        await this.ingestMaterialText(material.id, extractedText);
+      } catch (bgErr) {
+        console.error(`[Background Ingestion Error] Material ${material.id}:`, bgErr);
+        await supabaseAdmin
+          .from('learning_materials')
+          .update({ processing_status: 'failed' })
+          .eq('id', material.id);
+      }
+    })();
 
     return {
       material,
       extractedCharacterCount: extractedText.length,
-      chunksCount: ingestResult.totalChunks,
-      processingStatus: 'ready',
+      chunksCount: 0,
+      processingStatus: 'pending',
+      message: 'Learning material registered. Semantic chunking and vector embeddings are running in background.',
     };
   }
 }

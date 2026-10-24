@@ -122,6 +122,54 @@ export default function AiTutorDrawer({
     }
   }, [forceOpen]);
 
+  // Load isolated conversation thread per subject class
+  useEffect(() => {
+    let isCurrent = true;
+    if (!subjectId) return;
+
+    tutorApi
+      .getActiveConversation(subjectId)
+      .then((res) => {
+        if (!isCurrent) return;
+        if (res.conversation?.id) {
+          setConversationId(res.conversation.id);
+        }
+        if (res.messages && res.messages.length > 0) {
+          const loaded: ChatMessage[] = res.messages.map((m, idx) => ({
+            id: m.id || `msg-${idx}`,
+            sender: m.role === 'assistant' ? 'tutor' : 'student',
+            text: m.content,
+            timestamp: m.created_at
+              ? new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              : 'Earlier',
+            contextTag: currentCourse,
+          }));
+          setMessages(loaded);
+        } else {
+          setMessages([
+            {
+              id: 'm-1',
+              sender: 'tutor',
+              text: `Hello ${studentName}! I'm your Socratic AI Tutor for ${currentCourse}. How can I help you explore or clarify any concepts today?`,
+              timestamp: 'Just now',
+              contextTag: 'Socratic Guidance',
+              actionWidgets: [
+                { type: 'pill', label: 'Review Key Topics', value: 'Can you summarize key topics?' },
+                { type: 'pill', label: 'Ask a Question', value: 'I have a question about this course' },
+              ],
+            },
+          ]);
+        }
+      })
+      .catch((err) => {
+        console.warn('Active subject conversation fallback:', err);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [subjectId, currentCourse, studentName]);
+
   // Handle incoming remediation mission from Quiz Evaluator Agent
   useEffect(() => {
     if (initialMission) {
@@ -414,16 +462,12 @@ export default function AiTutorDrawer({
               <p className="text-[11px] text-[#9e9e9e] font-medium leading-relaxed">
                 {activeMission.diagnosedGap}
               </p>
-              {/* Dynamic Mastery Meter Gauge */}
+              {/* Socratic Practice Progress Indicator */}
               <div className="pt-1 flex items-center justify-between text-[10px] font-bold text-[#757575]">
-                <span>Deterministic Topic Mastery:</span>
-                <span className="text-white font-mono font-black">{masteryLevel}%</span>
-              </div>
-              <div className="w-full h-1.5 bg-[#262626] rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-neutral-300 to-white transition-all duration-500"
-                  style={{ width: `${masteryLevel}%` }}
-                />
+                <span>Socratic Learning Step:</span>
+                <span className="text-white font-semibold">
+                  {isResolved ? 'Concept Mastered' : 'Active Discussion'}
+                </span>
               </div>
             </div>
           )}

@@ -17,6 +17,15 @@ router.post(
   tutorController.createConversation
 );
 
+// Get or create isolated active conversation for student in a specific subject
+router.get(
+  '/subjects/:subjectId/active',
+  requireAuth,
+  requireRole(['student']),
+  requireSubjectMembership('member'),
+  tutorController.getActiveSubjectConversation
+);
+
 // List student's conversations for a subject
 router.get(
   '/conversations/:subjectId',
