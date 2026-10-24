@@ -1,5 +1,5 @@
 services:
-  # ThinkFirst API Gateway (Express REST API + SSE Streaming)
+  # 1. ThinkFirst API Gateway (Express REST API + SSE Streaming)
   - type: web
     name: thinkfirst-api
     runtime: node
@@ -28,4 +28,26 @@ services:
       - key: GEMINI_EMBEDDING_MODEL
         value: gemini-embedding-001
       - key: FRONTEND_URL
+        sync: false
+
+  # 2. Render Workflow: Classroom Insights Synthesis Cron
+  - type: cron
+    name: thinkfirst-insights-cron
+    runtime: node
+    region: oregon
+    plan: starter
+    rootDir: backend
+    schedule: "0 */6 * * *"
+    buildCommand: (corepack enable || npm install -g pnpm) && pnpm install --frozen-lockfile=false && pnpm run build
+    startCommand: node dist/scripts/workflow-insights.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GEMINI_API_KEY
         sync: false

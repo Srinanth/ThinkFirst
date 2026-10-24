@@ -7,7 +7,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "workflow:ingest": "tsx src/scripts/workflow-ingest.ts",
+    "workflow:insights": "tsx src/scripts/workflow-insights.ts"
   },
   "keywords": [
     "thinkfirst",

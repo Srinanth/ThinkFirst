@@ -121,6 +121,6 @@ Progress: [███████████████████░] 93%
 | ID | Feature Description | Module | Priority | Status | Owner | Notes |
 |---|---|---|---|---|---|---|
 | **INFRA-01** | Render Web Service: Express API Gateway | `infra` | `P0` | `[x] Completed` | Srinanth | Deployed & live on Render (`thinkfirst-api` / `srv-dbe054l9fdbs738sij4g`) at `https://thinkfirst-api-0kpo.onrender.com` with auto-deploy from `dev/srinanth` |
-| **INFRA-02** | Render Workflows: Notes Ingestion Pipeline | `infra` | `P0` | `[/] In Progress` | Srinanth | Durable multi-step PDF chunk & embed job |
-| **INFRA-03** | Render Workflows: Teacher Insights Synthesis | `infra` | `P1` | `[ ] Planned` | Srinanth | Scheduled & on-demand class analytics job |
+| **INFRA-02** | Render Workflows: Notes Ingestion Pipeline | `infra` | `P0` | `[x] Completed` | Srinanth | Multi-step background worker (`pnpm run workflow:ingest`) and async Express queue embedding PDF/notes with Gemini |
+| **INFRA-03** | Render Workflows: Teacher Insights Synthesis | `infra` | `P1` | `[x] Completed` | Srinanth | Background & scheduled analytics workflow (`pnpm run workflow:insights`) generating class-wide diagnostic insights |
 | **INFRA-04** | Render MCP Integration | `infra` | `P1` | `[x] Completed` | Srinanth | Official Render MCP connected (`tea-cvc8t3pc1ekc73eoledg`) managing services, deployments, build monitoring, and log streaming |
