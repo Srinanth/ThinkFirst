@@ -13,6 +13,8 @@ import {
   Award,
   Zap,
   AlertCircle,
+  ChevronUp,
+  ChevronDown,
 } from 'lucide-react';
 import { tutorApi, ActionWidget, TutorRecommendation } from '@/lib/api';
 
@@ -102,6 +104,8 @@ export default function AiTutorDrawer({
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [activeMission, setActiveMission] = useState<RemediationMissionData | null>(initialMission);
   const [recommendation, setRecommendation] = useState<TutorRecommendation | null>(null);
+  const [diagnosticHidden, setDiagnosticHidden] = useState<boolean>(false);
+  const [missionHidden, setMissionHidden] = useState<boolean>(false);
   const [masteryLevel, setMasteryLevel] = useState<number>(45);
   const [isResolved, setIsResolved] = useState<boolean>(false);
   const msgCountRef = useRef(10);
@@ -528,83 +532,136 @@ export default function AiTutorDrawer({
 
           {/* Active Knowledge Gap Banner */}
           {activeMission && (
-            <div className="px-4 py-3 bg-[#181818] border-b border-white/10 text-xs shrink-0 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-white font-black">
-                  <Zap className="w-3.5 h-3.5 text-white" />
-                  <span>Active Remediation Mission</span>
+            missionHidden ? (
+              <div className="px-4 py-1.5 bg-[#181818] border-b border-white/5 flex items-center justify-between text-xs shrink-0 animate-in fade-in duration-150">
+                <div className="flex items-center gap-1.5 text-white font-bold truncate">
+                  <Zap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="truncate max-w-[220px] text-[11px]">{activeMission.title}</span>
                 </div>
-                <span
-                  className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                    isResolved
-                      ? 'neu-badge-white'
-                      : 'neu-badge-white'
-                  }`}
+                <button
+                  type="button"
+                  onClick={() => setMissionHidden(false)}
+                  className="text-[10px] font-bold text-[#3A86FF] hover:underline flex items-center gap-1 cursor-pointer shrink-0 ml-2"
                 >
-                  {isResolved ? 'Resolved' : 'In Progress'}
-                </span>
+                  <span>Show Mission</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
               </div>
-              <p className="text-[11px] text-[#9e9e9e] font-medium leading-relaxed">
-                {activeMission.diagnosedGap}
-              </p>
-              {/* Socratic Practice Progress Indicator */}
-              <div className="pt-1 flex items-center justify-between text-[10px] font-bold text-[#757575]">
-                <span>Socratic Learning Step:</span>
-                <span className="text-white font-semibold">
-                  {isResolved ? 'Concept Mastered' : 'Active Discussion'}
-                </span>
+            ) : (
+              <div className="px-4 py-2.5 bg-[#181818] border-b border-white/10 text-xs shrink-0 space-y-1.5 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-white font-black">
+                    <Zap className="w-3.5 h-3.5 text-white" />
+                    <span>Active Remediation Mission</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full neu-badge-white">
+                      {isResolved ? 'Resolved' : 'In Progress'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setMissionHidden(true)}
+                      className="p-1 rounded text-[#757575] hover:text-white hover:bg-white/5 cursor-pointer transition-colors flex items-center gap-1 text-[10px]"
+                      title="Hide mission details to expand chat"
+                    >
+                      <span>Hide</span>
+                      <ChevronUp className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[11px] text-[#9e9e9e] font-medium leading-relaxed">
+                  {activeMission.diagnosedGap}
+                </p>
+                {/* Socratic Practice Progress Indicator */}
+                <div className="pt-1 flex items-center justify-between text-[10px] font-bold text-[#757575]">
+                  <span>Socratic Learning Step:</span>
+                  <span className="text-white font-semibold">
+                    {isResolved ? 'Concept Mastered' : 'Active Discussion'}
+                  </span>
+                </div>
               </div>
-            </div>
+            )
           )}
 
           {/* Adaptive Question-Difficulty Diagnostic Banner */}
           {recommendation && !activeMission && (
-            <div className="px-4 py-3 bg-[#1e1e1e] border-b border-white/10 text-xs shrink-0 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-white font-black">
-                  <BookOpen className="w-3.5 h-3.5 text-[#3A86FF]" />
-                  <span className="truncate max-w-[200px]">{recommendation.topicTitle}</span>
-                </div>
-                <span
-                  className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                    recommendation.pedagogicalMode === 'foundational_assistance'
-                      ? 'bg-amber-500/20 text-amber-300'
-                      : recommendation.pedagogicalMode === 'advanced_challenge'
-                      ? 'bg-purple-500/20 text-purple-300'
-                      : recommendation.pedagogicalMode === 'socratic_mastery'
-                      ? 'bg-emerald-500/20 text-emerald-300'
-                      : 'bg-[#3A86FF]/20 text-[#3A86FF]'
-                  }`}
-                >
-                  {recommendation.pedagogicalMode === 'foundational_assistance'
-                    ? 'Foundational Scaffolding'
-                    : recommendation.pedagogicalMode === 'advanced_challenge'
-                    ? 'Stretch Challenge'
-                    : recommendation.pedagogicalMode === 'socratic_mastery'
-                    ? 'Socratic Mastery'
-                    : 'Guided Practice'}
-                </span>
-              </div>
-              <p className="text-[11px] text-[#9e9e9e] leading-relaxed">
-                {recommendation.recommendationReason}
-              </p>
-              <div className="pt-1.5 flex items-start gap-2 text-[11px] text-[#cccccc] bg-black/25 p-2.5 rounded-xl border border-white/5">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
-                <div className="leading-snug">
-                  <span className="font-bold text-white mr-1.5">What went wrong:</span>
-                  <span>
-                    {recommendation.whatWentWrong ||
-                      (recommendation.difficultyBreakdown?.easyMissed > 0
-                        ? 'Struggled with core terminology and foundational definitions in introductory questions.'
-                        : recommendation.difficultyBreakdown?.mediumMissed > 0
-                        ? 'Understood basic definitions, but hit friction when connecting multi-step logic and applying rules to practical scenarios.'
-                        : recommendation.difficultyBreakdown?.hardMissed > 0
-                        ? 'Fundamentals are solid, but tripped up on complex boundary constraints and tricky edge cases.'
-                        : 'No critical conceptual misconceptions identified.')}
+            diagnosticHidden ? (
+              <div className="px-4 py-1.5 bg-[#1a1a1a] border-b border-white/5 flex items-center justify-between text-xs shrink-0 animate-in fade-in duration-150">
+                <div className="flex items-center gap-2 truncate">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="text-[11px] font-bold text-white truncate max-w-[200px]">
+                    {recommendation.topicTitle}
+                  </span>
+                  <span className="text-[10px] text-[#757575] hidden sm:inline truncate">
+                    &bull; Diagnosis hidden
                   </span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setDiagnosticHidden(false)}
+                  className="text-[10px] font-bold text-[#3A86FF] hover:underline flex items-center gap-1 cursor-pointer shrink-0 ml-2"
+                >
+                  <span>Show Diagnosis</span>
+                  <ChevronDown className="w-3 h-3" />
+                </button>
               </div>
-            </div>
+            ) : (
+              <div className="px-4 py-2.5 bg-[#1e1e1e] border-b border-white/10 text-xs shrink-0 space-y-1.5 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-white font-black">
+                    <BookOpen className="w-3.5 h-3.5 text-[#3A86FF]" />
+                    <span className="truncate max-w-[180px]">{recommendation.topicTitle}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                        recommendation.pedagogicalMode === 'foundational_assistance'
+                          ? 'bg-amber-500/20 text-amber-300'
+                          : recommendation.pedagogicalMode === 'advanced_challenge'
+                          ? 'bg-purple-500/20 text-purple-300'
+                          : recommendation.pedagogicalMode === 'socratic_mastery'
+                          ? 'bg-emerald-500/20 text-emerald-300'
+                          : 'bg-[#3A86FF]/20 text-[#3A86FF]'
+                      }`}
+                    >
+                      {recommendation.pedagogicalMode === 'foundational_assistance'
+                        ? 'Foundational Scaffolding'
+                        : recommendation.pedagogicalMode === 'advanced_challenge'
+                        ? 'Stretch Challenge'
+                        : recommendation.pedagogicalMode === 'socratic_mastery'
+                        ? 'Socratic Mastery'
+                        : 'Guided Practice'}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setDiagnosticHidden(true)}
+                      className="p-1 rounded text-[#757575] hover:text-white hover:bg-white/5 cursor-pointer transition-colors flex items-center gap-1 text-[10px]"
+                      title="Hide diagnosis to see more messages"
+                    >
+                      <span>Hide</span>
+                      <ChevronUp className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-1 flex items-start gap-2 text-[11px] text-[#cccccc] bg-black/25 p-2 rounded-xl border border-white/5">
+                  <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0 mt-0.5" />
+                  <div className="leading-snug">
+                    <span className="font-bold text-white mr-1.5">What went wrong:</span>
+                    <span>
+                      {recommendation.whatWentWrong ||
+                        (recommendation.difficultyBreakdown?.easyMissed > 0
+                          ? 'Struggled with core terminology and foundational definitions in introductory questions.'
+                          : recommendation.difficultyBreakdown?.mediumMissed > 0
+                          ? 'Understood basic definitions, but hit friction when connecting multi-step logic and applying rules to practical scenarios.'
+                          : recommendation.difficultyBreakdown?.hardMissed > 0
+                          ? 'Fundamentals are solid, but tripped up on complex boundary constraints and tricky edge cases.'
+                          : 'No critical conceptual misconceptions identified.')}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )
           )}
 
           {/* Celebratory Resolution Card */}
