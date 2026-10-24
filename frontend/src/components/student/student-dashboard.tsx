@@ -76,7 +76,7 @@ export default function StudentDashboard({
             WORKSPACE 1: PERFORMANCE &amp; ACADEMIC OVERVIEW
           </h2>
         </div>
-        <div className="flex items-center gap-2">
+        {/* <div className="flex items-center gap-2">
           {onOpenAddModal && (
             <button
               onClick={() => onOpenAddModal('student')}
@@ -88,7 +88,7 @@ export default function StudentDashboard({
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold neu-badge-white">
             Live Telemetry
           </span>
-        </div>
+        </div> */}
       </div>
 
       {/* Student Bio Header Card */}
@@ -118,12 +118,12 @@ export default function StudentDashboard({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
+          {/* <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Academic Standing</p>
             <p className="text-sm font-black text-white">
               {activeCourses.length > 0 ? "Dean's Honor List" : "Enrolled"}
             </p>
-          </div>
+          </div> */}
           <div className="px-4 py-2.5 rounded-xl neu-inset text-center">
             <p className="text-[10px] font-bold uppercase tracking-wider text-[#757575]">Active Courses</p>
             <p className="text-sm font-black text-white">{activeCourses.length} Classes</p>
