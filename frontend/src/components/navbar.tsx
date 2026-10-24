@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import {
-  Sparkles,
   Bell,
   LogOut,
   ChevronDown,
@@ -37,21 +36,14 @@ export default function Navbar({
         {/* Left: Platform Branding / Logo */}
         <button
           onClick={onBrandClick}
-          className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer"
+          className="flex flex-col text-left focus:outline-none group cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-xl neu-card-sm text-white flex items-center justify-center border border-white/10 group-hover:scale-105 transition-transform font-black">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-lg tracking-tight text-white group-hover:text-white/80 transition-colors">
-                Think<span className="text-white">First</span>
-              </span>
-            </div>
-            <p className="text-[10px] text-[#9e9e9e] font-medium hidden sm:block">
-              Agentic AI &amp; Deterministic Mastery
-            </p>
-          </div>
+          <span className="font-extrabold text-xl tracking-tight text-white group-hover:opacity-90 transition-opacity">
+            Think<span style={{ color: '#3A86FF' }}>First</span>
+          </span>
+          <p className="text-[10px] text-[#9e9e9e] font-medium hidden sm:block">
+            Agentic AI &amp; Deterministic Mastery
+          </p>
         </button>
 
         {/* Right Nav Items */}
@@ -149,15 +141,6 @@ export default function Navbar({
               </div>
             )}
           </div>
-
-          {/* Distinct Sign Out Button */}
-          <button
-            onClick={onSignOut}
-            className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl neu-btn text-xs font-semibold text-[#9e9e9e] hover:text-white transition-all cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5 text-[#9e9e9e]" />
-            Sign Out
-          </button>
         </div>
       </div>
     </header>

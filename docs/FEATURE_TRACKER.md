@@ -72,6 +72,7 @@ Progress: [███████████████████░] 94%
 | **BE-11** | Colleges & Multi-Tenant Onboarding Module | `modules/colleges` | `P0` | `[/] In Progress` | Srinanth | Superadmin & College Admin flows |
 | **BE-12** | Asynchronous Non-Blocking Background Pipelines | `modules/core` | `P0` | `[x] Completed` | Srinanth | Non-blocking execution for quiz generation (`processingStatus: 'processing'`), note OCR embeddings (`processing_status: 'pending'`), and instantaneous quiz submissions with background Evaluator Agent & Deterministic Mastery updates |
 | **BE-13** | Subject-Scoped Persistent Tutor Conversations | `modules/tutor` | `P0` | `[x] Completed` | Srinanth | Dedicated Socratic tutor conversations per subject offering (`/subjects/:subjectId/active`) with isolated chat histories |
+| **BE-14** | Question-Difficulty Diagnostic Recommendation Endpoint | `modules/tutor` | `P0` | `[x] Completed` | Srinanth | `/tutor/recommendations/:subjectId` endpoint evaluating quiz attempt responses across question difficulty tiers (`easy`, `medium`, `hard`) and mastery scores to generate proactive remediation prompts |
 
 ---
 
@@ -85,6 +86,7 @@ Progress: [███████████████████░] 94%
 | **AI-05** | Quiz Evaluator Agent: Answer Evaluation & Gap Diagnosis | `agents` | `P0` | `[x] Completed` | Srinanth | Autonomous Agent #1: Evaluates answers, calculates mastery delta, and autonomously creates `teacher_insights` gap dossiers |
 | **AI-06** | AI Tutor Agent: Interactive Chat with Action Widgets (Method 2) | `agents` | `P0` | `[x] Completed` | Srinanth | Autonomous Agent #2: Personal student companion & teacher's bridge with action pills/options, increments mastery & resolves insights |
 | **AI-07** | Teacher Insights Bridge & Lifecycle Tracking | `insights` | `P1` | `[x] Completed` | Srinanth | Real-time active vs resolved gap tracking driven directly by Evaluator & Tutor agents |
+| **AI-08** | Question-Difficulty-Adaptive Socratic AI Tutor Behavior | `agents` | `P0` | `[x] Completed` | Srinanth | Tutor dynamically adapts persona: foundational personal assistance (intuitive building blocks, guided questions, no direct answers) when easy questions are missed; conceptual reinforcement on medium questions; advanced stretch/edge-case challenge on hard questions; peer-level Socratic debate on high mastery |
 
 ---
 
@@ -115,6 +117,7 @@ Progress: [███████████████████░] 94%
 | **FE-12** | Subject-Scoped Socratic AI Tutor & Separate Chat Histories | `frontend` | `P0` | `[x] Completed` | Srinanth | AI Tutor drawer loads persistent isolated conversation histories per subject class offering; student switching courses switches context and thread automatically |
 | **FE-13** | Quiz Completion Gating & Student Mastery Score Privacy UX | `frontend` | `P0` | `[x] Completed` | Srinanth | Automatically moves completed quizzes to "Completed Quizzes" section upon submission; prevents duplicate retakes; replaces stressful numeric mastery percentages with qualitative growth badges ("Enrolled & Active", "On Track", "Completed & Evaluated") |
 | **FE-14** | Live Database-Driven Teacher & Student Dashboards | `frontend` | `P0` | `[x] Completed` | Srinanth | 100% database-driven analytics for Teacher Workspace (Performance Progression Trend, Score Tier Distribution donut, Strong Areas, Performance Shifts); interactive Student-Wise Progress Modal with individual quiz trends and topic breakdown; simplified terminology eliminating "cohort" across all views |
+| **FE-15** | Proactive Diagnostic Recommendation Speech Bubble & Navbar Polish | `frontend` | `P0` | `[x] Completed` | Srinanth | Floating AI Tutor recommendation speech bubble prompting students to study weak topics based on question difficulty failure; navbar branding matched with login page (`Think` white, `First` blue `#3A86FF`, no icon box); removed redundant singular signout button; purged "Section Alpha" in favor of realistic course codes |
 | **ME-05** | Class & Student Analytics Engine | `mastery` | `P0` | `[x] Completed` | Srinanth | Added `/mastery/:subjectId/analytics` and `/mastery/:subjectId/student-progress` endpoints computing chronological quiz score averages, score tiers, and topic proficiencies |
 
 ---

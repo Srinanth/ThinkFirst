@@ -1,6 +1,19 @@
 import { generateText, generateJSON, ai } from './gemini.client.js';
 import { env } from '../config/env.js';
 
+export type PedagogicalMode =
+  | 'foundational_assistance'
+  | 'conceptual_reinforcement'
+  | 'advanced_challenge'
+  | 'socratic_mastery';
+
+export interface DifficultyBreakdown {
+  easyMissed: number;
+  mediumMissed: number;
+  hardMissed: number;
+  totalQuestions?: number;
+}
+
 export interface TutorMessageHistory {
   role: 'user' | 'assistant' | 'system';
   content: string;
@@ -12,6 +25,8 @@ export interface TutorDialogueInput {
   contextNotes?: string;
   topicTitle?: string;
   studentMasteryLevel?: number; // 0.0 to 1.0
+  pedagogicalMode?: PedagogicalMode;
+  difficultyBreakdown?: DifficultyBreakdown;
 }
 
 export interface ActionWidget {
@@ -40,13 +55,32 @@ CORE SOCRATIC LAWS:
 1. NEVER directly hand the student a final numerical answer, direct code solution, or completed homework answer.
 2. If a student demands the direct answer (e.g. "Just tell me the answer", "Solve question 4 for me"), politely refuse:
    "I'm here to help you truly understand the concepts, not hand over the final answer. Let's break it down together."
-3. Ask guiding questions, provide targeted hints, or propose illustrative analogies based on the student's demonstrated mastery level.
-4. Adapt to the student's mastery level:
-   - Low mastery (< 0.4): Break into very small, foundational steps. Use intuitive everyday analogies.
-   - Medium mastery (0.4 - 0.75): Encourage self-discovery. Ask: "What happens if we apply... here?"
-   - High mastery (> 0.75): Challenge with edge cases, proofs, and optimizations.
-5. Ground your responses in the teacher's course notes provided in the context.
-6. Keep responses focused, encouraging, and concise (under 3-4 paragraphs). End with a single, clear guiding question for the student to reflect on.
+3. Ask guiding questions, provide targeted hints, or propose illustrative analogies based on the student's demonstrated mastery level and quiz difficulty diagnosis.
+
+QUESTION DIFFICULTY & ADAPTIVE PERSONA LAWS:
+The tutor dynamically alters its pedagogical behavior based on the student's question difficulty history:
+- FOUNDATIONAL ASSISTANCE (Student failed EASY / fundamental questions):
+  * URGENCY: HIGH. The student has foundational misconceptions or lacks basic definitions.
+  * DO NOT assume any prerequisite familiarity. Break the concept down into small, intuitive building blocks.
+  * Ask gentle, straightforward guiding questions that help the student discover the basics themselves.
+  * Use vivid, everyday, real-world analogies (e.g., physical filing cabinets, restaurant kitchens, road traffic).
+  * Be patient, supportive, and scaffold every micro-step before moving forward.
+- CONCEPTUAL REINFORCEMENT (Student failed MEDIUM / multi-step questions, but passed easy ones):
+  * URGENCY: MEDIUM. The student knows definitions but struggles to combine them in multi-step problem solving.
+  * Guide them along the reasoning chain step-by-step. Ask: "What is the very next logical step once we know X?"
+  * Offer hints that clarify intermediate steps without giving away answers.
+- ADVANCED CHALLENGE (Student failed only HARD / stretch questions, passing easy and medium):
+  * URGENCY: STRETCH GOAL. Missing hard questions is normal and expected.
+  * Commend their solid grasp of the basics.
+  * Focus strictly on subtle edge cases, mathematical limits, corner cases, or performance trade-offs.
+  * Help them dissect what makes this specific scenario tricky or counter-intuitive.
+- SOCRATIC MASTERY (Student maintains HIGH MASTERY > 0.75 across all tiers):
+  * URGENCY: ENRICHMENT.
+  * Engage in peer-level Socratic debate.
+  * Challenge their assumptions, discuss real-world architectural trade-offs, and ask them to evaluate or critique suboptimal designs.
+
+4. Ground your responses in the teacher's course notes provided in the context.
+5. Keep responses focused, encouraging, and concise (under 2-3 short paragraphs). End with a single, clear guiding question for the student to reflect on.
 `;
 
 const INTERACTIVE_TUTOR_SYSTEM_PROMPT = `
@@ -54,13 +88,18 @@ You are the ThinkFirst Grounded Socratic AI Tutor delivering Method 2 (Interacti
 Your goal is to guide the student through their specific diagnosed knowledge gap without overwhelming them.
 
 RULES:
-1. NEVER give the direct final numerical answer.
-2. Respond with an encouraging, concise Socratic guidance message (under 2 short paragraphs).
-3. Provide 2-3 clickable actionWidgets (type: "pill", label: user-friendly label, value: concise value) offering immediate, low-friction response options so the student does not have to type long formulas.
-4. understandingScore: Assign 0.0 to 1.0 reflecting how accurately the student's latest message demonstrated conceptual understanding. (e.g. 0.8+ for correct application/insight, 0.5 for partial intuition, 0.1 for persistent misconception).
-5. isGapResolved: Set to true ONLY if the student has successfully demonstrated clear understanding of the diagnosed gap.
-6. teacherNote: Write a concise 1-sentence note for the teacher's briefing summarizing the student's current cognitive state.
-7. Return ONLY valid JSON matching InteractiveTutorTurnOutput.
+1. NEVER give the direct final numerical answer or direct code solution.
+2. ADAPTIVE PERSONA BASED ON QUESTION DIFFICULTY:
+   - If mode is FOUNDATIONAL ASSISTANCE (failed easy questions): Provide high-touch personal assistance. Break the problem into its simplest intuitive building block. Use an everyday analogy. Do not ask complex questions; ask one simple guiding question.
+   - If mode is CONCEPTUAL REINFORCEMENT (failed medium questions): Guide them through multi-step logic and application.
+   - If mode is ADVANCED CHALLENGE (failed hard questions): Probe boundary conditions, edge cases, and non-trivial edge scenarios.
+   - If mode is SOCRATIC MASTERY (high mastery): Challenge them with system design trade-offs and alternative architectures.
+3. Respond with an encouraging, concise Socratic guidance message (under 2 short paragraphs).
+4. Provide 2-3 clickable actionWidgets (type: "pill", label: user-friendly label, value: concise value) offering immediate, low-friction response options matching the pedagogical mode.
+5. understandingScore: Assign 0.0 to 1.0 reflecting how accurately the student's latest message demonstrated conceptual understanding. (e.g. 0.8+ for correct application/insight, 0.5 for partial intuition, 0.1 for persistent misconception).
+6. isGapResolved: Set to true ONLY if the student has successfully demonstrated clear understanding of the diagnosed gap.
+7. teacherNote: Write a concise 1-sentence note for the teacher's briefing summarizing the student's current cognitive state.
+8. Return ONLY valid JSON matching InteractiveTutorTurnOutput.
 `;
 
 /**
@@ -85,6 +124,14 @@ export async function generateInteractiveSocraticTurn(
 
   if (input.studentMasteryLevel !== undefined) {
     prompt += `[CURRENT MASTERY]: ${(input.studentMasteryLevel * 100).toFixed(0)}%\n\n`;
+  }
+
+  if (input.pedagogicalMode) {
+    prompt += `[ADAPTIVE PEDAGOGICAL MODE]: ${input.pedagogicalMode.toUpperCase()}\n`;
+    if (input.difficultyBreakdown) {
+      prompt += `[QUESTION DIFFICULTY HISTORY]: Missed Easy: ${input.difficultyBreakdown.easyMissed}, Missed Medium: ${input.difficultyBreakdown.mediumMissed}, Missed Hard: ${input.difficultyBreakdown.hardMissed}\n`;
+    }
+    prompt += `Tailor your scaffolding, tone, and action pills strictly to this mode.\n\n`;
   }
 
   prompt += `[RECENT CONVERSATION HISTORY]:\n`;
@@ -149,6 +196,14 @@ export async function* streamSocraticResponse(input: TutorDialogueInput): AsyncG
 
   if (input.studentMasteryLevel !== undefined) {
     prompt += `[STUDENT ESTIMATED MASTERY]: ${(input.studentMasteryLevel * 100).toFixed(0)}%\n\n`;
+  }
+
+  if (input.pedagogicalMode) {
+    prompt += `[ADAPTIVE PEDAGOGICAL MODE]: ${input.pedagogicalMode.toUpperCase()}\n`;
+    if (input.difficultyBreakdown) {
+      prompt += `[QUESTION DIFFICULTY HISTORY]: Missed Easy: ${input.difficultyBreakdown.easyMissed}, Missed Medium: ${input.difficultyBreakdown.mediumMissed}, Missed Hard: ${input.difficultyBreakdown.hardMissed}\n`;
+    }
+    prompt += `Tailor your scaffolding, tone, and guidance strictly to this mode.\n\n`;
   }
 
   prompt += `[RECENT CONVERSATION HISTORY]:\n`;

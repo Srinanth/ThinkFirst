@@ -5,6 +5,8 @@ import {
   generateInteractiveSocraticTurn,
   streamSocraticResponse,
   TutorMessageHistory,
+  PedagogicalMode,
+  DifficultyBreakdown,
 } from '../../agents/tutor.agent.js';
 import { materialsService } from '../materials/materials.service.js';
 import { masteryService } from '../mastery/mastery.service.js';
@@ -132,6 +134,242 @@ export class TutorService {
   }
 
   /**
+   * Diagnose student's question difficulty performance and generate recommendation
+   */
+  async getDiagnosticRecommendation(studentId: string, subjectId: string) {
+    // 1. Fetch recent completed quiz attempts for this subject
+    const { data: attempts } = await supabaseAdmin
+      .from('quiz_attempts')
+      .select(`
+        id,
+        quiz_id,
+        score,
+        max_score,
+        status,
+        submitted_at,
+        quizzes!inner (
+          id,
+          title,
+          difficulty,
+          curriculum_topic_id,
+          teacher_subject_id
+        )
+      `)
+      .eq('student_id', studentId)
+      .eq('quizzes.teacher_subject_id', subjectId)
+      .in('status', ['submitted', 'graded'])
+      .order('submitted_at', { ascending: false })
+      .limit(3);
+
+    const latestAttempt = attempts && attempts.length > 0 ? attempts[0] : null;
+
+    if (latestAttempt) {
+      const quiz = (latestAttempt as any).quizzes;
+      // Fetch responses for this attempt
+      const { data: responses } = await supabaseAdmin
+        .from('quiz_responses')
+        .select(`
+          id,
+          is_correct,
+          marks_awarded,
+          question_id,
+          quiz_questions!inner (
+            id,
+            question_text,
+            difficulty,
+            curriculum_topic_id,
+            marks
+          )
+        `)
+        .eq('quiz_attempt_id', latestAttempt.id);
+
+      const resList = responses || [];
+      const easyMissed = resList.filter(
+        (r: any) => !r.is_correct && r.quiz_questions?.difficulty === 'easy'
+      ).length;
+      const mediumMissed = resList.filter(
+        (r: any) => !r.is_correct && r.quiz_questions?.difficulty === 'medium'
+      ).length;
+      const hardMissed = resList.filter(
+        (r: any) => !r.is_correct && r.quiz_questions?.difficulty === 'hard'
+      ).length;
+      const totalMissed = resList.filter((r: any) => !r.is_correct).length;
+      const totalQuestions = resList.length;
+
+      // Determine topic
+      let targetTopicId = quiz?.curriculum_topic_id;
+      const missedWithTopic = resList.find(
+        (r: any) => !r.is_correct && r.quiz_questions?.curriculum_topic_id
+      );
+      if (missedWithTopic) {
+        targetTopicId = (missedWithTopic as any).quiz_questions.curriculum_topic_id;
+      }
+
+      let topicTitle = quiz?.title || 'Subject Fundamentals';
+      if (targetTopicId) {
+        const { data: topic } = await supabaseAdmin
+          .from('curriculum_topics')
+          .select('id, title')
+          .eq('id', targetTopicId)
+          .maybeSingle();
+        if (topic?.title) topicTitle = topic.title;
+      }
+
+      // Mastery score
+      let masteryScore = 0.5;
+      if (targetTopicId) {
+        const { data: mast } = await supabaseAdmin
+          .from('student_topic_mastery')
+          .select('mastery_score')
+          .eq('student_id', studentId)
+          .eq('curriculum_topic_id', targetTopicId)
+          .maybeSingle();
+        if (mast?.mastery_score !== undefined) {
+          masteryScore = Number(mast.mastery_score);
+        }
+      }
+
+      // Check active insight
+      const { data: activeInsight } = await supabaseAdmin
+        .from('teacher_insights')
+        .select('*')
+        .eq('student_id', studentId)
+        .eq('teacher_subject_id', subjectId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Determine pedagogical mode & advice
+      let pedagogicalMode: PedagogicalMode = 'conceptual_reinforcement';
+      let urgency: 'high' | 'medium' | 'low' = 'medium';
+      let recommendationReason = '';
+      let speechBubblePrompt = '';
+      let openingPrompt = '';
+      let actionWidgets: Array<{ type: 'pill'; label: string; value: string }> = [];
+
+      if (easyMissed > 0) {
+        pedagogicalMode = 'foundational_assistance';
+        urgency = 'high';
+        recommendationReason = `You had difficulty with fundamental questions in ${quiz?.title || 'your recent quiz'}. Foundational personal assistance recommended.`;
+        speechBubblePrompt = `Study Recommended: ${topicTitle} — You had trouble with basic questions. Let's build your foundations together!`;
+        openingPrompt = `Hello! In your recent quiz on ${topicTitle}, you encountered some tricky foundational questions. Let's take it from first principles together. How would you describe the main purpose of ${topicTitle} in your own words?`;
+        actionWidgets = [
+          { type: 'pill', label: 'Start with the basics', value: 'Can you explain the basic definition in simple words?' },
+          { type: 'pill', label: 'Use a real-world analogy', value: 'Give me a real-world analogy to understand this.' },
+          { type: 'pill', label: 'Walk me step-by-step', value: 'Walk me through a simple example step by step.' },
+        ];
+      } else if (mediumMissed > 0) {
+        pedagogicalMode = 'conceptual_reinforcement';
+        urgency = 'medium';
+        recommendationReason = `You grasped the definitions well, but missed applied questions in ${quiz?.title || 'your recent quiz'}. Guided problem-solving recommended.`;
+        speechBubblePrompt = `Study Recommended: ${topicTitle} — Practice applied reasoning with your AI Tutor!`;
+        openingPrompt = `Hi! You have a solid grasp of the basics in ${topicTitle}, but hit some friction on multi-step applied questions. Where did you feel the most resistance during the quiz?`;
+        actionWidgets = [
+          { type: 'pill', label: 'Review application steps', value: 'How do I apply this concept to multi-step problems?' },
+          { type: 'pill', label: 'Practice similar scenario', value: 'Give me a practice scenario to work through.' },
+          { type: 'pill', label: 'Clarify tricky rules', value: 'What common pitfalls should I avoid here?' },
+        ];
+      } else if (hardMissed > 0) {
+        pedagogicalMode = 'advanced_challenge';
+        urgency = 'low';
+        recommendationReason = `Great work on the fundamentals! You only missed stretch/challenge questions in ${quiz?.title || 'your recent quiz'}. Edge-case mastery recommended.`;
+        speechBubblePrompt = `Level Up: ${topicTitle} — Master tricky edge cases & advanced problems!`;
+        openingPrompt = `Impressive work! You breezed through the foundational questions in ${topicTitle} and only hit resistance on the toughest challenge problems. Ready to dissect the subtle edge cases?`;
+        actionWidgets = [
+          { type: 'pill', label: 'Explore tricky edge cases', value: 'What are the most subtle edge cases for this topic?' },
+          { type: 'pill', label: 'Discuss performance tradeoffs', value: 'What are the performance tradeoffs here?' },
+          { type: 'pill', label: 'Challenge problem', value: 'Give me a hard challenge problem to solve.' },
+        ];
+      } else {
+        pedagogicalMode = 'socratic_mastery';
+        urgency = 'low';
+        recommendationReason = `Outstanding mastery across all question tiers in ${quiz?.title || 'your recent quiz'}! Socratic trade-off debate recommended.`;
+        speechBubblePrompt = `Top Performer: ${topicTitle} — Ready for architectural trade-off challenges?`;
+        openingPrompt = `Outstanding performance! You have strong mastery of ${topicTitle}. Let's push into real-world architecture and engineering trade-offs. What do you see as the biggest limitation of this approach?`;
+        actionWidgets = [
+          { type: 'pill', label: 'Real-world system tradeoffs', value: 'What system trade-offs do engineers face when using this?' },
+          { type: 'pill', label: 'Critique a flawed design', value: 'Give me a flawed design scenario to critique.' },
+          { type: 'pill', label: 'Advanced architectural questions', value: 'Ask me an advanced architecture design question.' },
+        ];
+      }
+
+      return {
+        hasRecommendation: true,
+        topicId: targetTopicId,
+        topicTitle,
+        quizTitle: quiz?.title || 'Recent Quiz',
+        pedagogicalMode,
+        urgency,
+        recommendationReason,
+        speechBubblePrompt,
+        openingPrompt,
+        actionWidgets,
+        difficultyBreakdown: {
+          easyMissed,
+          mediumMissed,
+          hardMissed,
+          totalMissed,
+          totalQuestions,
+        },
+        masteryScore,
+        activeInsight: activeInsight || null,
+      };
+    }
+
+    // Fallback if no quizzes taken yet
+    const { data: lowestMastery } = await supabaseAdmin
+      .from('student_topic_mastery')
+      .select('curriculum_topic_id, mastery_score, curriculum_topics (id, title)')
+      .eq('student_id', studentId)
+      .order('mastery_score', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    let fallbackTopicId = lowestMastery?.curriculum_topic_id;
+    let fallbackTopicTitle = (lowestMastery?.curriculum_topics as any)?.title;
+
+    if (!fallbackTopicId) {
+      const { data: firstTopic } = await supabaseAdmin
+        .from('curriculum_topics')
+        .select('id, title')
+        .eq('teacher_subject_id', subjectId)
+        .order('order_index', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      fallbackTopicId = firstTopic?.id;
+      fallbackTopicTitle = firstTopic?.title;
+    }
+
+    return {
+      hasRecommendation: Boolean(fallbackTopicId),
+      topicId: fallbackTopicId || null,
+      topicTitle: fallbackTopicTitle || 'Course Concepts',
+      quizTitle: null,
+      pedagogicalMode: 'conceptual_reinforcement' as PedagogicalMode,
+      urgency: 'medium' as const,
+      recommendationReason: 'Welcome! Start exploring your course concepts with the Socratic AI Tutor.',
+      speechBubblePrompt: fallbackTopicTitle
+        ? `Study Recommended: ${fallbackTopicTitle} — Get a head start with your Socratic AI Tutor!`
+        : 'Socratic AI Tutor Ready — Ask questions and practice your understanding!',
+      openingPrompt: `Hello! I'm your Socratic AI Tutor for this course. Would you like to explore ${fallbackTopicTitle || 'our key topics'} together?`,
+      actionWidgets: [
+        { type: 'pill', label: 'Start with the basics', value: 'Can you introduce the core concepts of this course?' },
+        { type: 'pill', label: 'Test my current understanding', value: 'Ask me a guiding question to test what I know.' },
+      ],
+      difficultyBreakdown: {
+        easyMissed: 0,
+        mediumMissed: 0,
+        hardMissed: 0,
+        totalMissed: 0,
+        totalQuestions: 0,
+      },
+      masteryScore: lowestMastery?.mastery_score ? Number(lowestMastery.mastery_score) : 0.5,
+      activeInsight: null,
+    };
+  }
+
+  /**
    * Helper to fetch conversation metadata and context
    */
   private async getConversationContext(conversationId: string, studentId: string, topicId?: string) {
@@ -180,18 +418,32 @@ export class TutorService {
       if (mastery) studentMasteryLevel = Number(mastery.mastery_score);
     }
 
-    return { conv, history, topicTitle, studentMasteryLevel };
+    // 3. Question difficulty diagnosis & pedagogical mode
+    let pedagogicalMode: PedagogicalMode | undefined;
+    let difficultyBreakdown: DifficultyBreakdown | undefined;
+
+    try {
+      const rec = await this.getDiagnosticRecommendation(studentId, conv.teacher_subject_id);
+      if (rec.hasRecommendation) {
+        pedagogicalMode = rec.pedagogicalMode;
+        difficultyBreakdown = rec.difficultyBreakdown;
+        if (!topicTitle && rec.topicTitle) {
+          topicTitle = rec.topicTitle;
+        }
+      }
+    } catch {
+      // Continue if diagnostic query encounters issues
+    }
+
+    return { conv, history, topicTitle, studentMasteryLevel, pedagogicalMode, difficultyBreakdown };
   }
 
   /**
    * Standard JSON turn in Socratic tutor dialogue (Method 2: Interactive Chat with Action Widgets)
    */
   async chatTurn(conversationId: string, studentId: string, input: SendMessageInput) {
-    const { conv, history, topicTitle, studentMasteryLevel } = await this.getConversationContext(
-      conversationId,
-      studentId,
-      input.curriculumTopicId
-    );
+    const { conv, history, topicTitle, studentMasteryLevel, pedagogicalMode, difficultyBreakdown } =
+      await this.getConversationContext(conversationId, studentId, input.curriculumTopicId);
 
     // Save student message to tutor_messages
     await supabaseAdmin
@@ -240,6 +492,8 @@ export class TutorService {
       contextNotes,
       topicTitle,
       studentMasteryLevel,
+      pedagogicalMode,
+      difficultyBreakdown,
       activeGapDescription: activeInsight ? activeInsight.description : undefined,
     });
 
@@ -328,11 +582,8 @@ export class TutorService {
    * Real-time Server-Sent Events (SSE) streaming turn
    */
   async streamChatTurn(conversationId: string, studentId: string, input: SendMessageInput, res: Response) {
-    const { conv, history, topicTitle, studentMasteryLevel } = await this.getConversationContext(
-      conversationId,
-      studentId,
-      input.curriculumTopicId
-    );
+    const { conv, history, topicTitle, studentMasteryLevel, pedagogicalMode, difficultyBreakdown } =
+      await this.getConversationContext(conversationId, studentId, input.curriculumTopicId);
 
     // Save student message
     await supabaseAdmin
@@ -372,6 +623,8 @@ export class TutorService {
         contextNotes,
         topicTitle,
         studentMasteryLevel,
+        pedagogicalMode,
+        difficultyBreakdown,
       });
 
       for await (const chunk of generator) {

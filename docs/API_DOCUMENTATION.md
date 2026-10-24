@@ -596,7 +596,42 @@ Content-Type: application/json
 }
 ```
 
-#### 6.3 List Student's Conversations for Subject
+#### 6.3 Get Adaptive Diagnostic Study Recommendation
+- **Method & Path**: `GET /api/v1/tutor/recommendations/:subjectId`
+- **Access**: Enrolled student member of `:subjectId`
+- **Description**: Evaluates the student's latest quiz attempt responses across question difficulties (`easy`, `medium`, `hard`) and mastery scores. Dynamically selects the appropriate pedagogical persona (`foundational_assistance`, `conceptual_reinforcement`, `advanced_challenge`, `socratic_mastery`) and generates proactive remediation prompts and interactive action widgets.
+- **Response `200 OK`**:
+```json
+{
+  "success": true,
+  "data": {
+    "hasRecommendation": true,
+    "topicId": "165ba949-d5da-459b-80dd-b793ad8b335c",
+    "topicTitle": "Relational Normalization (1NF, 2NF, 3NF)",
+    "quizTitle": "DBMS Quiz #1",
+    "pedagogicalMode": "foundational_assistance",
+    "urgency": "high",
+    "recommendationReason": "You had difficulty with fundamental questions in DBMS Quiz #1. Foundational personal assistance recommended.",
+    "speechBubblePrompt": "Study Recommended: Relational Normalization — You had trouble with basic questions. Let's build your foundations together!",
+    "openingPrompt": "Hello! In your recent quiz on Relational Normalization, you encountered some tricky foundational questions. Let's take it from first principles together.",
+    "actionWidgets": [
+      { "type": "pill", "label": "Start with the basics", "value": "Can you explain the basic definition in simple words?" },
+      { "type": "pill", "label": "Use a real-world analogy", "value": "Give me a real-world analogy to understand this." }
+    ],
+    "difficultyBreakdown": {
+      "easyMissed": 1,
+      "mediumMissed": 1,
+      "hardMissed": 0,
+      "totalMissed": 2,
+      "totalQuestions": 5
+    },
+    "masteryScore": 0.45,
+    "activeInsight": null
+  }
+}
+```
+
+#### 6.4 List Student's Conversations for Subject
 - **Method & Path**: `GET /api/v1/tutor/conversations/:subjectId`
 - **Access**: Enrolled student
 

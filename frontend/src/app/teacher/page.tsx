@@ -25,7 +25,7 @@ export default function TeacherPage() {
   const [createSubjectOpen, setCreateSubjectOpen] = useState(false);
   const [subjectTitle, setSubjectTitle] = useState('');
   const [academicYear, setAcademicYear] = useState('2025-2026');
-  const [className, setClassName] = useState('Section Alpha');
+  const [className, setClassName] = useState('Section A');
   const [creating, setCreating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -265,7 +265,7 @@ export default function TeacherPage() {
                     required
                     value={className}
                     onChange={(e) => setClassName(e.target.value)}
-                    placeholder="Section Alpha"
+                    placeholder="Section 1"
                     className="w-full px-4 py-2.5 neu-input placeholder:text-[#666666] text-sm text-white"
                   />
                 </div>

@@ -26,6 +26,15 @@ router.get(
   tutorController.getActiveSubjectConversation
 );
 
+// Get adaptive diagnostic recommendation based on quiz difficulty & mastery
+router.get(
+  '/recommendations/:subjectId',
+  requireAuth,
+  requireRole(['student']),
+  requireSubjectMembership('member'),
+  tutorController.getRecommendation
+);
+
 // List student's conversations for a subject
 router.get(
   '/conversations/:subjectId',

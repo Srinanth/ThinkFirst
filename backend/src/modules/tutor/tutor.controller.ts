@@ -33,6 +33,18 @@ export class TutorController {
     }
   }
 
+  async getRecommendation(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const rec = await tutorService.getDiagnosticRecommendation(
+        req.user!.id,
+        req.params.subjectId as string
+      );
+      sendSuccess(res, rec);
+    } catch (err) {
+      next(err);
+    }
+  }
+
   async getMessages(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const messages = await tutorService.getMessages(req.params.conversationId as string);

@@ -131,10 +131,39 @@ async function fetchWithAuth<T>(
   return json.data;
 }
 
+export interface TutorRecommendation {
+  hasRecommendation: boolean;
+  topicId: string | null;
+  topicTitle: string;
+  quizTitle: string | null;
+  pedagogicalMode:
+    | 'foundational_assistance'
+    | 'conceptual_reinforcement'
+    | 'advanced_challenge'
+    | 'socratic_mastery';
+  urgency: 'high' | 'medium' | 'low';
+  recommendationReason: string;
+  speechBubblePrompt: string;
+  openingPrompt: string;
+  actionWidgets: ActionWidget[];
+  difficultyBreakdown: {
+    easyMissed: number;
+    mediumMissed: number;
+    hardMissed: number;
+    totalMissed: number;
+    totalQuestions: number;
+  };
+  masteryScore: number;
+  activeInsight?: any;
+}
+
 // ============================================================================
 // AI TUTOR API (Method 2: Interactive Action Widgets)
 // ============================================================================
 export const tutorApi = {
+  getRecommendation: (subjectId: string) =>
+    fetchWithAuth<TutorRecommendation>(`/tutor/recommendations/${subjectId}`),
+
   getActiveConversation: (subjectId: string) =>
     fetchWithAuth<{
       conversation: { id: string; title: string; session_type: string; updated_at: string };

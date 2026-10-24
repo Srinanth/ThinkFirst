@@ -13,7 +13,7 @@ import {
   Award,
   Zap,
 } from 'lucide-react';
-import { tutorApi, ActionWidget } from '@/lib/api';
+import { tutorApi, ActionWidget, TutorRecommendation } from '@/lib/api';
 
 export interface ChatMessage {
   id: string;
@@ -100,6 +100,7 @@ export default function AiTutorDrawer({
   const [dismissBubble, setDismissBubble] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [activeMission, setActiveMission] = useState<RemediationMissionData | null>(initialMission);
+  const [recommendation, setRecommendation] = useState<TutorRecommendation | null>(null);
   const [masteryLevel, setMasteryLevel] = useState<number>(45);
   const [isResolved, setIsResolved] = useState<boolean>(false);
   const msgCountRef = useRef(10);
@@ -169,6 +170,26 @@ export default function AiTutorDrawer({
       isCurrent = false;
     };
   }, [subjectId, currentCourse, studentName]);
+
+  // Fetch adaptive recommendation based on student's quiz performance & question difficulty
+  useEffect(() => {
+    let isCurrent = true;
+    if (!subjectId) return;
+
+    tutorApi
+      .getRecommendation(subjectId)
+      .then((rec) => {
+        if (!isCurrent || !rec) return;
+        setRecommendation(rec);
+      })
+      .catch((err) => {
+        console.warn('Tutor recommendation fetch error:', err);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [subjectId]);
 
   // Handle incoming remediation mission from Quiz Evaluator Agent
   useEffect(() => {
@@ -333,6 +354,29 @@ export default function AiTutorDrawer({
     onClose?.();
   };
 
+  const handleOpenWithRecommendation = () => {
+    if (recommendation?.openingPrompt && messages.length <= 1) {
+      msgCountRef.current += 1;
+      setMessages([
+        {
+          id: `rec-msg-${msgCountRef.current}`,
+          sender: 'tutor',
+          text: recommendation.openingPrompt,
+          timestamp: 'Just now',
+          contextTag: recommendation.topicTitle,
+          actionWidgets:
+            recommendation.actionWidgets && recommendation.actionWidgets.length > 0
+              ? recommendation.actionWidgets
+              : [
+                  { type: 'pill', label: 'Start with basics', value: 'basics' },
+                  { type: 'pill', label: 'Give me an analogy', value: 'analogy' },
+                ],
+        },
+      ]);
+    }
+    setIsOpen(true);
+  };
+
   if (isQuizActive || !isVisible) {
     return null;
   }
@@ -344,16 +388,50 @@ export default function AiTutorDrawer({
         <div className="fixed bottom-6 right-6 z-40 flex items-center gap-3">
           {!dismissBubble && (
             <div
-              onClick={() => setIsOpen(true)}
-              className="hidden sm:flex items-center gap-2.5 px-3.5 py-2 rounded-2xl neu-card-sm border border-white/10 shadow-[0_8px_20px_rgba(0,0,0,0.5)] cursor-pointer hover:scale-102 transition-all duration-200 animate-bounce group relative text-white"
+              onClick={handleOpenWithRecommendation}
+              className="hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-2xl neu-card-sm border border-white/10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] cursor-pointer hover:scale-102 transition-all duration-200 group relative text-white max-w-sm"
             >
-              <div className="w-2 h-2 rounded-full bg-white shadow-[0_0_8px_white] animate-ping shrink-0" />
-              <div className="text-left">
-                <p className="text-[11px] font-bold text-white group-hover:text-white transition-colors leading-tight">
-                  {activeMission ? `Fix Gap: ${activeMission.title}` : 'Socratic AI Tutor Ready'}
+              <div
+                className={`w-2.5 h-2.5 rounded-full shrink-0 animate-ping ${
+                  recommendation?.pedagogicalMode === 'foundational_assistance'
+                    ? 'bg-amber-400 shadow-[0_0_8px_#f59e0b]'
+                    : recommendation?.pedagogicalMode === 'advanced_challenge'
+                    ? 'bg-purple-400 shadow-[0_0_8px_#c084fc]'
+                    : recommendation?.pedagogicalMode === 'socratic_mastery'
+                    ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]'
+                    : 'bg-[#3A86FF] shadow-[0_0_8px_#3A86FF]'
+                }`}
+              />
+              <div className="text-left flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                      recommendation?.pedagogicalMode === 'foundational_assistance'
+                        ? 'bg-amber-500/20 text-amber-300'
+                        : recommendation?.pedagogicalMode === 'advanced_challenge'
+                        ? 'bg-purple-500/20 text-purple-300'
+                        : recommendation?.pedagogicalMode === 'socratic_mastery'
+                        ? 'bg-emerald-500/20 text-emerald-300'
+                        : 'bg-[#3A86FF]/20 text-[#3A86FF]'
+                    }`}
+                  >
+                    {recommendation?.pedagogicalMode === 'foundational_assistance'
+                      ? 'Study Recommended (Foundational)'
+                      : recommendation?.pedagogicalMode === 'advanced_challenge'
+                      ? 'Challenge Mode'
+                      : recommendation?.pedagogicalMode === 'socratic_mastery'
+                      ? 'Socratic Mastery'
+                      : 'Recommended Study'}
+                  </span>
+                </div>
+                <p className="text-[11px] font-bold text-white group-hover:text-[#3A86FF] transition-colors leading-tight mt-1 truncate">
+                  {recommendation?.topicTitle || activeMission?.title || 'Socratic AI Tutor Ready'}
                 </p>
-                <p className="text-[10px] text-[#9e9e9e] font-semibold">
-                  Tap to practice with action pills &rarr;
+                <p className="text-[10px] text-[#9e9e9e] font-medium leading-snug line-clamp-2 mt-0.5">
+                  {recommendation?.speechBubblePrompt ||
+                    (activeMission
+                      ? `Focus: ${activeMission.diagnosedGap}`
+                      : 'Tap to practice with action pills &rarr;')}
                 </p>
               </div>
 
@@ -363,10 +441,10 @@ export default function AiTutorDrawer({
                   e.stopPropagation();
                   setDismissBubble(true);
                 }}
-                className="text-[#757575] hover:text-white ml-1 p-0.5 rounded cursor-pointer"
+                className="text-[#757575] hover:text-white ml-1 p-0.5 rounded cursor-pointer self-start"
                 title="Dismiss hint"
               >
-                <X className="w-3 h-3" />
+                <X className="w-3.5 h-3.5" />
               </button>
 
               <div className="absolute top-1/2 -right-1.5 -translate-y-1/2 w-3 h-3 bg-[#262626] border-t border-r border-white/20 rotate-45" />
@@ -374,7 +452,7 @@ export default function AiTutorDrawer({
           )}
 
           <button
-            onClick={() => setIsOpen(true)}
+            onClick={handleOpenWithRecommendation}
             aria-label="Open Socratic AI Tutor"
             className="neu-btn-white flex items-center gap-2.5 px-4.5 py-3 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-transform shadow-[0_8px_24px_rgba(255,255,255,0.2)] text-black"
           >
@@ -386,7 +464,13 @@ export default function AiTutorDrawer({
               <Sparkles className="w-3.5 h-3.5 text-black" />
             </div>
             <span className="text-xs font-black tracking-tight text-black">
-              {activeMission ? 'Fix Gap (Tutor)' : 'AI Tutor'}
+              {activeMission
+                ? 'Fix Gap (Tutor)'
+                : recommendation?.pedagogicalMode === 'foundational_assistance'
+                ? 'Study Weak Topic'
+                : recommendation?.pedagogicalMode === 'advanced_challenge'
+                ? 'Tackle Challenge'
+                : 'AI Tutor'}
             </span>
           </button>
         </div>
@@ -469,6 +553,74 @@ export default function AiTutorDrawer({
                   {isResolved ? 'Concept Mastered' : 'Active Discussion'}
                 </span>
               </div>
+            </div>
+          )}
+
+          {/* Adaptive Question-Difficulty Diagnostic Banner */}
+          {recommendation && !activeMission && (
+            <div className="px-4 py-3 bg-[#1e1e1e] border-b border-white/10 text-xs shrink-0 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-white font-black">
+                  <BookOpen className="w-3.5 h-3.5 text-[#3A86FF]" />
+                  <span className="truncate max-w-[200px]">{recommendation.topicTitle}</span>
+                </div>
+                <span
+                  className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    recommendation.pedagogicalMode === 'foundational_assistance'
+                      ? 'bg-amber-500/20 text-amber-300'
+                      : recommendation.pedagogicalMode === 'advanced_challenge'
+                      ? 'bg-purple-500/20 text-purple-300'
+                      : recommendation.pedagogicalMode === 'socratic_mastery'
+                      ? 'bg-emerald-500/20 text-emerald-300'
+                      : 'bg-[#3A86FF]/20 text-[#3A86FF]'
+                  }`}
+                >
+                  {recommendation.pedagogicalMode === 'foundational_assistance'
+                    ? 'Foundational Scaffolding'
+                    : recommendation.pedagogicalMode === 'advanced_challenge'
+                    ? 'Stretch Challenge'
+                    : recommendation.pedagogicalMode === 'socratic_mastery'
+                    ? 'Socratic Mastery'
+                    : 'Guided Practice'}
+                </span>
+              </div>
+              <p className="text-[11px] text-[#9e9e9e] leading-relaxed">
+                {recommendation.recommendationReason}
+              </p>
+              {recommendation.difficultyBreakdown?.totalQuestions > 0 && (
+                <div className="flex items-center gap-2 pt-1 text-[10px] text-[#757575]">
+                  <span>Difficulty breakdown:</span>
+                  <span
+                    className={
+                      recommendation.difficultyBreakdown.easyMissed > 0
+                        ? 'text-amber-400 font-bold'
+                        : ''
+                    }
+                  >
+                    {recommendation.difficultyBreakdown.easyMissed} missed easy
+                  </span>
+                  &bull;
+                  <span
+                    className={
+                      recommendation.difficultyBreakdown.mediumMissed > 0
+                        ? 'text-blue-400 font-bold'
+                        : ''
+                    }
+                  >
+                    {recommendation.difficultyBreakdown.mediumMissed} missed med
+                  </span>
+                  &bull;
+                  <span
+                    className={
+                      recommendation.difficultyBreakdown.hardMissed > 0
+                        ? 'text-purple-400 font-bold'
+                        : ''
+                    }
+                  >
+                    {recommendation.difficultyBreakdown.hardMissed} missed hard
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
